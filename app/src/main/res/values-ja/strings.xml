@@ -1045,4 +1045,10 @@
     <string name="share_cover">シェアカバー</string>
     <string name="save_pages_separately">ページを別々のフォルダに保存する</string>
     <string name="create_folders_by_manga_title">マンガのタイトルに合わせてフォルダを作成</string>
+    <string name="confirm_repo_deletion">リポジトリを削除</string>
+    <string name="delete_repo_confirmation">リポジトリ「%s」を削除してもよろしいですか？</string>
+    <string name="action_add_repo">リポジトリを追加</string>
+    <string name="invalid_repo_name">リポジトリ名が無効です</string>
+    <string name="snack_repo_deleted">リポジトリを削除しました</string>
+    <string name="extension_repos">拡張リポジトリ</string>
 </resources>

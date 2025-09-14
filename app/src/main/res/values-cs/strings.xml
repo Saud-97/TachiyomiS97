@@ -56,11 +56,9 @@
     <string name="untrusted">Nedůvěryhodné</string>
     <string name="uninstall">Odinstalovat</string>
     <string name="untrusted_extension">Nedůvěryhodné rozšíření</string>
-    <string name="untrusted_extension_message">Toto rozšíření bylo podepsané nedůvěryhodným certifikátem a nebylo aktivované.
+    <string name="untrusted_extension_message">Škodlivá rozšíření můžou přečíst přihlašovací údaje nebo spustit libovolný kód.
 \n
-\nŠkodlivé rozšíření může přečíst přihlašovací údaje uložené v Tachiyomi nebo spustit libovolný kód.
-\n
-\nDůvěřováním tomuto certifikátu přijímáte tato rizika.</string>
+\nDůvěřováním tomuto rozšíření přijímáte tato rizika.</string>
     <string name="version_">Verze: %1$s</string>
     <string name="language_">Jazyk: %1$s</string>
     <string name="fullscreen">Celá obrazovka</string>
@@ -1099,4 +1097,22 @@
     <string name="ext_installer_summary">Umožňuje aby rozšíření byly nainstalovány bez zásahu uživatele a povoluje automatické aktualizace pro zařízení se systémem nižším než Android 12</string>
     <string name="share_cover">Sdílet obálku</string>
     <string name="create_folders_by_manga_title">Vytvoří složky podle názvu mangy</string>
+    <string name="extension_api_error">Nepodařilo se načíst dostupná rozšíření</string>
+    <string name="open_source_repo">Open source repozitář</string>
+    <string name="action_add_repo">Přidat repozitář</string>
+    <string name="action_add_repo_message">Přidat další repozitáře do Tachiyomi. Měli by to být URL končící \"index.min.json\"</string>
+    <string name="ext_revoke_trust">Zrušit důvěryhodná neznámá rozšíření</string>
+    <string name="extension_repos">Repozitáře rozšíření</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d repozitář</item>
+        <item quantity="few">%d repozitáře</item>
+        <item quantity="other">%d repozitářů</item>
+    </plurals>
+    <string name="error_repo_exists">Tento repozitář již existuje!</string>
+    <string name="repo_cannot_be_blank">Název repozitáře nemůže být prázdné</string>
+    <string name="snack_repo_deleted">Repozitář odstraněn</string>
+    <string name="invalid_repo_name">Neplatný název repozitáře</string>
+    <string name="confirm_repo_deletion">Odstranit repozitář</string>
+    <string name="delete_repo_confirmation">Přejete si odstranit repozitář \"%s\"?</string>
+    <string name="url_not_set_click_again">URL repozitáře není nastavena, upravte prosím URL</string>
 </resources>

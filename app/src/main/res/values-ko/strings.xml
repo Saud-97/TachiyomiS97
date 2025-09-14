@@ -192,7 +192,7 @@
     <string name="current_chapter">현재:</string>
     <string name="next_title">다음:</string>
     <string name="previous_title">이전:</string>
-    <string name="theres_no_next_chapter">다움 챕터가 없습니다</string>
+    <string name="theres_no_next_chapter">다음 챕터가 없습니다</string>
     <string name="theres_no_previous_chapter">이전 챕터가 없습니다</string>
     <string name="loading_pages">페이지 로딩중…</string>
     <string name="failed_to_load_pages_">페이지 로딩 실패: %1$s</string>
@@ -621,11 +621,11 @@
     <string name="download_notifier_split_page_not_found">분리 중 페이지 %d을 찾을 수 없습니다</string>
     <string name="reset_all_chapters_for_this_">이 %1$s의 모든 장 재설정</string>
     <string name="last_read_">마지막으로 읽은 %1$s</string>
-    <string name="read_">%1$s 읽기</string>
+    <string name="read_">%1$s 읽음</string>
     <string name="updated_">%1$s 업데이트됨</string>
     <string name="newly_added">새로 추가됨</string>
     <string name="this_will_remove_the_read_date_for_x_question">\"%1$s\"의 읽은 날짜가 제거됩니다. 확실합니까\?</string>
-    <string name="read_progress">진행 상황 읽기</string>
+    <string name="read_progress">읽기 진행 상황</string>
     <string name="can_be_found_in_library_filters">라이브러리 필터에서도 사용 가능합니다</string>
     <string name="recents">신간</string>
     <string name="updates_and_history">업데이트 및 기록</string>
@@ -640,7 +640,7 @@
     <string name="shift_double_pages">이중 페이지 이동</string>
     <string name="category_hopper_long_press">Category 카테고리 호퍼 길게 누르기 동작</string>
     <string name="certain_buttons_can_be_found">여기에서 비활성화된 경우 특정 버튼은 다른 위치에서 찾을 수 있습니다</string>
-    <string name="search_globally">전 세계적으로 \"%1$s\" 검색</string>
+    <string name="search_globally">\"%1$s\" 전역 검색</string>
     <string name="no_recent_read_updated_manga">최근에 읽거나 업데이트된 만화가 없습니다</string>
     <string name="grouped">그룹화</string>
     <string name="added_">%1$s 추가됨</string>
@@ -667,7 +667,7 @@
     <string name="extensions_miui_warning">MIUI 최적화를 비활성화한 후 확장 기능을 설치하십시오.</string>
     <string name="_must_be_enabled_first">%1$s를 먼저 사용하도록 설정해야 합니다</string>
     <string name="could_not_install_extension">확장 앱을 설치할 수 없습니다</string>
-    <string name="reading_">읽기 %1$s</string>
+    <string name="reading_">%1$s 읽는 중</string>
     <string name="webtoon_style">웹툰 스타일</string>
     <string name="save_second_page">두 번째 페이지 저장</string>
     <string name="share_combined_pages">결합된 페이지 공유</string>
@@ -686,7 +686,7 @@
     <string name="search_extensions">확장 앱 검색…</string>
     <string name="some_extensions_may_prompt">일부 확장 앱은 여전히 먼저 설치하라는 메시지가 표시될 수 있습니다.</string>
     <string name="updating_extensions">확장 앱 업데이트</string>
-    <string name="amount_of_pages_to_preload">읽을 때 미리 로드할 페이지의 수입니다. 높을수록 더 부드러운 읽기 환경이 만들어지자먼 캐시 및 네트워크 사용량이 높아집니다.</string>
+    <string name="amount_of_pages_to_preload">읽을 때 미리 로드할 페이지의 수입니다. 높을수록 더 부드러운 읽기 환경이 만들어지지만, 캐시 및 네트워크 사용량이 높아집니다.</string>
     <string name="invert_double_pages">이중 페이지 반전</string>
     <string name="sort_fetched_time">가져온 시간별로 정렬</string>
     <plurals name="_updates_pending">
@@ -788,7 +788,7 @@
     <string name="include_extra_search_parameter">검색 시 추가 검색 매개 변수 포함</string>
     <string name="migrate_">%1$s 마이그레이션</string>
     <string name="locale">로캘</string>
-    <string name="search_parameter_eg">검색 매개 변수(예: 언어:영어)</string>
+    <string name="search_parameter_eg">검색 매개 변수(예: language:english)</string>
     <string name="migrate_now">지금 마이그레이션</string>
     <string name="copy_now">지금 복사</string>
     <string name="turn_on_">%s 켜기</string>
@@ -932,7 +932,7 @@
     <string name="mark_previous_as_unread">이전 챕터를 읽지 않은 것으로 표시</string>
     <string name="menu">메뉴</string>
     <string name="recently_updated">최근 업데이트</string>
-    <string name="search_">검색 %1$s</string>
+    <string name="search_">%1$s 검색</string>
     <string name="sort_and_filter">정렬 및 필터</string>
     <string name="username_must_not_be_blank">사용자 이름 또는 암호는 비워 둘 수 없습니다</string>
     <string name="automatic_removal">자동 제거</string>

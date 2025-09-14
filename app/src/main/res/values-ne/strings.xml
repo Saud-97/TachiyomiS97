@@ -96,7 +96,7 @@
     <string name="local">लोकल</string>
     <string name="date_added">राखिएको मिती</string>
     <string name="last_read">अन्तिम पढिएको</string>
-    <string name="latest_chapter">सबैभन्दा नयाँ अध्याय</string>
+    <string name="latest_chapter">नवीनतम अध्याय</string>
     <string name="list">सूची</string>
     <string name="cover_only_grid">आवरण मात्र ग्रिड</string>
     <string name="new_chapters_found">नयाँ अध्यायहरू फेला पर्यो</string>
@@ -119,7 +119,7 @@
     <string name="other">अन्य</string>
     <string name="global_search">ग्लोबल खोज…</string>
     <string name="label_global_search">ग्लोबल खोज</string>
-    <string name="latest">सबैभन्दा नयाँ</string>
+    <string name="latest">नवीनतम</string>
     <string name="popular">लोकप्रिय</string>
     <string name="browse">ब्राउज</string>
     <string name="last_used">पछिल्लो पटक प्रयोग गरिएको</string>
@@ -138,11 +138,9 @@
     <string name="ext_installer_shizuku_stopped">Shizuku चलिरहेको छैन</string>
     <string name="ext_installer_shizuku_unavailable_dialog">Shizuku लाई एक्सटेन्शन इंस्टलरको रूपमा प्रयोग गर्न Shizuku स्थापना गर्नुहोस् र सुरु गर्नुहोस्।</string>
     <string name="untrusted_extension">अविश्वसनीय एक्सटेन्शन</string>
-    <string name="untrusted_extension_message">यो एक्सटेन्शन एक अविश्वसनीय प्रमाणपत्र संग हस्ताक्षर गरिएको थियो र सक्रिय गरिएको थिएन।
+    <string name="untrusted_extension_message">मालिसियस एक्स्टेन्शनहरूले कुनै पनि भण्डारण लगइन प्रमाणहरू पढ्न वा स्वेच्छाचारी कोड कार्यान्वयन गर्न सक्छन्।
 \n
-\nएउटा खराब एक्सटेन्शनले ताचियोमीमा भण्डारण गरिएका कुनै पनि लगइन प्रमाणहरू पढ्न वा स्वेच्छाचारी कोड कार्यान्वयन गर्न सक्छ।
-\n
-\nयस प्रमाणपत्रमा विश्वास गरेर तपाईंले यी जोखिमहरू स्वीकार गर्नुहुन्छ।</string>
+\nयस एक्स्टेन्शनलाई विश्वास गरेर, तपाइँ यी जोखिमहरू स्वीकार गर्नुहुन्छ।</string>
     <string name="nsfw_short">१८+</string>
     <string name="app_info">एप जानकारी</string>
     <string name="update_all">सबै अपडेट गर्नुहोस्</string>
@@ -1072,4 +1070,21 @@
     <string name="share_cover">आवरण साझा गर्नुहोस्</string>
     <string name="save_pages_separately">फरक फोल्डरमा पृष्ठहरू सेभ गर्नुहोस्</string>
     <string name="create_folders_by_manga_title">माङ्गा शीर्षक अनुसार फोल्डरहरू सिर्जना गर्दछ</string>
+    <string name="extension_api_error">उपलब्ध एक्स्टेन्शनहरू ल्याउन असफल भयो</string>
+    <string name="snack_repo_deleted">रेपो हटाईयो</string>
+    <string name="open_source_repo">खुला स्रोत रेपो</string>
+    <string name="extension_repos">एक्स्टेन्शन रेपो</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d रेपो</item>
+        <item quantity="other">%d रेपो</item>
+    </plurals>
+    <string name="repo_cannot_be_blank">रेपो नाम खाली हुन सक्दैन</string>
+    <string name="invalid_repo_name">रेपो को नाम अवैध छ</string>
+    <string name="delete_repo_confirmation">के तपाइँ \"%s\" रेपो हटाउन चाहनुहुन्छ?</string>
+    <string name="ext_revoke_trust">विश्वसनीय अज्ञात एक्स्टेन्शनहरू रद्द गर्नुहोस्</string>
+    <string name="action_add_repo">रेपो थप्नुहोस्</string>
+    <string name="action_add_repo_message">Tachiyomi मा थप रेपो थप्नुहोस्। URL को अन्त्यमा \"index.min.json\" हुनुपर्छ</string>
+    <string name="error_repo_exists">यो रेपो पहिले नै अवस्थित छ!</string>
+    <string name="confirm_repo_deletion">रेपो हटाउनुहोस्</string>
+    <string name="url_not_set_click_again">रेपो URL सेट गरिएको छैन, कृपया URL सम्पादन गर्नुहोस्</string>
 </resources>

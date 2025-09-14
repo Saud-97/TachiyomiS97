@@ -14,9 +14,7 @@
     <string name="show_number_of_items">საგნების რაოდენობის ჩვენება</string>
     <string name="date_added">დამატების თარიღი</string>
     <string name="global_search">გლობალური ძებნა…</string>
-    <string name="untrusted_extension_message">ეს დამატება ხელმოწერილია უცნობი სერთიფიკატის მიერ და არ არის აქტივირებული.
-\n
-\nმავნე დამატებას შეუძლია წაიკითხოს შესვლის მონაცემები შენახული ამ აპლიკაციაში ან გაუშვას თავისი კოდი.
+    <string name="untrusted_extension_message">მავნე დამატებას შეუძლია წაიკითხოს შესვლის მონაცემები შენახული ამ აპლიკაციაში ან გაუშვას თავისი კოდი.
 \n
 \nამ სერტიფიკატის ნდობით თქვენ თქვენს თავზე იღებთ რისკებს და პასუხისმგებლობას.</string>
     <string name="obsolete_extension_message">დამატება აღარ არის ხელმისაწვდომი.</string>

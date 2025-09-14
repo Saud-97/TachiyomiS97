@@ -15,7 +15,7 @@
         <item quantity="one">%1$s kabanata</item>
         <item quantity="other">%1$s (na) kabanata</item>
     </plurals>
-    <string name="unread">Di pa nabasa</string>
+    <string name="unread">Hindi pa nabasa</string>
     <string name="chapter_">Kabanata %1$s</string>
     <string name="bookmarked">Tinandaan</string>
     <string name="categories">Kategorya</string>
@@ -163,11 +163,9 @@
     <string name="untrusted">Di tiwala</string>
     <string name="uninstall">I-uninstall</string>
     <string name="untrusted_extension">Di-pinagkakatiwalaang extension</string>
-    <string name="untrusted_extension_message">Pinirmahan ang extension na ito gamit ang isang di-pinagkatilawaang certificate at hindi muna pinagana.
+    <string name="untrusted_extension_message">Maaaring basahin ng mga mapanganib na extension ang anumang nakaimbak na kredensyal sa pag-log in o magsagawa ng arbitrary code.
 \n
-\nMaaaring mabasa ng isang malisyong extension ang kahit anong mga kredensiyal sa pag-login na nakatago sa Tachiyomi o magsimula ng delikadong code.
-\n
-\nTinatanggap mo ang mga bantang ito sa pagtiwala sa certificate na ito.</string>
+\nSa pamamagitan ng pagtitiwala sa extension na ito, tinatanggap mo ang mga panganib na ito.</string>
     <string name="obsolete_extension_message">Ang extension na ito ay di na magagamit.</string>
     <string name="version_">Bersyon: %1$s</string>
     <string name="language_">Wika: %1$s</string>
@@ -316,7 +314,7 @@
     <string name="chapter_not_found">Hindi makita ang kabanata</string>
     <string name="chapters_removed">Natanggal na ang mga kabanata.</string>
     <string name="removed_bookmark">Tanggalin ang pananda</string>
-    <string name="marked_as_unread">Markahang babasahin</string>
+    <string name="marked_as_unread">Markahang hindi pa nababasa</string>
     <string name="marked_as_read">Markahang nabasa</string>
     <string name="all_chapters_read">Nabasa na lahat</string>
     <string name="chapter_x_of_y">Kabanata %1$d ng %2$d</string>
@@ -328,7 +326,7 @@
     <string name="artist">Gumuhit</string>
     <string name="read">Nabasa Na</string>
     <string name="in_progress">Binabasa</string>
-    <string name="not_started">Di pa nasimulan</string>
+    <string name="not_started">Hindi pa nasimulan</string>
     <string name="comic">Komiks</string>
     <string name="manhua">Manhua</string>
     <string name="manhwa">Manhwa</string>
@@ -612,10 +610,10 @@
         <item quantity="one">Para sa %d serye</item>
         <item quantity="other">Para sa %d (na) serye</item>
     </plurals>
-    <string name="external_storage_download_notice">Kailangan ng TachiyomiS97 ng access sa lahat ng mga file para maka-download ng mga kabanata. Pakipindot ito, tapos pakibuksan ang \"Payagan ang pamamahala ng lahat ng file.\"</string>
-    <string name="external_storage_permission_notice">Ang TachiyomiS97 ay nangangailangan ng access sa lahat ng mga file sa Android 11 upang mag-download ng mga kabanata, gumawa ng mga awtomatikong pag-backup, at magbasa ng lokal na serye.
+    <string name="external_storage_download_notice">Kinakailangan ng TachiyomiS97 ng pahintulot sa lahat ng mga file para maka-download ng mga kabanata. Pakipindot ito, tapos pakibuksan ang \"Payagan ang pamamahala ng lahat ng file.\"</string>
+    <string name="external_storage_permission_notice">Ang TachiyomiS97 ay nangangailangan ng pahintulot sa lahat ng mga file sa Android 11 upang mag-download ng mga kabanata, gumawa ng mga awtomatikong pag-backup, at magbasa ng lokal na serye.
 \n
-\nSa susunod na screen, buksan ang \"Payagan ang pag-access upang pamahalaan ang lahat ng mga file.\"</string>
+\nSa susunod na pahina, pindutin ang \"Payagan ang pag-access upang pamahalaan ang lahat ng mga file.\"</string>
     <string name="all_files_permission_required">Kailangan ng permiso sa file</string>
     <string name="when_sorting_ignore_articles">Kapag nag-uuri ayon sa alpabeto, pag-uri-uriin ang hindi pinapansin ang mga artikulo (a, an, the) sa simula ng pamagat ng serye</string>
     <string name="sort_by_ignoring_articles">Ayusin nang binabalewala ang mga article</string>
@@ -713,7 +711,7 @@
     <string name="publishing_finished">Tapos na\'ng mailathala</string>
     <string name="enhanced_services">Pinahusay na serbisyo</string>
     <string name="cancelled">Kinansela</string>
-    <string name="on_hiatus">Naka-hiatus</string>
+    <string name="on_hiatus">Nakatigil</string>
     <string name="tracking_info">Isahang pagsabay (sync) para mai-update ang progress sa mga kabanata sa mga tracking service. Ayusin ang pagta-track para sa mga indibidwal na entry gamit ang button na Pagta-track.</string>
     <string name="enhanced_tracking_info">Mga serbisyong nagbibigay ng mga pinahusay na mga feature para sa ilang mga source. Awtomatikong tina-track ang mga entry kapag dinagdag ito sa Aklatan mo.</string>
     <string name="notification_size_warning">Ang malalaking update ay maaaring humantong sa pagtaas ng paggamit ng baterya at nagiging mas mabagal ang mga source. I-tap para matuto pa.</string>
@@ -1073,4 +1071,21 @@
     <string name="apply">Gamitin</string>
     <string name="save_pages_separately">I-save ang mga pahina sa magkahiwalay na folder</string>
     <string name="create_folders_by_manga_title">Lumilikha ng mga folder ayon sa pamagat ng manga</string>
+    <string name="ext_revoke_trust">Bawiin ang mga pinagkakatiwalaang hindi kilalang extension</string>
+    <string name="extension_repos">Mga repo ng extension</string>
+    <string name="invalid_repo_name">Di-wastong pangalan ng repo</string>
+    <string name="confirm_repo_deletion">Tanggalin ang repo</string>
+    <string name="url_not_set_click_again">Hindi na-set ang URL ng repo, paki-edit ang URL</string>
+    <string name="extension_api_error">Nabigong makuha ang mga available na extension</string>
+    <string name="open_source_repo">Open source na repo</string>
+    <string name="action_add_repo">Magdagdag ng repo</string>
+    <string name="action_add_repo_message">Magdagdag ng mga karagdagang repo sa Tachiyomi. Dapat ito ay isang URL na nagtatapos sa \"index.min.json\"</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d na repo</item>
+        <item quantity="other">%d na mga repo</item>
+    </plurals>
+    <string name="error_repo_exists">Umiiral na ang repo na ito!</string>
+    <string name="repo_cannot_be_blank">Di-maaaring blangko ang pangalan ng repo</string>
+    <string name="snack_repo_deleted">Tinanggal ang repo</string>
+    <string name="delete_repo_confirmation">Gusto mo bang tanggalin ang repo na \"%s\"?</string>
 </resources>

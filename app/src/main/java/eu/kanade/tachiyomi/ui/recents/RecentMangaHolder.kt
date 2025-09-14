@@ -11,10 +11,13 @@ import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.core.view.marginStart
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.shape.CornerFamily
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.data.database.models.ChapterHistory
@@ -27,8 +30,10 @@ import eu.kanade.tachiyomi.ui.manga.chapter.BaseChapterHolder
 import eu.kanade.tachiyomi.util.chapter.ChapterUtil
 import eu.kanade.tachiyomi.util.chapter.ChapterUtil.Companion.preferredChapterName
 import eu.kanade.tachiyomi.util.isLocal
+import eu.kanade.tachiyomi.util.system.cardColor
 import eu.kanade.tachiyomi.util.system.contextCompatColor
 import eu.kanade.tachiyomi.util.system.dpToPx
+import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.system.timeSpanFromNow
 import eu.kanade.tachiyomi.util.view.setAnimVectorCompat
 import eu.kanade.tachiyomi.util.view.setCards
@@ -46,6 +51,7 @@ class RecentMangaHolder(
     private val isSmallUpdates get() = isUpdates && !adapter.showUpdatedTime
 
     init {
+        binding.recentCard.setCardBackgroundColor(itemView.context.cardColor)
         binding.cardLayout.setOnClickListener { adapter.delegate.onCoverClick(flexibleAdapterPosition) }
         binding.removeHistory.setOnClickListener { adapter.delegate.onRemoveHistoryClicked(flexibleAdapterPosition) }
         binding.showMoreChapters.setOnClickListener { _ ->
@@ -82,7 +88,7 @@ class RecentMangaHolder(
                     ?.let { binding.body.text = it }
             }
             binding.endView.updateLayoutParams<ViewGroup.LayoutParams> {
-                height = binding.mainView.height
+                height = binding.recentCard.height
             }
             val transition =
                 TransitionSet()
@@ -103,7 +109,7 @@ class RecentMangaHolder(
     @SuppressLint("ClickableViewAccessibility")
     fun bind(item: RecentMangaItem) {
         val showDLs = adapter.showDownloads
-        binding.mainView.transitionName = "recents chapter $bindingAdapterPosition transition"
+        binding.recentCard.transitionName = "recents chapter $bindingAdapterPosition transition"
         val showRemoveHistory = adapter.showRemoveHistory
         val showTitleFirst = adapter.showTitleFirst
         binding.downloadButton.downloadButton.isVisible = when (showDLs) {
@@ -285,13 +291,14 @@ class RecentMangaHolder(
         listOf(binding.mainView, binding.downloadButton.root, binding.showMoreChapters, binding.cardLayout).forEach {
             it.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
-                    binding.endView.translationY = binding.mainView.y
+                    binding.endView.translationY = binding.recentCard.y
                     binding.endView.updateLayoutParams<ViewGroup.LayoutParams> {
-                        height = binding.mainView.height
+                        height = binding.recentCard.height
                     }
                     binding.read.setImageResource(
                         if (item.read) R.drawable.ic_eye_off_24dp else R.drawable.ic_eye_24dp,
                     )
+                    binding.endView.shapeAppearanceModel = binding.recentCard.shapeAppearanceModel
                     chapterId = null
                 }
                 false
@@ -401,6 +408,7 @@ class RecentMangaHolder(
         chapter: ChapterHistory?,
         item: RecentMangaItem,
     ) {
+        root.setCardBackgroundColor(root.context.cardColor)
         if (chapter?.id == null) {
             configureBlankView(item.mch.extraChapters.size - 20)
             return
@@ -453,6 +461,7 @@ class RecentMangaHolder(
                     binding.endView.updateLayoutParams<ViewGroup.LayoutParams> {
                         height = root.height
                     }
+                    binding.endView.shapeAppearanceModel = root.shapeAppearanceModel
                     chapterId = chapter.id
                 }
                 false
@@ -541,11 +550,76 @@ class RecentMangaHolder(
 
     override fun getFrontView(): View =
         if (chapterId == null) {
-            binding.mainView
+            binding.recentCard
         } else {
             binding.moreChaptersLayout.children.find { it.tag == "sub $chapterId" }
-                ?: binding.mainView
+                ?: binding.recentCard
         }
 
     override fun getRearEndView(): View? = if (chapterId == -1L) null else binding.endView
+
+    fun isContained(): Boolean = binding.recentCard.marginStart != 0
+
+    fun useContainers(enabled: Boolean) {
+        val cardList = mutableListOf(binding.recentCard)
+        cardList.add(binding.endView)
+        cardList.addAll(binding.moreChaptersLayout.children.map { it as MaterialCardView })
+        if (!enabled) {
+            cardList.forEach {
+                it.radius = 0f
+            }
+        }
+        val margins = if (enabled) 8.dpToPx else 0
+        val bgColor by lazy { itemView.context.getResourceColor(R.attr.background) }
+        val cardColor by lazy { itemView.context.cardColor }
+        cardList.forEach {
+            it.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                marginStart = margins
+                marginEnd = margins
+            }
+            if (it != binding.endView) {
+                it.setCardBackgroundColor(if (enabled) cardColor else bgColor)
+            }
+        }
+        binding.card.setCardBackgroundColor(if (enabled) cardColor else bgColor)
+    }
+
+    fun setCorners(
+        top: Boolean,
+        bottom: Boolean,
+    ) {
+        useContainers(true)
+        val finalCard = binding.moreChaptersLayout.children.lastOrNull() as? MaterialCardView
+        val hasSubChapters = finalCard != null
+        val mainCornerRadius = itemView.resources.getDimension(R.dimen.container_main_corner)
+        val subCornerRadius = itemView.resources.getDimension(R.dimen.container_sub_corner)
+        val topRadius = if (top) mainCornerRadius else subCornerRadius
+        val bottomRadius = if (bottom) mainCornerRadius else subCornerRadius
+        val shapeModel =
+            binding.recentCard.shapeAppearanceModel
+                .toBuilder()
+                .apply {
+                    setTopLeftCorner(CornerFamily.ROUNDED, topRadius)
+                    setTopRightCorner(CornerFamily.ROUNDED, topRadius)
+                    setBottomLeftCorner(
+                        CornerFamily.ROUNDED,
+                        if (hasSubChapters) 0f else bottomRadius,
+                    )
+                    setBottomRightCorner(
+                        CornerFamily.ROUNDED,
+                        if (hasSubChapters) 0f else bottomRadius,
+                    )
+                }.build()
+        binding.recentCard.shapeAppearanceModel = shapeModel
+        binding.endView.shapeAppearanceModel = shapeModel
+        finalCard?.shapeAppearanceModel =
+            binding.recentCard.shapeAppearanceModel
+                .toBuilder()
+                .apply {
+                    setTopLeftCorner(CornerFamily.ROUNDED, 0f)
+                    setTopRightCorner(CornerFamily.ROUNDED, 0f)
+                    setBottomLeftCorner(CornerFamily.ROUNDED, bottomRadius)
+                    setBottomRightCorner(CornerFamily.ROUNDED, bottomRadius)
+                }.build()
+    }
 }

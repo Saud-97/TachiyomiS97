@@ -1,10 +1,8 @@
 package eu.kanade.tachiyomi.ui.manga
 
-import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
@@ -12,6 +10,7 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -19,6 +18,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
+import androidx.core.view.children
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -27,6 +27,7 @@ import androidx.transition.TransitionSet
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import coil.request.CachePolicy
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonGroup
 import com.google.android.material.chip.Chip
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Manga
@@ -40,7 +41,6 @@ import eu.kanade.tachiyomi.util.isLocal
 import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.system.isInNightMode
 import eu.kanade.tachiyomi.util.system.isLTR
-import eu.kanade.tachiyomi.util.view.resetStrokeColor
 
 @SuppressLint("ClickableViewAccessibility")
 class MangaHeaderHolder(
@@ -186,7 +186,7 @@ class MangaHeaderHolder(
 
     private fun expandDesc(animated: Boolean = false) {
         binding ?: return
-        if (binding.moreButton.visibility == View.VISIBLE || isTablet) {
+        if (binding.moreButton.isVisible || isTablet) {
             androidx.transition.TransitionManager.endTransitions(adapter.controller.binding.recycler)
             binding.mangaSummary.maxLines = Integer.MAX_VALUE
             binding.mangaSummary.setTextIsSelectable(true)
@@ -374,7 +374,7 @@ class MangaHeaderHolder(
                         else -> R.string.add_to_library
                     },
                 )
-            checked(!item.isLocked && manga.favorite)
+            isChecked = !item.isLocked && manga.favorite
             adapter.delegate.setFavButtonPopup(this)
         }
         binding.trueBackdrop.setBackgroundColor(
@@ -400,7 +400,7 @@ class MangaHeaderHolder(
                     itemView.context,
                     if (tracked) R.drawable.ic_check_24dp else R.drawable.ic_sync_24dp,
                 )
-            checked(tracked)
+            isChecked = tracked
         }
 
         with(binding.startReadingButton) {
@@ -474,8 +474,8 @@ class MangaHeaderHolder(
         binding.filtersText.text = presenter.currentFilters()
 
         if (manga.isLocal()) {
-            binding.webviewButton.isVisible = false
-            binding.shareButton.isVisible = false
+            (binding.buttonLayout as ViewGroup).removeView(binding.webviewButton)
+            binding.buttonLayout.removeView(binding.shareButton)
         }
 
         if (!manga.initialized) return
@@ -576,26 +576,6 @@ class MangaHeaderHolder(
         binding.mangaSummary.clearFocus()
     }
 
-    private fun MaterialButton.checked(checked: Boolean) {
-        if (checked) {
-            stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.icon_btn_state_list_anim)
-            backgroundTintList =
-                ColorStateList.valueOf(
-                    ColorUtils.blendARGB(
-                        adapter.delegate.accentColor() ?: context.getResourceColor(R.attr.colorSecondary),
-                        context.getResourceColor(R.attr.background),
-                        0.706f,
-                    ),
-                )
-            strokeColor = ColorStateList.valueOf(Color.TRANSPARENT)
-        } else {
-            stateListAnimator = null
-            resetStrokeColor()
-            backgroundTintList =
-                ColorStateList.valueOf(context.getResourceColor(R.attr.background))
-        }
-    }
-
     fun setTopHeight(newHeight: Int) {
         binding ?: return
         if (newHeight == binding.topView.height) return
@@ -623,12 +603,19 @@ class MangaHeaderHolder(
                 adapter.delegate.coverColor()
                     ?: trueBackdrop.context.getResourceColor(R.attr.background),
             )
-            TextViewCompat.setCompoundDrawableTintList(moreButton, ColorStateList.valueOf(accentColor))
+            TextViewCompat.setCompoundDrawableTintList(
+                moreButton,
+                ColorStateList.valueOf(accentColor),
+            )
             moreButton.setTextColor(accentColor)
-            TextViewCompat.setCompoundDrawableTintList(lessButton, ColorStateList.valueOf(accentColor))
+            TextViewCompat.setCompoundDrawableTintList(
+                lessButton,
+                ColorStateList.valueOf(accentColor),
+            )
             lessButton.setTextColor(accentColor)
-            shareButton.imageTintList = ColorStateList.valueOf(accentColor)
-            webviewButton.imageTintList = ColorStateList.valueOf(accentColor)
+            webviewButton.iconTint = ColorStateList.valueOf(accentColor)
+            shareButton.iconTint = ColorStateList.valueOf(accentColor)
+
             filterButton.imageTintList = ColorStateList.valueOf(accentColor)
 
             val states =
@@ -639,7 +626,10 @@ class MangaHeaderHolder(
 
             val colors =
                 intArrayOf(
-                    ColorUtils.setAlphaComponent(root.context.getResourceColor(R.attr.tabBarIconInactive), 43),
+                    ColorUtils.setAlphaComponent(
+                        root.context.getResourceColor(R.attr.tabBarIconInactive),
+                        43,
+                    ),
                     accentColor,
                 )
 
@@ -647,15 +637,40 @@ class MangaHeaderHolder(
 
             val textColors =
                 intArrayOf(
-                    ColorUtils.setAlphaComponent(root.context.getResourceColor(R.attr.colorOnSurface), 97),
-                    root.context.getResourceColor(android.R.attr.textColorPrimaryInverse),
-                )
+                    ColorUtils.setAlphaComponent(root.context.getResourceColor(R.attr.colorOnSurface), 97,
+                    ),root.context.getResourceColor(android.R.attr.textColorPrimaryInverse),
+                )val overflowButton =
+                (buttonLayout as? MaterialButtonGroup)
+                    ?.children
+                    ?.first { it.tag == MaterialButtonGroup.OVERFLOW_BUTTON_TAG } as? MaterialButton
+            overflowButton ?.iconTint = ColorStateList.valueOf(accentColor)
             startReadingButton.setTextColor(ColorStateList(states, textColors))
             trackButton.iconTint = ColorStateList.valueOf(accentColor)
             favoriteButton.iconTint = ColorStateList.valueOf(accentColor)
+            val checkedStates =
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(),
+                )
+            val checkedColors =
+                intArrayOf(
+                    root.context.getResourceColor(R.attr.colorOnBackground),
+                    accentColor,
+                )
+            val bgCheckedColors =
+                intArrayOf(
+                    ColorUtils.blendARGB(
+                        accentColor,
+                        root.context.getResourceColor(R.attr.background),
+                        0.706f,
+                    ),
+                    root.context.getResourceColor(R.attr.background),
+                )
+            trackButton.iconTint = ColorStateList(checkedStates, checkedColors)
+            favoriteButton.iconTint = ColorStateList(checkedStates, checkedColors)
+            trackButton.backgroundTintList = ColorStateList(checkedStates, bgCheckedColors)
+            favoriteButton.backgroundTintList = ColorStateList(checkedStates, bgCheckedColors)
             if (updateAll) {
-                trackButton.checked(trackButton.stateListAnimator != null)
-                favoriteButton.checked(favoriteButton.stateListAnimator != null)
                 setGenreTags(this, manga)
             }
         }
@@ -685,7 +700,7 @@ class MangaHeaderHolder(
                         R.drawable.ic_sync_24dp
                     },
                 )
-            checked(tracked)
+            isChecked = tracked
         }
     }
 

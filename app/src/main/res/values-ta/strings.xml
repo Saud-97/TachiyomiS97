@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="all_files_permission_required">"கோப்பு  அனுமதிகள் தேவை"</string>
+    <string name="manhua">மான்ஹுவா</string>
+    <string name="comic">காமிக்</string>
+    <string name="webtoon">வெப்ட்டூண்</string>
+    <string name="not_started">துவங்கவில்லை</string>
+    <string name="description">விளக்கம்</string>
+    <string name="unknown_status">தெரியாத நிலை</string>
+    <string name="licensed">உரிமம் பெற்றது</string>
+    <string name="completed">நிறைவு</string>
+    <string name="unlock">திறக்கவும்</string>
+    <string name="lock_with_biometrics">திறத்தல் தேவை</string>
+    <string name="lock_when_idle">சும்மா இருக்கும்போது பூட்டிடு</string>
+    <string name="chapters">அத்தியாயங்கள்</string>
+    <string name="chapters_removed">அத்தியாயங்கள் அகற்றப்பட்டன.</string>
+    <string name="order_by">இதன்படி வரிசைப்படுத்து</string>
+    <string name="no_chapters_error">அத்தியாயங்கள் எதுவும் இல்லை</string>
+    <string name="loader_rar5_error">RARv5 வடிவம் ஆதரிக்கப்படவில்லை</string>
+    <string name="no_chapters_to_delete">நீக்குவதற்கு அத்தியாயங்கள் இல்லை</string>
+    <string name="by_source_order">மூலத்தின் வரிசைப்படி</string>
+    <string name="by_chapter_number">அத்தியாயம் எண் மூலம்</string>
+    <string name="by_update_date">பதிவேற்ற தேதி மூலம்</string>
+    <string name="category">வகை</string>
+    <string name="categories">வகைகள்</string>
+    <string name="adding_category_to_queue">புதுப்பிப்பு வரிசையில் %1$sஐச் சேர்த்திடு</string>
+    <string name="category_is_empty">வகை காலியாக உள்ளது</string>
+    <string name="external_storage_permission_notice">அத்தியாயங்களைப் பதிவிறக்கவும், தானியங்கு காப்புப்பிரதிகளை உருவாக்கவும் மற்றும் லோக்கல் தொடர்களைப் படிக்கவும் TachiyomiJ2K க்கு Android 11 இல் உள்ள அனைத்து கோப்புகளுக்கும் அணுகல் தேவைப்படுகிறது. 
+\n
+\nஅடுத்த திரையில், \"அனைத்து கோப்புகளையும் நிர்வகிக்க அணுகலை அனுமதி\" என்பதை இயக்கவும்.</string>
+    <string name="external_storage_download_notice">TachiyomiJ2K க்கு அத்தியாயங்களைப் பதிவிறக்க அனைத்து கோப்புகளுக்கும் அணுகல் தேவை. இங்கே தட்டவும், பின்னர் \"எல்லா கோப்புகளையும் நிர்வகிக்க அணுகலை அனுமதி\" என்பதை இயக்கவும்.</string>
+    <string name="manga">மாங்கா</string>
+    <string name="manhwa">மாந்ஹவா</string>
+    <string name="library_entries">நூலக உள்ளீடுகள்</string>
+    <string name="read">படித்தது</string>
+    <string name="title">தலைப்பு</string>
+    <string name="author">ஆசிரியர்</string>
+    <string name="artist">கலைஞர்</string>
+    <string name="add_x_to">%1$s ஐ இங்கே சேர்க்கவும்.…</string>
+    <string name="ongoing">நடந்து கொண்டிருக்கிறது</string>
+    <string name="unknown">தெரியவில்லை</string>
+    <string name="publishing_finished">வெளியீடு முடிந்தது</string>
+    <string name="cancelled">ரத்து செய்யப்பட்டது</string>
+    <string name="on_hiatus">இடைவேளையில்</string>
+    <string name="unlock_library">நூலகத்தை அணுக திறக்கவும்</string>
+    <string name="new_chapters">புதிய அத்தியாயங்கள்</string>
+    <string name="unread">படிக்காதது</string>
+    <string name="last_read_chapter_">கடைசியாகப் படித்தது அத்தியாயம் %1$s</string>
+    <string name="chapter_">அத்தியாயம் %1$s</string>
+    <string name="chapter_x_of_y">அத்தியாயம் %1$d / %2$d</string>
+    <string name="all_chapters_read">அனைத்து அத்தியாயங்களும் படித்தன</string>
+    <string name="bookmarked">புக்மார்க் செய்யப்பட்டது</string>
+    <string name="not_bookmarked">புக்மார்க் செய்யப்படாதது</string>
+    <string name="removed_bookmark">புக்மார்க் அகற்றப்பட்டது</string>
+    <string name="marked_as_read">படித்ததாகக் குறிக்கப்பட்டது</string>
+    <string name="marked_as_unread">படிக்காததாகக் குறிக்கப்பட்டது</string>
+    <string name="chapter_not_found">அத்தியாயம் கிடைக்கவில்லை</string>
+    <string name="local_invalid_format">தவறான அத்தியாய வடிவம்</string>
+    <string name="no_pages_found">பக்கங்கள் எதுவும் இல்லை</string>
+    <string name="remove_all_downloads">அனைத்து பதிவிறக்கங்களையும் அகற்றலாமா?</string>
+    <string name="scanlators">ஸ்கேன்லேட்டர்கள்</string>
+    <plurals name="remove_n_chapters">
+        <item quantity="one">பதிவிறக்கிய %1$d அத்தியாயத்தை அகற்றலாமா?</item>
+        <item quantity="other">பதிவிறக்கம் செய்யப்பட்ட %1$d அத்தியாயங்களை அகற்றலாமா?</item>
+    </plurals>
+    <plurals name="chapters_plural">
+        <item quantity="one">%1$s அத்தியாயம்</item>
+        <item quantity="other">%1$s அத்தியாயங்கள்</item>
+    </plurals>
+    <plurals name="pages_left">
+        <item quantity="one">%1$d பக்கம் மீதமுள்ளது</item>
+        <item quantity="other">%1$d பக்கங்கள் மீதமுள்ளன</item>
+    </plurals>
+    <string name="_already_in_queue">%1$s ஏற்கனவே வரிசையில் உள்ளது</string>
+    <string name="create_new_category">புதிய வகையை உருவாக்கு</string>
+    <string name="new_category">புதிய வகை</string>
+    <string name="show_categories_while_filtering">வடிகட்டும்போது வெற்று வகைகளைக் காட்டு</string>
+    <string name="no_matches_for_filters_short">உங்கள் வடிப்பான்களுடன் பொருந்தவில்லை</string>
+    <string name="default_category">இயல்புநிலை வகை</string>
+    <string name="confirm_category_deletion">வகையை நீக்கவா?</string>
+    <string name="confirm_category_deletion_message">இந்த வகை உள்ளீடுகள் இயல்பு வகைக்கு நகர்த்தப்படும்.</string>
+    <string name="already_in_category">பதிவு ஏற்கனவே வகையில் உள்ளது</string>
+    <string name="add_categories">வகைகளைச் சேர்த்திடு</string>
+    <string name="add_edit_categories">வகைகளைச் சேர்/திருத்து</string>
+    <string name="manage_category">வகையை நிர்வகி</string>
+    <string name="move_to_categories">வகைகளுக்கு நகர்த்து</string>
+    <plurals name="category_plural">
+        <item quantity="one">%d வகை</item>
+        <item quantity="other">%d வகைகள்</item>
+    </plurals>
+    <string name="edit_categories">வகைகளைச் திருத்து</string>
+    <string name="category_with_name_exists">அந்தப் பெயரில் ஒரு வகை ஏற்கனவே உள்ளது!</string>
+    <string name="in_progress">நடந்து கொண்டிருக்கிறது</string>
+</resources>

@@ -1166,4 +1166,20 @@
     <string name="source_settings">Ustawienia źródła</string>
     <string name="app_settings">Ustawienia aplikacji</string>
     <string name="create_folders_by_manga_title">Utwórz foldery na podstawie tytułu mangi</string>
+    <string name="action_add_repo">Dodaj repozytorium</string>
+    <string name="extension_repos">Repozytoria rozszerzeń</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d repozytorium</item>
+        <item quantity="few">%d repozytoriów</item>
+        <item quantity="many">%d repozytoriów</item>
+        <item quantity="other">%d repozytoriów</item>
+    </plurals>
+    <string name="repo_cannot_be_blank">Nazwa repozytorium nie może być pusta</string>
+    <string name="snack_repo_deleted">Repozytorium usunięte</string>
+    <string name="invalid_repo_name">Nieprawidłowa nazwa repozytorium</string>
+    <string name="confirm_repo_deletion">Usuń repozytorium</string>
+    <string name="delete_repo_confirmation">Czy chcesz usunąć repozytorium \"%s\"?</string>
+    <string name="extension_api_error">Nie udało się pobrać dostępnych rozszerzeń</string>
+    <string name="error_repo_exists">To repozytorium już istnieje!</string>
+    <string name="url_not_set_click_again">URL repozytorium nie ustawione, proszę zedytuj URL</string>
 </resources>

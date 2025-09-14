@@ -75,8 +75,8 @@
     <string name="dark">Tema gelap</string>
     <string name="amoled_black">Tema AMOLED</string>
     <string name="language">Bahasa</string>
-    <string name="system_default">Default sistem</string>
-    <string name="default_category">Kategori bawaan</string>
+    <string name="system_default">Bawaan sistem</string>
+    <string name="default_category">Kategori default</string>
     <string name="always_ask">Selalu tanya</string>
     <string name="fullscreen">Layar penuh</string>
     <string name="show_page_number">Tampilkan nomor halaman</string>
@@ -229,11 +229,9 @@
     <string name="untrusted">Tidak terpercaya</string>
     <string name="uninstall">Copot</string>
     <string name="untrusted_extension">Ekstensi tidak terpercaya</string>
-    <string name="untrusted_extension_message">Ekstensi ini ditanda tangani dengan sertifikat yang tidak terpercaya dan belum diaktifkan.
+    <string name="untrusted_extension_message">Ekstensi berbahaya dapat membaca kredensial login yang tersimpan atau mengeksekusi kode arbitrer.
 \n
-\nSebuah ekstensi berbahaya dapat membaca kredensial login Anda yang tersimpan pada Tachiyomi atau mengeksekusi kode berbahaya.
-\n
-\nDengan mempercayai sertifikat ini Anda menyetujui resiko tersebut.</string>
+\nDengan mempercayai ekstensi ini, Anda menerima risiko ini.</string>
     <string name="version_">Versi: %1$s</string>
     <string name="language_">Bahasa: %1$s</string>
     <string name="double_tap_anim_speed">Kecepatan animasi dua ketukan</string>
@@ -283,7 +281,7 @@
     <string name="obsolete">Usang</string>
     <string name="obsolete_extension_message">Ekstensi ini sudah tidak tersedia.</string>
     <plurals name="extension_updates_available">
-        <item quantity="other">Terdapat %d perbaharuan ekstensi</item>
+        <item quantity="other">Terdapat %d pembaruan ekstensi</item>
     </plurals>
     <string name="reduces_banding_impacts_performance">Mengurangi banding, namun berdampak pada performa</string>
     <string name="skip_filtered_chapters">Lewati bab yang terfilter</string>
@@ -374,8 +372,8 @@
     <string name="this_will_remove_the_read_date_for_x_question">Ini akan menghapus tanggal baca dari \"%1$s\". Apakah Anda yakin\?</string>
     <string name="newly_added">Baru ditambahkan</string>
     <string name="recents">Terbaru</string>
-    <string name="auto_refresh_covers_summary">Perbarui sampul di pustaka ketika memperbarui pustaka</string>
-    <string name="auto_refresh_covers">Perbaharui sampul secara otomatis</string>
+    <string name="auto_refresh_covers_summary">Perbarui sampul di dalam pustaka ketika memperbarui pustaka</string>
+    <string name="auto_refresh_covers">Perbarui sampul secara otomatis</string>
     <string name="include_in_global_update">Sertakan pembaharuan global</string>
     <string name="when_sorting_ignore_articles">Saat mengurutkan menurut abjad, urutkan dengan mengabaikan artikel (a, an, the) di awal judul seri</string>
     <string name="sort_by_ignoring_articles">Urutkan dengan mengabaikan artikel</string>
@@ -416,7 +414,7 @@
     <string name="manage_category">Kelola kategori</string>
     <string name="add_categories">Tambah kategori</string>
     <string name="already_in_category">Entri sudah ada dalam kategori</string>
-    <string name="confirm_category_deletion_message">Entri dalam kategori ini akan dipindahkan ke kategori default.</string>
+    <string name="confirm_category_deletion_message">Entri dalam kategori ini akan dipindahkan ke dalam kategori default.</string>
     <string name="confirm_category_deletion">Hapus kategori\?</string>
     <string name="category_is_empty">Kategori kosong</string>
     <string name="create_new_category">Buat kategori baru</string>
@@ -537,14 +535,14 @@
     <string name="top">Teratas</string>
     <string name="tag">Tag</string>
     <string name="custom_manga_info">Info seri kustom</string>
-    <string name="error_sharing_cover">Gagal berbagi sampul</string>
+    <string name="error_sharing_cover">Gagal membagikan sampul</string>
     <string name="error_saving_cover">Gagal menyimpan sampul</string>
     <string name="cover_saved">Sampul disimpan</string>
     <string name="migrate_now">Migrasi sekarang</string>
     <string name="search_manually">Cari secara manual</string>
     <string name="show_title_first">Tampilkan judul terlebih dahulu</string>
-    <string name="reset_cover">Reset penutup</string>
-    <string name="reset_tags">Setel ulang tag</string>
+    <string name="reset_cover">Atur ulang sampul</string>
+    <string name="reset_tags">Atur ulang tag</string>
     <string name="clear_tags">Bersihkan tag</string>
     <string name="oldest_first">Terlama ke terbaru</string>
     <string name="show_download_button">Tampilkan tombol unduh</string>
@@ -603,7 +601,7 @@
     <string name="mark_all_as_unread">Tandai semua sebagai belum dibaca</string>
     <string name="mark_all_as_read">Tandai semua sebagai telah dibaca</string>
     <string name="keep">Simpan</string>
-    <string name="clean_up_cached_covers">Bersihkan sampul yang di-cache</string>
+    <string name="clean_up_cached_covers">Bersihkan cache sampul</string>
     <plurals name="cleanup_done">
         <item quantity="other">Pembersihan selesai. %d folder telah dihapus</item>
     </plurals>
@@ -729,7 +727,7 @@
     <string name="delete_all_covers__not_in_library_used_">Hapus semua cache sampul yang tidak ada di pustaka Anda
 \nSaat ini menggunakan: %1$s</string>
     <string name="clear_cached_covers_non_library">Bersihkan cache sampul yang tidak ada di pustaka</string>
-    <string name="delete_old_covers_in_library_used_">Menghapus sampul cache yang lama dan tidak terpakai dari entri di perpustakaan Anda yang telah diperbarui.
+    <string name="delete_old_covers_in_library_used_">Hapus cache sampul-sampul lama dan tidak terpakai dari entri dalam pustaka Anda yang telah diperbarui.
 \nSaat ini menggunakan: %1$s</string>
     <string name="disable_if_issues_with_updating">Nonaktifkan ini jika Anda mengalami masalah dengan pembaruan dan pemulihan pustaka Anda</string>
     <string name="no_folders_to_cleanup">Tidak ada folder untuk dibersihkan</string>
@@ -802,10 +800,10 @@
     <string name="light_theme">Tema terang</string>
     <string name="no_match_found">Tidak ditemukan</string>
     <string name="source_unsupported">Sumber tidak didukung</string>
-    <string name="set_as_default">Setel sebagai default</string>
+    <string name="set_as_default">Atur sebagai default</string>
     <string name="add_tag">Tambahkan tag</string>
     <plurals name="_updates_pending">
-        <item quantity="other">Pembaruan %d ditunda</item>
+        <item quantity="other">%d pembaruan tertunda</item>
     </plurals>
     <string name="updating_extensions">Memperbarui ekstensi</string>
     <string name="update_all">Perbarui semua</string>
@@ -852,7 +850,7 @@
     </plurals>
     <string name="help_translate">Bantu terjemahkan</string>
     <string name="helpful_translation_links">Tautan terjemahan yang membantu</string>
-    <string name="by_default_side_nav_info">Secara default, navigasi samping digunakan untuk handphone dan tablet tertentu saat landscape, dan selalu ditampilkan di tablet yang lebih besar</string>
+    <string name="by_default_side_nav_info">Secara default, navigasi samping digunakan untuk ponsel atau tablet tertentu saat mode orientasi lanskap, dan selalu ditampilkan pada tablet ukuran besar</string>
     <string name="default_behavior">Tindakan default</string>
     <string name="use_side_navigation">Gunakan navigasi samping</string>
     <string name="filter_groups">Saring grup pemindai</string>
@@ -972,7 +970,7 @@
     <string name="lavender">Lavender</string>
     <string name="violet">Ungu</string>
     <string name="webtoon_side_padding_5">5%</string>
-    <string name="user_agent_string">String agen pengguna default</string>
+    <string name="user_agent_string">String user-agent default</string>
     <string name="language_requires_app_restart">Beberapa bahasa mungkin memerlukan peluncuran ulang aplikasi untuk ditampilkan dengan benar</string>
     <string name="loader_rar5_error">Format RARv5 tidak didukung</string>
     <string name="all_read_manga">Semua seri yang dibaca</string>
@@ -1033,7 +1031,7 @@
     <string name="gray_background">Abu-abu</string>
     <string name="app_updates">Pembaruan aplikasi</string>
     <string name="open">Buka</string>
-    <string name="allow_notifications_recommended">Disarankan untuk mengizinkan notifikasi agar perpustakaan dan aplikasi Anda tetap terbarui.</string>
+    <string name="allow_notifications_recommended">Disarankan untuk mengizinkan notifikasi agar pustaka dan aplikasi Anda tetap terbarui.</string>
     <string name="apply">Terapkan</string>
     <string name="pref_remove_exclude_categories">Kategori yang dikecualikan</string>
     <string name="ext_installer_pref">Pemasang</string>
@@ -1046,4 +1044,20 @@
     <string name="app_settings">Pengaturan aplikasi</string>
     <string name="save_pages_separately">Simpan halaman dalam folder terpisah</string>
     <string name="create_folders_by_manga_title">Buat folder berdasarkan judul manga</string>
+    <string name="extension_api_error">Gagal mengambil ekstensi yang tersedia</string>
+    <string name="ext_revoke_trust">Cabut ekstensi terpercaya yang tidak diketahui</string>
+    <string name="action_add_repo">Tambah repositori</string>
+    <string name="error_repo_exists">Repositori ini sudah ada!</string>
+    <string name="repo_cannot_be_blank">Penamaan repositori tidak boleh dikosongkan</string>
+    <string name="snack_repo_deleted">Repositori dihapus</string>
+    <string name="invalid_repo_name">Penamaan repositori tidak valid</string>
+    <string name="confirm_repo_deletion">Hapus repositori</string>
+    <string name="delete_repo_confirmation">Apakah Anda ingin menghapus repositori \"%s\"?</string>
+    <string name="action_add_repo_message">Tambahkan repositori tambahan ke Tachiyomi. Harus berupa URL yang diakhiri dengan \"index.min.json\"</string>
+    <string name="extension_repos">Repositori ekstensi</string>
+    <plurals name="num_repos">
+        <item quantity="other">%d repositori</item>
+    </plurals>
+    <string name="url_not_set_click_again">URL repositori belum diatur, silakan edit URL</string>
+    <string name="open_source_repo">Repositori sumber terbuka</string>
 </resources>

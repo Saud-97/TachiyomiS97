@@ -13,6 +13,7 @@
         <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/background</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/anim_tachij2k_splash</item>
         <item name="android:windowSplashScreenAnimationDuration" tools:targetApi="31">775</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="27">always</item>
         <!--Standard Material colors -->
         <item name="colorPrimary">@color/primaryTachiyomi</item>
         <item name="colorPrimaryInverse">@color/primaryInverseTachiyomi</item>
@@ -26,6 +27,8 @@
         <item name="colorSecondaryVariant">@color/secondaryVariantTachiyomi</item> // much darker / lighter version of colorSecondary
         <item name="colorPrimaryContainer">@color/primary_container</item>
         <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorTertiaryContainer">@color/tertiary_container</item>
+        <item name="colorSurfaceContainer">?colorPrimaryVariant</item>
         <item name="background">@color/background</item>
         <item name="colorOnBackground">@color/colorOnBackground</item>
         <item name="colorBackgroundFloating">?colorSurface</item>
@@ -68,6 +71,9 @@
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialogTheme</item>
         <item name="actionBarTheme">@style/Theme.ActionBar.DayNight</item>
         <item name="preferenceTheme">@style/Tachiyomi.PreferenceTheme</item>
+        <item name="loadingIndicatorStyle">@style/Tachiyomi.LoadingIndicatorStyle</item>
+        <item name="circularProgressIndicatorStyle">@style/Tachiyomi.CircularProgressIndicator</item>
+        <item name="linearProgressIndicatorStyle">@style/Tachiyomi.LinearProgressIndicator</item>
 
         <!-- Custom Attributes-->
         <item name="actionBarTintColor">?attr/colorOnBackground</item>

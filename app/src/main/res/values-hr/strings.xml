@@ -85,9 +85,7 @@
     <string name="untrusted">Nepovjerljivo</string>
     <string name="uninstall">Deinstaliraj</string>
     <string name="untrusted_extension">Nepovjerljivo proširenje</string>
-    <string name="untrusted_extension_message">Ovo proširenje potpisano je nepovjerljivim certifikatom i nije aktivirano.
-\n
-\nZlonamjerno proširenje može pročitati sve podatke za prijavu koji su spremljeni u programu Tachiyomi ili izvršiti proizvoljni kod.
+    <string name="untrusted_extension_message">Zlonamjerno proširenje može pročitati sve spremljene podatke za prijavu ili izvršiti proizvoljni kod.
 \n
 \nVjerujući ovom certifikatu, prihvaćaš te rizike.</string>
     <string name="obsolete_extension_message">Ovo proširenje više nije dostupno.</string>
@@ -451,7 +449,7 @@
     <string name="clean_up_downloaded_chapters">Izbriši preuzeta poglavlja</string>
     <string name="refresh_tracking_metadata">Aktualiziraj metapodatke praćenja</string>
     <string name="refresh_library_metadata">Aktualiziraj metapodatke biblioteke</string>
-    <string name="clear_database_summary">Izbriši povijest za unose koji nisu spremljeni u biblioteci</string>
+    <string name="clear_database_summary">Izbriši povijest za unose koji nisu spremljeni u tvojoj biblioteci</string>
     <plurals name="cleanup_done">
         <item quantity="one">Brisanje je gotovo. Uklonjena je %d mapa</item>
         <item quantity="few">Brisanje je gotovo. Uklonjene su %d mape</item>
@@ -683,9 +681,9 @@
     <string name="whats_new_this_release">Novosti u ovom izdanju</string>
     <string name="you_can_migrate_in_library">Migrirati možeš i putem biranja unosa u tvojoj biblioteci</string>
     <string name="migration_sources_changed">Izvori migracije su se promijenili</string>
-    <string name="only_enable_enabled_for_migration">Aktiviraj samo trenutačno aktivne izvore za migraciju</string>
+    <string name="only_enable_enabled_for_migration">Aktiviraj samo svoje trenutačno aktivne izvore za migraciju</string>
     <string name="match_enabled_sources">Poklapanje s aktiviranim izvorima</string>
-    <string name="only_enable_pinned_for_migration">Aktiviraj samo označene izvore za migraciju</string>
+    <string name="only_enable_pinned_for_migration">Aktiviraj samo svoje označene izvore za migraciju</string>
     <string name="match_pinned_sources">Poklapanje s označenim izvorima</string>
     <string name="only_search_pinned_when">Pretraži samo označene izvore</string>
     <string name="selection">Odabir</string>
@@ -801,7 +799,7 @@
     <string name="external_storage_permission_notice">TachiyomiS97 zahtijeva pristup svim datotekama u Androidu 11 za preuzimanje poglavlja, za stvaranje automatskih sigurnosnih kopija i za čitanje lokalnih serija.
 \n
 \nU sljedećem ekranu aktiviraj „Dopusti pristup za upravljanje svim datotekama”.</string>
-    <string name="all_files_permission_required">Potrebne su dozvole za datoteke</string>
+    <string name="all_files_permission_required">Potrebne su dozvole za pristup datotekama</string>
     <string name="global_updates">Globalna aktualiziranja</string>
     <string name="open_random_series">Otvaranje slučajne serije</string>
     <string name="show_number_of_items">Prikaži broj elemenata</string>
@@ -875,7 +873,7 @@
     <string name="affects_library_grid">Utječe na raspored naslovnica knjižnice</string>
     <string name="restrictions_">Restrikcije: %1$s</string>
     <string name="getting_started_guide">Vodič za pokretanje</string>
-    <string name="no_matches_for_filters_short">Nema podudaranja za vaše filtre</string>
+    <string name="no_matches_for_filters_short">Nema podudaranja za tvoje filtre</string>
     <string name="show_categories_while_filtering">Prikaži prazne kategorije tijekom filtritanja</string>
     <string name="recently_installed">Nedavno instalirano</string>
     <string name="recently_updated">Nedavno aktualizirano</string>
@@ -1037,7 +1035,7 @@
     <string name="tracker">Usluga praćenja</string>
     <string name="length">Duljina</string>
     <string name="start_year">Početna godina</string>
-    <string name="no_data_for_filters">Nema podataka za trenutačni filtar</string>
+    <string name="no_data_for_filters">Nema podataka za tvoje trenutačne filtre</string>
     <string name="stats">Statistike</string>
     <string name="titles_in_global_update">Naslovi u globalnom aktualiziranju</string>
     <plurals name="_series_types">
@@ -1070,7 +1068,7 @@
     <string name="popular">Popularni</string>
     <string name="skip_dupe_chapters">Preskoči dupla poglavlja</string>
     <string name="allow_deleting_bookmarked_chapters">Dozvoli brisanje označenih poglavlja</string>
-    <string name="appwidget_updates_description">Pogledajte nedavno aktualizirane unose u biblioteci</string>
+    <string name="appwidget_updates_description">Pogledaj tvoje nedavno aktualizirane unose u biblioteci</string>
     <string name="appwidget_unavailable_locked">Widget nije dostupan kada je omogućeno zaključavanje aplikacije</string>
     <string name="mean_tracking_score">Prosječna ocjena praćenja</string>
     <string name="hide_in_library_items">Sakrij unose koji se već nalaze u biblioteci</string>
@@ -1097,4 +1095,22 @@
     <string name="share_cover">Dijeli naslovnicu</string>
     <string name="save_pages_separately">Spremi stranice u zasebne mape</string>
     <string name="create_folders_by_manga_title">Stvara mape na osnovi naslova mange</string>
+    <string name="ext_revoke_trust">Opozovi pouzdana nepoznata proširenja</string>
+    <string name="open_source_repo">Otvori izvorni repozitorij</string>
+    <string name="action_add_repo">Dodaj repozitorij</string>
+    <string name="action_add_repo_message">Dodaj dodatne rapozitorije u Tachiyomi. Ovo bi trebao biti URL koji završava s „index.min.json”</string>
+    <string name="extension_repos">Repozitoriji proširenja</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d repozitorij</item>
+        <item quantity="few">%d repozitorija</item>
+        <item quantity="other">%d repozitorija</item>
+    </plurals>
+    <string name="error_repo_exists">Ovaj repozitorij već postoji!</string>
+    <string name="repo_cannot_be_blank">Ime repozitorija ne smije biti prazno</string>
+    <string name="snack_repo_deleted">Repozitorij je izbrisan</string>
+    <string name="invalid_repo_name">Nevaljano ime repozitorija</string>
+    <string name="confirm_repo_deletion">Izbriši repozitorij</string>
+    <string name="delete_repo_confirmation">Želiš li izbrisati repozitorij „%s”?</string>
+    <string name="url_not_set_click_again">URL repozitorija nije postavljen. Uredi URL</string>
+    <string name="extension_api_error">Neuspjelo dohvaćanje dostupnih proširenja</string>
 </resources>

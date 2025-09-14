@@ -66,6 +66,7 @@ import com.google.android.material.navigation.NavigationBarItemView
 import com.google.android.material.navigation.NavigationBarMenuView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.snackbar.Snackbar
 import eu.kanade.tachiyomi.R
@@ -315,7 +316,7 @@ fun SwipeRefreshLayout.setStyle() {
 fun MaterialButton.resetStrokeColor() {
     strokeColor =
         ColorStateList.valueOf(
-            ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.colorOnSurface), 31),
+            context.getColor(R.color.m3expressive_button_outline_color_selector),
         )
 }
 
@@ -324,7 +325,7 @@ fun NavigationBarView.getItemView(
     @IdRes id: Int,
 ): NavigationBarItemView? {
     val order = (menu as MenuBuilder).findItemIndex(id)
-    return (getChildAt(0) as NavigationBarMenuView).getChildAt(order) as? NavigationBarItemView
+    return (menuView as NavigationBarMenuView).getChildAt(order) as? NavigationBarItemView
 }
 
 fun RecyclerView.smoothScrollToTop() {
@@ -415,6 +416,24 @@ inline fun View.popupMenu(
     return popup
 }
 
+fun MaterialCardView.makeContainerShape(
+    top: Boolean,
+    bottom: Boolean,
+): ShapeAppearanceModel {
+    val mainCornerRadius = resources.getDimension(R.dimen.container_main_corner)
+    val subCornerRadius = resources.getDimension(R.dimen.container_sub_corner)
+    val topRadius = if (top) mainCornerRadius else subCornerRadius
+    val bottomRadius = if (bottom) mainCornerRadius else subCornerRadius
+    return shapeAppearanceModel
+        .toBuilder()
+        .apply {
+            setTopLeftCorner(CornerFamily.ROUNDED, topRadius)
+            setTopRightCorner(CornerFamily.ROUNDED, topRadius)
+            setBottomLeftCorner(CornerFamily.ROUNDED, bottomRadius)
+            setBottomRightCorner(CornerFamily.ROUNDED, bottomRadius)
+        }.build()
+}
+
 fun MaterialCardView.makeShapeCorners(
     @Dimension topStart: Float = 0f,
     @Dimension bottomEnd: Float = 0f,
@@ -446,7 +465,7 @@ fun setCards(
 }
 
 var View.backgroundColor: Int?
-    get() = (background as? ColorDrawable)?.color
+    get() = (background as? ColorDrawable)?.color ?: (background as? MaterialShapeDrawable)?.fillColor?.defaultColor
     set(value) {
         if (value != null) setBackgroundColor(value) else background = null
     }

@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.util.system
 
+import android.app.ActivityOptions
 import android.app.LocaleManager
 import android.app.Notification
 import android.app.NotificationManager
@@ -31,6 +32,7 @@ import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTI
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkInfo
@@ -418,6 +420,17 @@ fun Context.appDelegateNightMode(): Int =
         AppCompatDelegate.MODE_NIGHT_NO
     }
 
+val Context.cardColor: Int
+    get() {
+        val cardContainer = getColor(R.color.card_container)
+        return if (isInNightMode()) {
+            val bgColor = getResourceColor(R.attr.background)
+            ColorUtils.blendARGB(cardContainer, bgColor, 0.25f)
+        } else {
+            cardContainer
+        }
+    }
+
 fun Context.isOnline(): Boolean {
     val networkCapabilities = connectivityManager.activeNetwork ?: return false
     val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
@@ -505,3 +518,22 @@ val Context.systemLangContext: Context
         configuration.setLocale(systemLocale)
         return createConfigurationContext(configuration)
     }
+
+fun activityOptionsBackgroundOptions(always: Boolean = true): ActivityOptions? {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        val opts = ActivityOptions.makeBasic()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            opts.pendingIntentCreatorBackgroundActivityStartMode =
+                if (always) {
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS
+                } else {
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE
+                }
+        } else {
+            opts.pendingIntentCreatorBackgroundActivityStartMode =
+                ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+        }
+        return opts
+    }
+    return null
+}

@@ -68,8 +68,10 @@ fun limitAndOffset(
     endless: Boolean,
     isResuming: Boolean,
     offset: Int,
+    customLimit: Int = 0,
 ): String =
     when {
+        customLimit > 0 -> "LIMIT $customLimit\nOFFSET $offset"
         isResuming && endless && offset > 0 -> "LIMIT $offset"
         endless -> "LIMIT ${RecentsPresenter.ENDLESS_LIMIT}\nOFFSET $offset"
         else -> "LIMIT ${RecentsPresenter.SHORT_LIMIT}"
@@ -164,9 +166,10 @@ fun getAllRecentsType(
     endless: Boolean,
     offset: Int = 0,
     isResuming: Boolean,
+    customLimit: Int,
 ) = """
 	SELECT * FROM
-	(SELECT mangas.url as mangaUrl, mangas.*, chapters.*, history.*
+	(SELECT mangas.url as mangaUrl, chapters.url as chapterUrl, mangas.*, chapters.*, history.*
     FROM (
         SELECT mangas.*
         FROM mangas
@@ -196,9 +199,9 @@ fun getAllRecentsType(
     AND lower(${Manga.COL_TITLE}) LIKE '%$search%')
 	UNION
 	SELECT * FROM
-	(SELECT ${Manga.TABLE}.${Manga.COL_URL} as mangaUrl, ${Manga.TABLE}.*, ${Chapter.TABLE}.*, 
+	(SELECT ${Manga.TABLE}.${Manga.COL_URL} as mangaUrl, chapters.url as chapterUrl, ${Manga.TABLE}.*, ${Chapter.TABLE}.*, 
         Null as history_id, 
-        Null as history_chapter_id, 
+        Null as history_chapter_id,
         chapters.date_fetch as history_last_read, 
         Null as history_time_read
     FROM ${Manga.TABLE}
@@ -218,6 +221,7 @@ fun getAllRecentsType(
     UNION
     SELECT * FROM
     (SELECT mangas.url as mangaUrl, 
+        Null as chapterUrl,
         mangas.*,
 		Null as _id,
 		Null as manga_id,
@@ -240,7 +244,7 @@ fun getAllRecentsType(
     WHERE ${Manga.COL_FAVORITE} = 1
     AND lower(${Manga.COL_TITLE}) LIKE '%$search%')
     ORDER BY history_last_read DESC
-    ${limitAndOffset(endless, isResuming, offset)}
+    ${limitAndOffset(endless, isResuming, offset, customLimit)}
 """
 
 fun getHistoryByMangaId() =

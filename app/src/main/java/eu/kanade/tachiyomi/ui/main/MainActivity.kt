@@ -13,11 +13,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
-import android.provider.Settings
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.Menu
@@ -47,6 +45,9 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsCompat.Type.displayCutout
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.WindowInsetsCompat.Type.tappableElement
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.children
 import androidx.core.view.forEach
@@ -66,6 +67,7 @@ import com.bluelinelabs.conductor.Router
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.google.common.primitives.Floats.max
@@ -113,11 +115,15 @@ import eu.kanade.tachiyomi.util.manga.MangaShortcutManager
 import eu.kanade.tachiyomi.util.system.contextCompatDrawable
 import eu.kanade.tachiyomi.util.system.dpToPx
 import eu.kanade.tachiyomi.util.system.executeOnIO
+import eu.kanade.tachiyomi.util.system.end
 import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.system.hasSideNavBar
+import eu.kanade.tachiyomi.util.system.ignoredDisplayCutout
 import eu.kanade.tachiyomi.util.system.ignoredSystemInsets
 import eu.kanade.tachiyomi.util.system.isBottomTappable
 import eu.kanade.tachiyomi.util.system.isInNightMode
+import eu.kanade.tachiyomi.util.system.isLTR
+import eu.kanade.tachiyomi.util.system.isTablet
 import eu.kanade.tachiyomi.util.system.launchIO
 import eu.kanade.tachiyomi.util.system.launchUI
 import eu.kanade.tachiyomi.util.system.materialAlertDialog
@@ -377,6 +383,13 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         setContentView(binding.root)
 
         binding.toolbar.overflowIcon?.setTint(getResourceColor(R.attr.actionBarTintColor))
+        if (isTablet() && binding.sideNav != null) {
+            binding.sideNav
+                ?.menu
+                ?.findItem(R.id.nav_recents)
+                ?.isVisible = false
+            binding.sideNav?.expand()
+        }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
@@ -447,12 +460,18 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             // Consume any horizontal insets and pad all content in. There's not much we can do
             // with horizontal insets
             v.updatePadding(
-                left = systemInsets.left,
-                right = systemInsets.right,
+                left = insets.getInsetsIgnoringVisibility(systemBars() or displayCutout()).left,
+                right = insets.getInsetsIgnoringVisibility(systemBars() or displayCutout()).right,
             )
             binding.appBar.updatePadding(
                 top = systemInsets.top,
             )
+            binding.statusBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                height = systemInsets.top
+            }
+            binding.navBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                height = insets.getInsetsIgnoringVisibility(tappableElement()).bottom
+            }
             binding.bottomNav?.updatePadding(
                 bottom = systemInsets.bottom,
             )
@@ -462,9 +481,17 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                 bottom = systemInsets.bottom,
                 top = systemInsets.top,
             )
+            binding.sideNav?.translationX = 0f
             binding.bottomView?.isVisible = systemInsets.bottom > 0
             binding.bottomView?.updateLayoutParams<ViewGroup.LayoutParams> {
                 height = systemInsets.bottom
+            }
+            (overflowDialog as? OverflowDialog)?.let {
+                val cutoutInsets = insets.ignoredDisplayCutout
+                it.binding.overflowCardView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = toolbarHeight - 2.dpToPx + cutoutInsets.top
+                    marginEnd = 14.dpToPx + cutoutInsets.end(resources.isLTR)
+                }
             }
         }
         // Set this as nav view will try to set its own insets and they're hilariously bad
@@ -499,6 +526,39 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             }
             continueSwitchingTabs = false
             val currentRoot = router.backstack.firstOrNull()
+            when (id) {
+                R.id.nav_summary, R.id.nav_ungrouped, R.id.nav_history, R.id.nav_updates -> {
+                    val recentsType =
+                        when (id) {
+                            R.id.nav_summary -> RecentsViewType.GroupedAll
+                            R.id.nav_ungrouped -> RecentsViewType.UngroupedAll
+                            R.id.nav_history -> RecentsViewType.History
+                            else -> RecentsViewType.Updates
+                        }
+                    val updatePlace = {
+                        val controller =
+                            router.backstack.firstOrNull()?.controller as? RecentsController
+                        controller?.setViewType(recentsType)
+                        controller?.hideSheet()
+                        binding.mainTabs.run { selectTab(getTabAt(recentsType.mainValue)) }
+                    }
+                    if (currentRoot?.tag()?.toIntOrNull() != R.id.nav_recents) {
+                        setRoot(RecentsController(), R.id.nav_recents)
+                        nav.post {
+                            updatePlace()
+                        }
+                    } else {
+                        val controller =
+                            router.backstack.firstOrNull()?.controller as? RecentsController
+                        if (controller?.presenter?.viewType != recentsType) {
+                            updatePlace()
+                        } else if (router.backstackSize == 1) {
+                            controller.toggleSheet()
+                        }
+                    }
+                    return@setOnItemSelectedListener true
+                }
+            }
             if (currentRoot?.tag()?.toIntOrNull() != id) {
                 setRoot(
                     when (id) {
@@ -515,7 +575,7 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                     controller?.toggleSheet()
                 }
             }
-            true
+            id != R.id.nav_recents || (nav as? NavigationRailView)?.isExpanded != true
         }
 
         if (!router.hasRootController()) {
@@ -626,7 +686,7 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                                 binding.backShadow.x = view.x - binding.backShadow.width
                                 if (router.backstackSize == 1) {
                                     to?.view?.let { toView ->
-                                        nav.x = toView.x
+                                        nav.translationX = toView.translationX
                                     }
                                 }
                             }
@@ -634,7 +694,7 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                         bA.doOnEnd {
                             binding.backShadow.alpha = 0.25f
                             binding.backShadow.isVisible = false
-                            nav.x = 0f
+                            nav.translationX = 0f
                         }
                         bA.duration = 150
                         bA.interpolator = DecelerateInterpolator(backVelocity.takeIf { it != 0f } ?: 1f)
@@ -868,7 +928,7 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
 
     private fun setNavBarColor(insets: WindowInsetsCompat?) {
         if (insets == null) return
-        window.navigationBarColor =
+        binding.navBar.backgroundColor =
             when {
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1 -> {
                     // basically if in landscape on a phone, solid black bar
@@ -899,11 +959,12 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                         179,
                     )
                 }
-            }
+            }window.navigationBarColor = Color.TRANSPARENT
+        window.statusBarColor = Color.TRANSPARENT
     }
 
     override fun startSupportActionMode(callback: ActionMode.Callback): ActionMode? {
-        window?.statusBarColor = getResourceColor(R.attr.colorPrimaryVariant)
+        binding.statusBar.backgroundColor = getResourceColor(R.attr.colorPrimaryVariant)
         actionMode = super.startSupportActionMode(callback)
         reEnableBackPressedCallBack()
         return actionMode
@@ -912,33 +973,16 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     override fun onSupportActionModeFinished(mode: ActionMode) {
         actionMode = null
         reEnableBackPressedCallBack()
-        launchUI {
-            val scale =
-                Settings.Global.getFloat(
-                    contentResolver,
-                    Settings.Global.ANIMATOR_DURATION_SCALE,
-                    1.0f,
-                )
-            val duration = resources.getInteger(android.R.integer.config_mediumAnimTime) * scale
-            delay(duration.toLong())
-            delay(100)
-            if (Color.alpha(window?.statusBarColor ?: Color.BLACK) >= 255) {
-                window?.statusBarColor =
-                    getResourceColor(
-                        android.R.attr.statusBarColor,
-                    )
-            }
-        }
         super.onSupportActionModeFinished(mode)
     }
 
     fun setStatusBarColorTransparent(show: Boolean) {
-        window?.statusBarColor =
+        binding.statusBar.backgroundColor =
             if (show) {
-                ColorUtils.setAlphaComponent(window?.statusBarColor ?: Color.TRANSPARENT, 0)
+                ColorUtils.setAlphaComponent(binding.statusBar.backgroundColor ?: Color.TRANSPARENT, 0)
             } else {
-                val color = getResourceColor(android.R.attr.statusBarColor)
-                ColorUtils.setAlphaComponent(window?.statusBarColor ?: color, Color.alpha(color))
+                val color = getColor(R.color.status_bar)
+                ColorUtils.setAlphaComponent(binding.statusBar.backgroundColor ?: color, Color.alpha(color))
             }
     }
 
@@ -1165,11 +1209,11 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                     } catch (e: Exception) {
                         return
                     }
-                outContent.webUri = Uri.parse(url)
+                outContent.webUri = url.toUri()
             }
             is BrowseSourceController -> {
                 val source = controller.presenter.source as? HttpSource ?: return
-                outContent.webUri = Uri.parse(source.baseUrl)
+                outContent.webUri = source.baseUrl.toUri()
             }
         }
     }
@@ -1604,7 +1648,7 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                 MaterialMenuSheet.MenuSheetItem(
                     0,
                     textRes = R.string.whats_new_this_release,
-                    drawable = R.drawable.ic_new_releases_24dp,
+                    drawable = R.drawable.ic_new_releases_outline_24dp,
                 ),
                 MaterialMenuSheet.MenuSheetItem(
                     1,
@@ -1722,7 +1766,9 @@ interface RootSearchInterface {
     }
 }
 
-interface TabbedInterface
+interface TabbedInterface {
+    fun showTabs(): Boolean = true
+}
 
 interface HingeSupportedController {
     fun updateForHinge()

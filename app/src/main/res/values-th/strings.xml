@@ -95,11 +95,9 @@
     <string name="untrusted">ไม่น่าเชื่อถือ</string>
     <string name="uninstall">ถอนการติดตั้ง</string>
     <string name="untrusted_extension">ส่วนขยายที่ไม่น่าเชื่อถือ</string>
-    <string name="untrusted_extension_message">ส่วนขยายนี้ลงนามด้วยใบรับรองที่ไม่น่าเชื่อถือและจะไม่ถูกเปิดใช้งาน
+    <string name="untrusted_extension_message">ส่วนขยายที่เป็นอันตรายสามารถเรียกใช้โค้ดโดยอำเภอใจ
 \n
-\nส่วนขยายที่เป็นอันตรายสามารถอ่านข้อมูลการเข้าสู่ระบบที่จัดเก็บไว้ใน Tachiyomi หรือเรียกใช้โค้ดโดยอำเภอใจ
-\n
-\nการเชื่อถือใบรับรองนี้แสดงว่าคุณยอมรับความเสี่ยงเหล่านี้</string>
+\nการเชื่อถือส่วนขยายนี้แสดงว่าคุณยอมรับความเสี่ยงเหล่านี้</string>
     <string name="version_">เวอร์ชัน: %1$s</string>
     <string name="fullscreen">เต็มหน้าจอ</string>
     <string name="double_tap_anim_speed">ความเร็วแอนิเมชั่นเมื่อแตะ 2 ครั้ง</string>
@@ -1046,4 +1044,20 @@
     <string name="share_cover">แบ่งปันหน้าปก</string>
     <string name="save_pages_separately">บันทึกแต่ละหน้าลงในโฟลเดอร์แยกต่างหาก</string>
     <string name="create_folders_by_manga_title">สร้างโฟลเดอร์ตามชื่อของมังงะ</string>
+    <string name="extension_api_error">ไม่สามารถเรียกรายการส่วนขยายที่พร้อมใช้งาน</string>
+    <string name="action_add_repo">เพิ่มรีโพ</string>
+    <string name="open_source_repo">เปิดแหล่งที่มารีโพ</string>
+    <string name="action_add_repo_message">เพิ่มรีโพเพิ่มเติมให้กับ Tachiyomi ควรจะเป็น URL ที่ลงท้ายด้วย \"index.min.json\"</string>
+    <string name="extension_repos">รีโพส่วนขยาย</string>
+    <string name="ext_revoke_trust">เพิกถอนส่วนขยายไม่รู้จักที่เชื่อถือไว้</string>
+    <plurals name="num_repos">
+        <item quantity="other">%d รีโพ</item>
+    </plurals>
+    <string name="error_repo_exists">มีรีโพนี้อยู่แล้ว!</string>
+    <string name="repo_cannot_be_blank">ชื่อรีโพไม่สามารถว่างเปล่าได้</string>
+    <string name="snack_repo_deleted">ลบรีโพแล้ว</string>
+    <string name="confirm_repo_deletion">ลบรีโพ</string>
+    <string name="invalid_repo_name">ชื่อรีโพไม่ถูกต้อง</string>
+    <string name="delete_repo_confirmation">ต้องการที่จะลบรีโพ \"%s\" หรือไม่?</string>
+    <string name="url_not_set_click_again">ไม่ได้ตั้งค่า URL ของรีโพ โปรดแก้ไข URL</string>
 </resources>

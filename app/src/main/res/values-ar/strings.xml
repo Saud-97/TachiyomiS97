@@ -93,7 +93,7 @@
     <string name="left_to_right_viewer">يسارًا فيمينًا</string>
     <string name="right_to_left_viewer">يمينًا فيسارًا</string>
     <string name="vertical_viewer">عموديٌّ</string>
-    <string name="webtoon">وِبتون</string>
+    <string name="webtoon">وِيبتون</string>
     <string name="scale_type">نوع التحجيم</string>
     <string name="fit_screen">لائم الشاشة</string>
     <string name="stretch">مدِّد</string>
@@ -224,15 +224,13 @@
     <string name="pending">معلَّقة</string>
     <string name="installing">يثبَّت</string>
     <string name="installed">تمَّ التثبيت</string>
-    <string name="trust">الثقة</string>
-    <string name="untrusted">ذات ريبة</string>
-    <string name="uninstall">أزل</string>
+    <string name="trust">موثوق</string>
+    <string name="untrusted">غير موثوق(ة)</string>
+    <string name="uninstall">حذف</string>
     <string name="untrusted_extension">إضافة ذات ريبة</string>
-    <string name="untrusted_extension_message">هذه اﻹضافة موقَّعة بشهادة ذات ريبة ولم تفعَّل.
+    <string name="untrusted_extension_message">بإمكان أي إضافة خبيثة قراءة بيانات تسجيل الدخول المخزَّنة في Tachiyomi أو تنفيذ تعليمات برمجية عشوائية.
 \n
-\nيمكن لأي إضافة خبيثة قراءة بيانات اعتماد تسجيل الدخول المخزَّنة في Tachiyomi أو تنفيذ تعليمات برمجية عشوائية.
-\n
-\nأنت تقبل هذه المخاطر إن وثقت بالشهادة.</string>
+\nبقبولك لهذه الإضافة، أنت تقبل المخاطر.</string>
     <string name="version_">الإصدار: %1$s</string>
     <string name="language_">اللغة: %1$s</string>
     <string name="double_tap_anim_speed">سرعة تحريك الضغط المزدوج</string>
@@ -362,10 +360,10 @@
     <string name="unlock">افتح القفل</string>
     <string name="unlock_library">افتح القفل لتصل إلى المكتبة</string>
     <string name="unknown_status">حاله مجهولة</string>
-    <string name="in_progress">قيد الإنجاز</string>
+    <string name="in_progress">مستمرة</string>
     <string name="not_started">لم يبدأ</string>
     <string name="comic">قصَّة مصوَّرة</string>
-    <string name="manhua">مانوا</string>
+    <string name="manhua">مانها</string>
     <string name="manhwa">مانهوا</string>
     <string name="confirm_category_deletion">أأحذف الفئة؟</string>
     <string name="collapse_all_categories">صغِّر كلَّ الفئات‫‌</string>
@@ -395,20 +393,25 @@
         <item quantity="zero">لم يُزل أيُّ فصل من المصدر:
 \n%2$s
 \nأأحذف تنزيلاته؟</item>
-        <item quantity="one">أُزيل فصل من المصدر:
+        <item quantity="one">أُزيل فصل %1$s من المصدر:
 \n%2$s
+\n
 \nأأحذف تنزيلاته؟</item>
-        <item quantity="two">أُزيل فصلان من المصدر:
+        <item quantity="two">أُزيل فصلان %1$s من المصدر:
 \n%2$s
+\n
 \nأأحذف تنزيلاتهما؟</item>
         <item quantity="few">أُزيلت %1$s فصول من المصدر:
 \n%2$s
+\n
 \nأأحذف تنزيلاتهم؟</item>
         <item quantity="many">أُزيل %1$s فصلًا من المصدر:
 \n%2$s
+\n
 \nأأحذف تنزيلاتهم؟</item>
         <item quantity="other">أُزيل %1$s فصل من المصدر:
 \n%2$s
+\n
 \nأأحذف تنزيلاتهم؟</item>
     </plurals>
     <string name="recents">الأخيرة</string>
@@ -759,7 +762,7 @@
     <string name="set_first_page_as_cover">عين الصفحة الأولى غلافًا</string>
     <string name="selection">اختيار</string>
     <string name="pages_">الصفحات %1$s</string>
-    <string name="filter_languages">صفِّ اللغات</string>
+    <string name="filter_languages">تصنيف اللغات</string>
     <string name="show_read_chapters_all">أظهر الفصول المقروءة في «مجمَّع» و «الكلُّ»</string>
     <plurals name="copy_manga">
         <item quantity="zero">ألا أنسخ أيَّ سلسلة؟</item>
@@ -903,7 +906,7 @@
     <string name="external_storage_permission_notice">يحتاج TachiyomiS97 للوصول إلى كلِّ الملفَّات في أندرويد 11، فبذلك ينزِّل الفصول ويحتاط ويقرأ السلاسل المنزَّلة.
 \n
 \nمكِّن «اسمح بإدارة كافة الملفات.» عندما تراها في الشاشة التالية</string>
-    <string name="all_files_permission_required">إذن الوصول إلى الملفات مطلوب</string>
+    <string name="all_files_permission_required">الإذن بالوصول إلى الملفات مطلوب</string>
     <string name="warning">تحذير</string>
     <string name="search_">بحث %1$s</string>
     <string name="orientation">الاتجاه</string>
@@ -974,14 +977,14 @@
     <string name="show_in_sources_and_extensions">أظهر في قائمة المصادر و الملحقات</string>
     <string name="every_3_days">كل ثلاثة ايام</string>
     <string name="download_queue_size_warning">تحذير: يمكن أن تؤدِّي التنزيلات كبيرة الحجم والعدد إلى إبطاء المصادر، وقد يُحظر Tachiyomi منها بسبب ذلك. اضغط لمعرفة المزيد۔</string>
-    <string name="ext_installer_shizuku_unavailable_dialog">ثبِّت «شيزوكو» وشغِّله لتستخدمه مثبِّت إضافات.</string>
+    <string name="ext_installer_shizuku_unavailable_dialog">ثبِّت «Shizuku» وشغِّله لتستخدمه كمثبِّت للإضافات.</string>
     <string name="ext_installer_shizuku_stopped">«Shizuku» لا يعمل</string>
     <string name="lime_time">وقت الليمون الأخضر</string>
     <string name="scanlators">المترجمون</string>
     <string name="filter_groups">صفِّ مجموعات المترجمين</string>
     <string name="classic_blue">أزرق كلاسيكي</string>
     <string name="save_chapters_as_cbz">احفظ كأرشيف CBZ</string>
-    <string name="publishing_finished">انتهى النشر</string>
+    <string name="publishing_finished">مكتملة</string>
     <string name="cancelled">أُلغيت</string>
     <string name="on_hiatus">منقطعة</string>
     <string name="tracking_info">مزامنة أحادية لتحديث تقدُّم الفصول في خدمات التتبع، ولك أن تُعِدَّ تتبُّع سلسلةٍ من زرِّ تتبُّعها.</string>
@@ -1175,4 +1178,25 @@
     <string name="share_cover">شارك الغلاف</string>
     <string name="save_pages_separately">احفظ الصفحات في مجلدات مختلفة</string>
     <string name="create_folders_by_manga_title">يُنشِئ ملفات حسب عنوان المانجا</string>
+    <string name="extension_api_error">فشل في إظهار الإضافات المتاحة</string>
+    <string name="ext_revoke_trust">إبطال الإضافات المجهولة والموثوقة</string>
+    <string name="open_source_repo">فتح مُخزن بيانات المصدر</string>
+    <string name="action_add_repo">أضِف مُخزن بيانات</string>
+    <string name="action_add_repo_message">أضِف مخازن بيانات إضافية لـTachiyomi. يجب أن يكون عنوان URL في نهايته \"index.min.json\"</string>
+    <string name="extension_repos">مخازن بيانات الإضافة</string>
+    <string name="error_repo_exists">مَخزن البيانات هذا موجود بالفعل!</string>
+    <string name="repo_cannot_be_blank">لا يمكن لاسم مَخزن البيانات أن يكون فارغًا</string>
+    <string name="invalid_repo_name">اسم مَخزن بيانات غير صالح</string>
+    <string name="confirm_repo_deletion">حذف مَخزن بيانات</string>
+    <string name="url_not_set_click_again">عنوان URL الخاص بمَخزن البيانات غير مضبوط، الرجاء تعديل عنوان URL</string>
+    <string name="snack_repo_deleted">تم حذف مَخزن البيانات</string>
+    <plurals name="num_repos">
+        <item quantity="zero">%d لا مَخزن</item>
+        <item quantity="one">%d مَخزن واحد</item>
+        <item quantity="two">%d مَخزنين</item>
+        <item quantity="few">%d بضعة مخازن</item>
+        <item quantity="many">%d العديد من المخازن</item>
+        <item quantity="other">%d مَخزن</item>
+    </plurals>
+    <string name="delete_repo_confirmation">أتريد حذف مَخزن البيانات \"%s\"؟</string>
 </resources>

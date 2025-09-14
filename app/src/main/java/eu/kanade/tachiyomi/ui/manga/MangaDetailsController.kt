@@ -33,6 +33,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
@@ -45,6 +46,7 @@ import coil.request.ImageRequest
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import eu.davidea.flexibleadapter.FlexibleAdapter
@@ -94,6 +96,7 @@ import eu.kanade.tachiyomi.util.chapter.updateTrackChapterMarkedAsRead
 import eu.kanade.tachiyomi.util.isLocal
 import eu.kanade.tachiyomi.util.moveCategories
 import eu.kanade.tachiyomi.util.storage.getUriCompat
+import eu.kanade.tachiyomi.util.system.activityOptionsBackgroundOptions
 import eu.kanade.tachiyomi.util.system.addCheckBoxPrompt
 import eu.kanade.tachiyomi.util.system.contextCompatColor
 import eu.kanade.tachiyomi.util.system.dpToPx
@@ -111,6 +114,7 @@ import eu.kanade.tachiyomi.util.system.setCustomTitleAndMessage
 import eu.kanade.tachiyomi.util.system.timeSpanFromNow
 import eu.kanade.tachiyomi.util.system.toast
 import eu.kanade.tachiyomi.util.view.activityBinding
+import eu.kanade.tachiyomi.util.view.backgroundColor
 import eu.kanade.tachiyomi.util.view.copyToClipboard
 import eu.kanade.tachiyomi.util.view.findChild
 import eu.kanade.tachiyomi.util.view.getText
@@ -322,10 +326,10 @@ class MangaDetailsController :
                     val newColor =
                         makeColorFrom(color, context.getResourceColor(R.attr.colorPrimaryVariant))
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 || context.isInNightMode()) {
-                        activity?.window?.navigationBarColor =
+                        activityBinding?.navBar?.backgroundColor =
                             ColorUtils.setAlphaComponent(
                                 newColor,
-                                Color.alpha(activity?.window?.navigationBarColor ?: Color.BLACK),
+                                Color.alpha(activityBinding?.navBar?.backgroundColor ?: Color.BLACK),
                             )
                     }
                     newColor
@@ -356,7 +360,7 @@ class MangaDetailsController :
 
     private fun setItemColors() {
         getHeader()?.updateColors()
-        if (adapter?.itemCount ?: 0 > 1) {
+        if ((adapter?.itemCount ?: 0) > 1) {
             if (isTablet) {
                 val chapterHolder = binding.recycler.findViewHolderForAdapterPosition(0) as? MangaHeaderHolder
                 chapterHolder?.updateColors()
@@ -438,7 +442,7 @@ class MangaDetailsController :
         binding.swipeRefresh.setDistanceToTriggerSync(70.dpToPx)
 
         if (isTablet) {
-            val tHeight = toolbarHeight.takeIf { it ?: 0 > 0 } ?: appbarHeight
+            val tHeight = toolbarHeight.takeIf { (it ?: 0) > 0 } ?: appbarHeight
             val insetsCompat =
                 view.rootWindowInsetsCompat ?: activityBinding?.root?.rootWindowInsetsCompat
             headerHeight = tHeight + (insetsCompat?.getInsets(systemBars())?.top ?: 0)
@@ -510,9 +514,9 @@ class MangaDetailsController :
         offset: Int,
     ) {
         val systemInsets = insets.ignoredSystemInsets
-        binding.recycler.updatePaddingRelative(bottom = systemInsets.bottom)
+        binding.recycler.updatePaddingRelative(bottom = systemInsets.bottom + 2.dpToPx)
         binding.tabletRecycler.updatePaddingRelative(bottom = systemInsets.bottom)
-        val tHeight = toolbarHeight.takeIf { it ?: 0 > 0 } ?: appbarHeight
+        val tHeight = toolbarHeight.takeIf { (it ?: 0) > 0 } ?: appbarHeight
         headerHeight = tHeight + systemInsets.top
         binding.swipeRefresh.setProgressViewOffset(false, (-40).dpToPx, headerHeight + offset)
         if (isTablet) {
@@ -563,7 +567,7 @@ class MangaDetailsController :
                         animator.animatedValue as Float,
                     ),
                 )
-                activity.window?.statusBarColor =
+                activityBinding?.statusBar?.backgroundColor =
                     if (toolbarIsColored) {
                         ColorUtils.blendARGB(
                             topColor,
@@ -577,7 +581,7 @@ class MangaDetailsController :
             cA.start()
         } else {
             activityBinding?.appBar?.setBackgroundColor(if (toolbarIsColored) scrollingColor else topColor)
-            activity.window?.statusBarColor =
+            activityBinding?.statusBar?.backgroundColor =
                 if (toolbarIsColored) scrollingStatusColor else topColor
         }
     }
@@ -633,7 +637,8 @@ class MangaDetailsController :
         val scrollingColor = headerColor ?: activity!!.getResourceColor(R.attr.colorPrimaryVariant)
         val scrollingStatusColor =
             ColorUtils.setAlphaComponent(scrollingColor, (0.87f * 255).roundToInt())
-        activity?.window?.statusBarColor = if (toolbarIsColored) scrollingStatusColor else topColor
+        activityBinding?.statusBar?.backgroundColor =
+            if (toolbarIsColored) scrollingStatusColor else topColor
         activityBinding?.appBar?.setBackgroundColor(
             if (toolbarIsColored) scrollingColor else topColor,
         )
@@ -719,9 +724,8 @@ class MangaDetailsController :
                 if (router.backstack.last().controller !is FloatingSearchInterface) {
                     activityBinding?.appBar?.setBackgroundColor(colorSurface)
                 }
-                activity?.window?.statusBarColor = activity?.getResourceColor(
-                    android.R.attr.statusBarColor,
-                ) ?: colorSurface
+                activityBinding?.statusBar?.backgroundColor =
+                    activity?.getColor(R.color.status_bar) ?: colorSurface
             }
         }
     }
@@ -1304,7 +1308,7 @@ class MangaDetailsController :
                                 manga?.id?.hashCode() ?: 0,
                                 Intent.createChooser(shareCoverIntent, context.getString(R.string.share)),
                                 PendingIntent.FLAG_IMMUTABLE,
-                            )
+                            activityOptionsBackgroundOptions(false)?.toBundle(),)
                         val action =
                             ChooserAction
                                 .Builder(
@@ -1613,22 +1617,30 @@ class MangaDetailsController :
         )
     }
 
-    fun sourceSearch(text: String) {
-        when (
-            val previousController =
-                router.backstack.getOrNull(router.backstackSize - 2)?.controller
-        ) {
+    fun localSearch(tags: List<String>) {
+        router.pushController(
+            FilteredLibraryController(
+                tags.joinToString(", "),
+                filterTags = tags.toTypedArray(),
+            ).withFadeTransaction(),
+        )
+    }
+
+    fun sourceSearch(text: String) = sourceSearch(listOf(text))
+
+    fun sourceSearch(tags: List<String>) {
+        when (val previousController = previousController) {
             is BrowseSourceController -> {
-                if (presenter.source is HttpSource) {
-                    router.handleBack()
-                    previousController.searchWithGenre(text)
+                if (presenter.source is CatalogueSource) {
+                    router.getOnBackPressedDispatcher()?.onBackPressed()
+                    previousController.searchGenres(tags)
                 }
             }
             else -> {
                 if (presenter.source is CatalogueSource) {
                     val controller = BrowseSourceController(presenter.source)
                     router.pushController(controller.withFadeTransaction())
-                    controller.searchWithGenre(text)
+                    controller.searchGenres(tags)
                 }
             }
         }
@@ -1680,6 +1692,18 @@ class MangaDetailsController :
         }
         floatingActionMode =
             view.startActionMode(actionModeCallback, android.view.ActionMode.TYPE_FLOATING)
+    }
+
+    fun showFloatingActionModeForAllTags() {
+        val chipGroup = getHeader()?.binding?.mangaGenresTags ?: return
+        finishFloatingActionMode()
+        val actionModeCallback = FloatingMangaDetailsAllActionModeCallback(chipGroup)
+        val chips = chipGroup.children.mapNotNull { it as? Chip }
+        chips.forEach {
+            it.isActivated = true
+        }
+        floatingActionMode =
+            chipGroup.startActionMode(actionModeCallback, android.view.ActionMode.TYPE_FLOATING)
     }
 
     override fun customActionMode(view: TextView): android.view.ActionMode.Callback =
@@ -2089,6 +2113,10 @@ class MangaDetailsController :
                         localSearch(subText, isTag)
                     }
                 }
+                R.id.action_select_all_tags -> {
+                    showFloatingActionModeForAllTags()
+                    return true
+                }
                 else -> return false
             }
             if (closeMode) {
@@ -2103,6 +2131,58 @@ class MangaDetailsController :
             }
             if (textView is Chip) {
                 textView.isActivated = false
+            }
+        }
+    }
+
+    inner class FloatingMangaDetailsAllActionModeCallback(
+        chipGroup: ChipGroup,
+    ) : android.view.ActionMode.Callback {
+        private val chips = chipGroup.children.mapNotNull { it as? Chip }
+
+        override fun onCreateActionMode(
+            mode: android.view.ActionMode?,
+            menu: Menu?,
+        ): Boolean {
+            mode?.menuInflater?.inflate(R.menu.manga_details_tag, menu)
+            menu?.findItem(R.id.action_copy)?.isVisible = true
+            menu?.findItem(R.id.action_global_search)?.isVisible = false
+            menu?.findItem(R.id.action_select_all_tags)?.isVisible = false
+            val sourceMenuItem = menu?.findItem(R.id.action_source_search)
+            sourceMenuItem?.isVisible = presenter.source is CatalogueSource
+            val context = view?.context ?: return false
+            sourceMenuItem?.title = context.getString(R.string.search_, presenter.source.name)
+            val localItem = menu?.findItem(R.id.action_local_search) ?: return true
+            localItem.isVisible = previousController !is FilteredLibraryController
+            val library = context.getString(R.string.library).lowercase(Locale.getDefault())
+            localItem.title = context.getString(R.string.search_, library)
+            return true
+        }
+
+        override fun onPrepareActionMode(
+            mode: android.view.ActionMode?,
+            menu: Menu?,
+        ): Boolean = false
+
+        override fun onActionItemClicked(
+            mode: android.view.ActionMode?,
+            item: MenuItem?,
+        ): Boolean {
+            val tags by lazy { chips.map { it.text.toString() }.toList() }
+            when (item?.itemId) {
+                R.id.action_copy -> copyContentToClipboard(tags.joinToString(", "), null)
+                R.id.action_local_search -> localSearch(tags)
+                R.id.action_source_search -> sourceSearch(tags)
+                else -> return false
+            }
+            mode?.finish()
+            return true
+        }
+
+        override fun onDestroyActionMode(mode: android.view.ActionMode?) {
+            floatingActionMode = null
+            chips.forEach {
+                it.isActivated = false
             }
         }
     }

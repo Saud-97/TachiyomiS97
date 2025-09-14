@@ -80,5 +80,4 @@
         android:icon="@drawable/ic_swap_calls_24dp"
         android:title="@string/migrate"
         app:showAsAction="never" />
-
 </menu>

@@ -212,7 +212,7 @@
     <string name="update_available">আপডেট এসেছে</string>
     <string name="cover_of_image">মাংগার কভার</string>
     <string name="no_recent_chapters">কোন সাম্প্রতিক অধ্যায় নেই</string>
-    <string name="no_recently_read_manga">কোন সাম্প্রতিক পড়া মাংগা নেই</string>
+    <string name="no_recently_read_manga">কোন সাম্প্রতিক পড়া সিরিজ নেই</string>
     <string name="library_is_empty_add_from_browse">আপনার মাংগাশালা খালি, আপনি চাইলে মাংগাশালায় ক্যাটালগস থেকে মাংগা যোগ করতে পারেন।</string>
     <string name="could_not_download_unexpected_error">অধ্যায় ডাউনলোডের সময় একটি অনাকাঙ্ক্ষিত ত্রুটি ঘটেছে</string>
     <string name="no_wifi_connection">কোন ওয়াই-ফাই সংযোগ খুঁজে পাওয়া যায়নি</string>
@@ -229,11 +229,9 @@
     <string name="untrusted">অনির্ভরযোগ্য</string>
     <string name="uninstall">আন ইন্সটল</string>
     <string name="untrusted_extension">অনির্ভর‍যোগ্য এক্সটেনশন</string>
-    <string name="untrusted_extension_message">এই এক্সটেনশনটি একটি অবিশ্বস্ত সার্টিফিকেট দিয়ে স্বাক্ষরিত হয়েছিল এবং সক্রিয় করা হয়নি।
+    <string name="untrusted_extension_message">অনুমোদিত এক্সটেনশানগুলি আপনার লগইন তথ্য বা ডিভাইস ক্ষতিগ্রস্ত করতে পারে।
 \n
-\nএকটি দূষিত এক্সটেনশন টাচিওমিতে সংরক্ষিত যেকোন লগইন শংসাপত্র পড়তে পারে বা নির্বিচারে কোড চালাতে পারে।
-\n
-\nএই শংসাপত্রটি বিশ্বাস করে আপনি এই ঝুঁকিগুলি গ্রহণ করেন।</string>
+\nএই এক্সটেনশানটি ইনস্টল করার আগে, আপনি এই ঝুঁকিগুলি সম্পর্কে অবহিত।</string>
     <string name="version_">ভার্সন: %1$s</string>
     <string name="language_">ভাষা: %1$s</string>
     <string name="double_tap_anim_speed">দুই টোকায় এনিমেশনের গতি</string>
@@ -368,7 +366,7 @@
     <string name="manage_category">বিভাগ পরিচালনা করুন</string>
     <string name="add_categories">বিভাগ যুক্ত করুন</string>
     <string name="already_in_category">মাঙ্গা আগে থেকেই এই বিভাগে আছে</string>
-    <string name="confirm_category_deletion_message">এই বিভাগের মাঙ্গা ডিফল্ট বিভাগে চলে যাবে।</string>
+    <string name="confirm_category_deletion_message">এই বিভাগের সিরিজ ডিফল্ট বিভাগে চলে যাবে।</string>
     <string name="adding_category_to_queue">আপডেট সারিতে %1$sকে যোগ করা হচ্ছে</string>
     <string name="unlock_library">লাইব্রেরীতে প্রবেশ করতে আনলক করুন</string>
     <string name="in_progress">চলমান</string>
@@ -602,7 +600,7 @@
         <item quantity="other">ডাউনলোড করা %1$dটি অধ্যায় সরাবেন\?</item>
     </plurals>
     <string name="all_files_permission_required">ফাইল অনুমতি প্রয়োজন</string>
-    <string name="external_storage_permission_notice">TachiyomiS97-এর জন্য অধ্যায়গুলি ডাউনলোড করতে, স্বয়ংক্রিয় ব্যাকআপ তৈরি করতে এবং স্থানীয় মাঙ্গা পড়তে Android 11-এর সমস্ত ফাইল অ্যাক্সেস করতে হবে।
+    <string name="external_storage_permission_notice">TachiyomiS97-এর জন্য অধ্যায়গুলি ডাউনলোড করতে, স্বয়ংক্রিয় ব্যাকআপ তৈরি করতে এবং স্থানীয় সিরিজ পড়তে Android 11-এর সমস্ত ফাইল অ্যাক্সেস করতে হবে।
 \n
 \nপরবর্তী স্ক্রিনে, \"সমস্ত ফাইল পরিচালনা করতে অ্যাক্সেসের অনুমতি দিন\" সক্ষম করুন।\"</string>
     <string name="external_storage_download_notice">TachiyomiS97-এর অধ্যায়গুলি ডাউনলোড করার জন্য সমস্ত ফাইলে অ্যাক্সেস প্রয়োজন। এখানে আলতো চাপুন, তারপর \"সমস্ত ফাইল পরিচালনা করতে অ্যাক্সেসের অনুমতি দিন\" সক্ষম করুন৷\"</string>
@@ -625,7 +623,7 @@
     <string name="category_hopper_long_press">ক্যাটাগরি হপার লং-প্রেস অ্যাকশন</string>
     <string name="changing_will_reset_reading_mode">এটি পরিবর্তন করলে এই সিরিজের রিডিং মোড রিসেট হবে</string>
     <plurals name="missing_chapters_warning">
-        <item quantity="one">1 অধ্যায় এড়িয়ে জাছি, হয় উৎসটি অনুপস্থিত বা এটি ফিল্টার করা হয়েছে</item>
+        <item quantity="one">%d অধ্যায় এড়িয়ে জাছি, হয় উৎসটি অনুপস্থিত বা এটি ফিল্টার করা হয়েছে</item>
         <item quantity="other">%d অধ্যায় কিপ করা হচ্ছে, হয় উৎসটি তাদের অনুপস্থিত অথবা সেগুলি ফিল্টার করা হয়েছে</item>
     </plurals>
     <string name="backup_in_progress">ব্যাকআপ ইতিমধ্যেই চলছে</string>
@@ -681,12 +679,12 @@
     <string name="hide_category_hopper">ক্যাটাগরি হপার লুকাও</string>
     <string name="search_suggestions">অনুসন্ধান পরামর্শ</string>
     <string name="tracking_status">ট্র্যাকিং স্ট্যাটাস</string>
-    <string name="when_sorting_ignore_articles">বর্ণানুক্রমিকভাবে সাজানোর সময়, ম্যাঙ্গা শিরোনামের শুরুতে নিবন্ধগুলি (a, an, the) উপেক্ষা করে সাজাও</string>
+    <string name="when_sorting_ignore_articles">বর্ণানুক্রমিকভাবে সাজানোর সময়, সিরিজ শিরোনামের শুরুতে নিবন্ধগুলি (a, an, the) উপেক্ষা করে সাজাও</string>
     <string name="expand_collapse_all_categories">সমস্ত বিভাগ প্রসারিত/সঙ্কুচিত কর</string>
     <string name="display_options">প্রদর্শনের বিকল্পগুলি</string>
     <string name="global_updates">সার্বজনীন হালনাগাদ</string>
     <string name="display_buttons_bottom_reader">পাঠকের নীচে বাটন</string>
-    <string name="no_recent_read_updated_manga">সম্প্রতি পড়া বা আপডেট করা মাঙ্গা নেই</string>
+    <string name="no_recent_read_updated_manga">সম্প্রতি পড়া বা আপডেট করা সিরিজ নেই</string>
     <string name="only_unread">শুধুমাত্র অপঠিত</string>
     <string name="restrictions_">সীমাবদ্ধতা: %1$s</string>
     <string name="auto_refresh_covers_summary">লাইব্রেরি আপডেট করার সময় লাইব্রেরিতে কভার রিফ্রেশ কর</string>
@@ -985,15 +983,46 @@
     <string name="allow_deleting_bookmarked_chapters">বুকমার্ক করা অধ্যায়গুলি মুছে ফেলার অনুমতি দিন</string>
     <string name="appwidget_unavailable_locked">অ্যাপ লক চালু থাকলে Widget পাওয়া যায় না</string>
     <string name="show_more_chapters">আরো অধ্যায় দেখান</string>
-    <string name="skipped_reason_not_always_update">বাদ দেওয়া হয়েছে কারণ সিরিজের আপডেটের প্রয়োজন নেই৷</string>
+    <string name="skipped_reason_not_always_update">বাদ দেওয়া হয়েছে কারণ সিরিজের আপডেটের প্রয়োজন নেই</string>
     <string name="app_updates">অ্যাপ আপডেট</string>
     <string name="gray_background">ধূসর</string>
     <string name="pref_remove_exclude_categories">বর্জিত বিভাগ গুলি</string>
-    <string name="ext_installer_pref">ইন্সটলআর</string>
+    <string name="ext_installer_pref">ইনস্টলার প্রোগ্রাম</string>
     <string name="library_entries">লাইব্রেরীতে সংগ্রহ</string>
     <string name="pref_debug_info">ডিবাগ তথ্য</string>
     <string name="label_background_activity">পটভূমি কার্যকলাপ</string>
     <string name="appwidget_updates_description">সম্প্রতি আপনার হালনাগাদকৃত মাঙ্গা দেখুন</string>
     <string name="skipped_reason_not_started">স্কিপ করা হয়েছে কারণ আগে কোন চ্যাপ্টার পড়া হয়নি</string>
     <string name="allow_notifications_recommended">অ্যাপ এবং লাইব্রেরীতে থাকা সকল কিছুর আপডেট পেতে নোটিফিকেশন অন করুন।</string>
+    <string name="extension_api_error">এক্সটেনশান লোডে ব্যর্থ হয়েছে</string>
+    <string name="ext_revoke_trust">অচেনা এক্সটেনশানগুলির অ্যাক্সেস সরিয়ে ফেলুন</string>
+    <string name="error_repo_exists">এই রিপোটি ইতিমধ্যেই যুক্ত আছে!</string>
+    <string name="repo_cannot_be_blank">রিপোর নাম ফাঁকা রাখা যাবে না</string>
+    <string name="snack_repo_deleted">রিপো মুছে ফেলা হয়েছে</string>
+    <string name="navigate_pan">প্যানে নেভিগেট করুন</string>
+    <string name="open_source_repo">ওপেন-সোর্স রিপো</string>
+    <string name="action_add_repo">রিপো যুক্ত করুন</string>
+    <string name="action_add_repo_message">তাসিয়োমিতে আরও রিপো যোগ কর! URL শেষে \"index.min.json\" থাকা লাগবে</string>
+    <string name="extension_repos">এক্সটেনশান রিপো</string>
+    <plurals name="num_repos">
+        <item quantity="one">%dরিপো</item>
+        <item quantity="other">%dরিপোস</item>
+    </plurals>
+    <string name="invalid_repo_name">রিপোর নাম অবৈধ</string>
+    <string name="confirm_repo_deletion">রিপো মুছুন</string>
+    <string name="delete_repo_confirmation">রিপোজিটরিটি মুছে ফেলতে চান \"%s\"?</string>
+    <string name="save_pages_separately">প্রতিটি পৃষ্ঠার জন্য আলাদা ফোল্ডারে সংরক্ষণ করুন</string>
+    <string name="updates_last_update_info">লাইব্রেরিটি সর্বশেষ আপডেট করা হয়েছে:%s</string>
+    <string name="by_series">সিরিজ অনুসারে</string>
+    <string name="pref_update_only_completely_read_summary">কোনো অপঠিত অধ্যায় না থাকলেই সিরিজটি আপডেট করুন (সম্পূর্ণ পড়া)</string>
+    <string name="url_not_set_click_again">দুঃখিত, রিপোর URL গ্রহণ করা যায়নি, অনুগ্রহ করে এটি সংশোধন করুন।</string>
+    <string name="webtoon_side_padding_5">৫%</string>
+    <string name="sort_fetched_time">ফেচ করা সময় অনুসারে সাজানো</string>
+    <string name="zoom_double_page_spreads">দু\'পৃষ্ঠার স্প্রেডগুলো জুম ইন করুন</string>
+    <string name="popular">প্রচলিত</string>
+    <string name="skip_dupe_chapters">পুনরাবৃত্ত অধ্যায়গুলি এড়িয়ে যান</string>
+    <string name="collapse_grouped_chapters">একত্রিত অধ্যায়গুলো লুকান</string>
+    <string name="by_week">সপ্তাহ অনুসারে</string>
+    <string name="ext_installer_summary">অ্যান্ড্রয়েড ১২ এর অধীন ডিভাইসের জন্য ব্যবহারকারী অনুরোধন ছাড়াই এক্সটেনশান ইনস্টল করতে এবং স্বয়ংক্রিয় আপডেট সক্ষম করতে দেয়</string>
+    <string name="by_day">দিন অনুসারে</string>
 </resources>

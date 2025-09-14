@@ -89,11 +89,9 @@
     <string name="untrusted">Μη αξιόπιστο</string>
     <string name="uninstall">Απεγκατάσταση</string>
     <string name="untrusted_extension">Μη αξιόπιστη επέκταση</string>
-    <string name="untrusted_extension_message">Αυτή η επέκταση υπογράφηκε με μη αξιόπιστο πιστοποιητικό και δεν ενεργοποιήθηκε.
+    <string name="untrusted_extension_message">Οι κακόβουλες επεκτάσεις μπορούν να διαβάσουν τυχόν αποθηκευμένα διαπιστευτήρια σύνδεσης ή να εκτελέσουν αυθαίρετο κώδικα.
 \n
-\nΜια κακόβουλη επέκταση θα μπορούσε να διαβάσει τα διαπιστευτήρια σύνδεσης που είναι αποθηκευμένα στο Tachiyomi ή να εκτελέσει αυθαίρετο κώδικα.
-\n
-\nΕμπιστεύοντας αυτό το πιστοποιητικό αποδέχεστε αυτούς τους κινδύνους.</string>
+\nΜε την εμπιστοσύνη αυτής της επέκτασης, αποδέχεστε αυτούς τους κινδύνους.</string>
     <string name="version_">Έκδοση: %1$s</string>
     <string name="language_">Γλώσσα: %1$s</string>
     <string name="fullscreen">Πλήρης οθόνη</string>
@@ -1073,4 +1071,21 @@
     <string name="share_cover">Κοινοποίηση εξωφύλλου</string>
     <string name="save_pages_separately">Αποθήκευση σελίδων σε ξεχωριστούς φακέλους</string>
     <string name="create_folders_by_manga_title">Δημιουργεί φακέλους σύμφωνα με τον τίτλο manga</string>
+    <string name="extension_api_error">Αποτυχία ανάκτησης διαθέσιμων επεκτάσεων</string>
+    <string name="ext_revoke_trust">Ανάκληση αξιόπιστων άγνωστων επεκτάσεων</string>
+    <string name="open_source_repo">Αποθετήριο ανοικτού κώδικα</string>
+    <string name="action_add_repo">Προσθήκη αποθετηρίων</string>
+    <string name="action_add_repo_message">Προσθέστε επιπλέον αποθετήρια στο Tachiyomi. Αυτό θα πρέπει να είναι ένα URL που τελειώνει με \"index.min.json\"</string>
+    <string name="extension_repos">Αποθετήρια επεκτάσεων</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d αποθετήριο</item>
+        <item quantity="other">%d αποθετήρια</item>
+    </plurals>
+    <string name="error_repo_exists">Αυτό το αποθετήριο υπάρχει ήδη!</string>
+    <string name="repo_cannot_be_blank">Το όνομα αποθετηρίου δεν μπορεί να είναι κενό</string>
+    <string name="snack_repo_deleted">Το αποθετήριο διαγράφηκε</string>
+    <string name="invalid_repo_name">Μη έγκυρο όνομα αποθετηρίου</string>
+    <string name="confirm_repo_deletion">Διαγραφή αποθετηρίου</string>
+    <string name="url_not_set_click_again">Το URL αποθετηρίου δεν έχει οριστεί, παρακαλούμε επεξεργαστείτε το URL</string>
+    <string name="delete_repo_confirmation">Θέλετε να διαγράψετε το αποθετήριο \"%s\";</string>
 </resources>

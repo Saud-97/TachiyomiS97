@@ -11,6 +11,7 @@ import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.isVisible
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.source.SourceManager
@@ -113,6 +114,8 @@ open class WebViewActivity : BaseWebViewActivity() {
                         favicon: Bitmap?,
                     ) {
                         super.onPageStarted(view, url, favicon)
+                        binding.progressBar.isIndeterminate = true
+                        binding.progressBar.isVisible = true
                         invalidateOptionsMenu()
                     }
 

@@ -89,11 +89,9 @@
     <string name="untrusted">Ненадійне</string>
     <string name="uninstall">Видалити</string>
     <string name="untrusted_extension">Ненадійне розширення</string>
-    <string name="untrusted_extension_message">Це розширення було підписано ненадійним сертифікатом та не було активовано.
+    <string name="untrusted_extension_message">Зловмисне розширення може зчитувати будь-які збережені авторизаційні дані або виконувати сторонній код.
 \n
-\nЗловмисне розширення может зчитувати будь-які облікові дані для входу, що зберігаються в Tachiyomi, або виконувати довільний код.
-\n
-\nДовіряючи цьому сертифікату, ви приймаєте ці ризики.</string>
+\nДовіряючи цьому розширенню, ви приймаєте ці ризики.</string>
     <string name="version_">Версія:%1$s</string>
     <string name="language_">Мова: %1$s</string>
     <string name="fullscreen">Повноекранний режим</string>
@@ -540,19 +538,19 @@
     <plurals name="deleted_chapters">
         <item quantity="one">Розділ було видалено з джерела:
 \n%2$s
-\nВидалити завантажене\?</item>
-        <item quantity="few">%1$s розділів було видалено з джерела:
+\nВидалити завантажене?</item>
+        <item quantity="few">%1$s розділи було видалено з джерела:
 \n%2$s
 \n
-\nВидалити завантажене\?</item>
+\nВидалити завантажене?</item>
         <item quantity="many">%1$s розділів було видалено з джерела:
 \n%2$s
 \n
-\nВидалити завантажене\?</item>
+\nВидалити завантажене?</item>
         <item quantity="other">%1$s розділів було видалено з джерела:
 \n%2$s
 \n
-\nВидалити завантажене\?</item>
+\nВидалити завантажене?</item>
     </plurals>
     <string name="migration_sources_changed">Джерела переносу змінено</string>
     <string name="use_last_saved_migration_preferences">Використовувати останні збережені передпереносу налаштування та джерела для масової міграції</string>
@@ -1126,4 +1124,23 @@
     <string name="app_settings">Налаштування застосунку</string>
     <string name="save_pages_separately">Зберегти сторінки в окремих теках</string>
     <string name="create_folders_by_manga_title">Створювати теки відповідно до назви манги</string>
+    <string name="extension_api_error">Не вдалося отримати доступні розширення</string>
+    <string name="ext_revoke_trust">Відкликати довірені невідомі розширення</string>
+    <string name="open_source_repo">Репозиторій з відкритим вихідним кодом</string>
+    <string name="error_repo_exists">Цей репозиторій вже додано!</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d репозиторій</item>
+        <item quantity="few">%d репозиторія</item>
+        <item quantity="many">%d репозиторіїв</item>
+        <item quantity="other">%d репозиторіїв</item>
+    </plurals>
+    <string name="confirm_repo_deletion">Видалити репозиторій</string>
+    <string name="delete_repo_confirmation">Ви бажаєте видалити репозиторій \"%s\"?</string>
+    <string name="url_not_set_click_again">URL-адреса репозиторію не вказано, будь ласка, відредагуйте URL-адресу</string>
+    <string name="action_add_repo">Додати репозиторій</string>
+    <string name="action_add_repo_message">Додайте додаткові репозиторії до Tachiyomi. Це має бути URL, який закінчується на \"index.min.json\"</string>
+    <string name="extension_repos">Репозиторії розширень</string>
+    <string name="repo_cannot_be_blank">Ім\'я репозиторію не може бути порожнім</string>
+    <string name="snack_repo_deleted">Репозиторій видалено</string>
+    <string name="invalid_repo_name">Неправильна назва репозиторія</string>
 </resources>

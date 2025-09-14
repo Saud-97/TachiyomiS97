@@ -5,13 +5,13 @@
     <string name="chapters">章节</string>
     <string name="history">历史</string>
     <string name="settings">设置</string>
-    <string name="download_queue">下载队列</string>
+    <string name="download_queue">下载列表</string>
     <string name="library">书架</string>
     <string name="recent_updates">书架更新</string>
     <string name="selected_">已选择：%1$d</string>
     <string name="extensions">插件</string>
     <string name="extension_info">插件信息</string>
-    <string name="filter">滤镜</string>
+    <string name="filter">筛选</string>
     <string name="downloaded">已下载</string>
     <string name="bookmarked">已添加书签</string>
     <string name="unread">未读</string>
@@ -89,11 +89,9 @@
     <string name="untrusted">不可信</string>
     <string name="uninstall">卸载</string>
     <string name="untrusted_extension">插件未受信任</string>
-    <string name="untrusted_extension_message">此插件的证书不可信且尚未启用。
+    <string name="untrusted_extension_message">恶意插件可能会读取所有登录的账号或执行任意代码。
 \n
-\n恶意插件能读取储存在Tachiyomi 中的任何登录凭据或执行任意代码。
-\n
-\n信任这个证书即代表你愿意承担上述风险。</string>
+\n信任此插件即代表你愿意承担上述风险。</string>
     <string name="version_">版本: %1$s</string>
     <string name="language_">语言: %1$s</string>
     <string name="fullscreen">全屏</string>
@@ -160,7 +158,7 @@
     <string name="restore_completed">还原完毕</string>
     <string name="what_should_backup">需要备份什么？</string>
     <string name="restoring_backup">正在还原备份</string>
-    <string name="clear_chapter_cache">清除章节缓存</string>
+    <string name="clear_chapter_cache">清除缓存数据</string>
     <string name="used_">已使用空间：%1$s</string>
     <string name="cache_delete_error">清除时发生错误</string>
     <string name="clear_cookies">清除Cookies</string>
@@ -207,7 +205,7 @@
     <string name="downloading_progress">正在下载 (%1$d/%2$d)</string>
     <string name="paused">已暂停</string>
     <string name="custom_range">自定义范围</string>
-    <string name="all_chapters">下载全部</string>
+    <string name="all_chapters">所有章节</string>
     <string name="all_unread_chapters">全部未读章节</string>
     <string name="reading">在读</string>
     <string name="completed">已完结</string>
@@ -254,8 +252,8 @@
     <string name="no_recently_read_manga">无最近阅读的作品</string>
     <string name="library_is_empty_add_from_browse">书架为空，可从「浏览」中添加作品至书架。</string>
     <string name="could_not_download_unexpected_error">出现意外错误下载失败</string>
-    <string name="no_wifi_connection">无可用Wi-Fi</string>
-    <string name="no_network_connection">无可用的网络连接</string>
+    <string name="no_wifi_connection">Wi-Fi未连接</string>
+    <string name="no_network_connection">网络未连接</string>
     <string name="download_paused">下载暂停</string>
     <string name="common">通用</string>
     <string name="open_in_webview">在WebView中打开</string>
@@ -418,12 +416,12 @@
         <item quantity="other">剩余%1$d页</item>
     </plurals>
     <plurals name="remove_n_chapters">
-        <item quantity="other">移除已下载的%1$d章？</item>
+        <item quantity="other">确定删除已下载的%1$d章吗？</item>
     </plurals>
     <string name="chapters_removed">章节已删除。</string>
     <string name="all_chapters_read">已看完</string>
     <string name="chapter_x_of_y">%1$d/%2$d</string>
-    <string name="last_read_chapter_">最后阅读的章节%1$s</string>
+    <string name="last_read_chapter_">最近阅读至第 %1$s 章</string>
     <string name="comic">美漫</string>
     <string name="manhua">国漫</string>
     <string name="manhwa">韩漫</string>
@@ -450,7 +448,7 @@
     </plurals>
     <string name="stop_migrating">停止迁移？</string>
     <string name="no_alternatives_found">找不到替代</string>
-    <string name="no_chapters_found_for_migration">无可用章节，此作品无法进行迁移</string>
+    <string name="no_chapters_found_for_migration">未发现任何章节，此作品无法进行迁移</string>
     <string name="migrate_">迁移%1$s</string>
     <string name="copy_now">立即复制</string>
     <string name="dont_migrate">不迁移</string>
@@ -504,21 +502,21 @@
     <string name="enabled">已启用</string>
     <string name="drag_handle">拖动手柄</string>
     <string name="download_unread">下载未读</string>
-    <string name="deleted_">已删除：%1$s</string>
+    <string name="deleted_">已清除：%1$s</string>
     <plurals name="after_minutes">
         <item quantity="other">在%1$s分钟之后</item>
     </plurals>
     <string name="always_delete">总是删除</string>
     <string name="always_keep">总是保留</string>
-    <string name="ask_on_chapters_page">在全局更新期间删除时请求章节页面</string>
+    <string name="ask_on_chapters_page">在全局更新期间删除并打开章节页面询问</string>
     <string name="delete_downloaded_if_removed_online">如果图源已移除在线章节，则删除已下载的章节</string>
     <string name="delete_removed_chapters">删除已移除的章节</string>
-    <string name="visit_recents_for_download_queue">查看“最近”标签以访问下载队列。 你也可以双击或长按进行快速访问</string>
+    <string name="visit_recents_for_download_queue">查看“最近”标签以访问下载列表。 你也可以双击或长按进行快速访问</string>
     <string name="manage_whats_downloading">管理下载内容</string>
     <string name="nothing_is_downloading">目前没有任何下载</string>
     <string name="remove_download">移除下载内容</string>
-    <string name="remove_downloads">移除下载内容</string>
-    <string name="start_downloading_now">现在开始下载</string>
+    <string name="remove_downloads">删除已下载章节</string>
+    <string name="start_downloading_now">立即开始下载</string>
     <string name="username_must_not_be_blank">用户名或密码不能为空</string>
     <string name="not_downloaded">未下载</string>
     <string name="whats_new">更新日志</string>
@@ -532,16 +530,16 @@
     <string name="only_search_pinned_when">仅搜索置顶图源</string>
     <string name="delete_all_covers__not_in_library_used_">删除不在书架的所有封面缓存
 \n当前使用：%1$s</string>
-    <string name="clear_cached_covers_non_library">清除不在书架的封面缓存</string>
+    <string name="clear_cached_covers_non_library">清除不在书架内漫画的封面缓存</string>
     <string name="delete_old_covers_in_library_used_">删除书架更新过后旧的和未使用的作品封面缓存
 \n当前使用：%1$s</string>
-    <string name="clean_up_cached_covers">清理缓存的封面</string>
+    <string name="clean_up_cached_covers">清除封面缓存</string>
     <plurals name="cleanup_done">
         <item quantity="other">清除完成，移除了%d个目录</item>
     </plurals>
-    <string name="disable_if_issues_with_updating">如果更新或恢复书架过程中出现问题，禁用此项</string>
+    <string name="disable_if_issues_with_updating">若更新或恢复书架过程中出错请禁用此项</string>
     <string name="no_folders_to_cleanup">没有待清除的目录</string>
-    <string name="starting_cleanup">开始清除</string>
+    <string name="starting_cleanup">清除开始</string>
     <string name="clean_read_manga_not_in_library">清除不在书架的作品</string>
     <string name="clean_read_downloads">清除读过</string>
     <string name="clean_up_downloaded_chapters">清除已下载章节</string>
@@ -746,7 +744,7 @@
     <string name="updates_and_history">更新和历史</string>
     <string name="your_library">书架</string>
     <string name="no_chapters_to_delete">没有可删除的章节</string>
-    <string name="remove_all_downloads">移除所有下载？</string>
+    <string name="remove_all_downloads">确定要删除所有已下载章节吗？</string>
     <string name="locked_landscape">锁定横屏</string>
     <string name="locked_portrait">锁定竖屏</string>
     <string name="landscape">横屏</string>
@@ -810,7 +808,7 @@
     <string name="warning">警告</string>
     <string name="dont_auto_update">不自动更新</string>
     <string name="over_any_network">任何网络连接</string>
-    <string name="over_wifi_only">仅Wi-Fi</string>
+    <string name="over_wifi_only">仅连接Wi-Fi时</string>
     <string name="auto_update_app">自动更新应用</string>
     <string name="auto_updates">自动更新</string>
     <string name="add_tag">添加标签</string>
@@ -891,7 +889,7 @@
     <string name="warning_enroll_into_beta">测试版本可能不稳定且可能需要清除应用数据。</string>
     <string name="new_beta_version_available">有新的测试版本可用！</string>
     <string name="try_new_features">在正式发布之前尝试新功能。 测试版本可能不稳定，并提供给开发人员反馈。</string>
-    <string name="warning_unenroll_from_beta">回滚到旧版可能会产生问题并需要清除应用数据。</string>
+    <string name="warning_unenroll_from_beta">回滚到旧版本可能会产生问题并需要清除应用数据。</string>
     <string name="expanded_toolbar">扩展工具栏</string>
     <string name="show_larger_toolbar">在大多数页面顶部显示更大的扩展工具栏（无论如何设置都不在较小的设备上显示）</string>
     <string name="order_by">排序依据</string>
@@ -1046,4 +1044,20 @@
     <string name="share_cover">分享封面</string>
     <string name="save_pages_separately">保存到独立的文件夹</string>
     <string name="create_folders_by_manga_title">按照漫画标题创建文件夹</string>
+    <string name="extension_api_error">获取可用插件失败</string>
+    <string name="ext_revoke_trust">撤销信任的未知插件</string>
+    <string name="open_source_repo">打开图源仓库</string>
+    <string name="action_add_repo">添加仓库</string>
+    <string name="extension_repos">插件仓库</string>
+    <string name="repo_cannot_be_blank">仓库网址不能为空</string>
+    <string name="snack_repo_deleted">删除仓库</string>
+    <string name="confirm_repo_deletion">删除仓库</string>
+    <string name="url_not_set_click_again">未设置仓库网址，请重新编辑</string>
+    <plurals name="num_repos">
+        <item quantity="other">%d 个仓库</item>
+    </plurals>
+    <string name="action_add_repo_message">在 Tachiyomi 中添加仓库，输入的网址结尾应为“index.min.json”</string>
+    <string name="invalid_repo_name">仓库网址无效</string>
+    <string name="delete_repo_confirmation">确定要删除仓库“%s”吗？</string>
+    <string name="error_repo_exists">此仓库网址已存在！</string>
 </resources>

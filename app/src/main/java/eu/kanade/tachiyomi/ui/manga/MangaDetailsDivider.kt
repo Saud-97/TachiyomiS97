@@ -1,13 +1,17 @@
 package eu.kanade.tachiyomi.ui.manga
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
+import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.ui.manga.chapter.ChapterHolder
 import eu.kanade.tachiyomi.util.system.dpToPx
-import eu.kanade.tachiyomi.util.system.isLTR
+import eu.kanade.tachiyomi.util.system.getResourceColor
 
+@SuppressLint("UseKtx")
 class MangaDetailsDivider(
     context: Context,
     val padding: Int = 12.dpToPx,
@@ -28,16 +32,21 @@ class MangaDetailsDivider(
         val childCount = parent.childCount
         for (i in 0 until childCount - 1) {
             val child = parent.getChildAt(i)
-            val params =
-                child.layoutParams as androidx.recyclerview.widget.RecyclerView.LayoutParams
-            val top = child.bottom + params.bottomMargin
-            val bottom = top + divider.intrinsicHeight
-            val left = parent.paddingStart + if (parent.context.resources.isLTR) padding else 0
-            val right =
-                parent.width - parent.paddingEnd - if (!parent.context.resources.isLTR) padding else 0
+            val holder = parent.getChildViewHolder(child)
+            if (holder is ChapterHolder &&
+                parent.getChildViewHolder(parent.getChildAt(i + 1)) is ChapterHolder
+            ) {
+                val params =
+                    child.layoutParams as androidx.recyclerview.widget.RecyclerView.LayoutParams
+                val top = child.bottom + params.bottomMargin
+                val bottom = top + divider.intrinsicHeight + 1.dpToPx
+                val left = parent.paddingStart + padding
+                val right = parent.width - parent.paddingEnd - padding
 
-            divider.setBounds(left, top, right, bottom)
-            divider.draw(c)
+                divider.setBounds(left, top, right, bottom)
+                divider.draw(c)
+                c.drawColor(parent.context.getResourceColor(R.attr.background))
+            }
         }
     }
 
@@ -47,6 +56,6 @@ class MangaDetailsDivider(
         parent: androidx.recyclerview.widget.RecyclerView,
         state: androidx.recyclerview.widget.RecyclerView.State,
     ) {
-        outRect.set(0, 0, 0, divider.intrinsicHeight)
+        outRect.set(0, 0, 0, divider.intrinsicHeight + 1.dpToPx)
     }
 }

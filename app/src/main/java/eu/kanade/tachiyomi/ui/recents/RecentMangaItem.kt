@@ -13,6 +13,7 @@ import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.ui.manga.chapter.BaseChapterHolder
 import eu.kanade.tachiyomi.ui.manga.chapter.BaseChapterItem
+import eu.kanade.tachiyomi.ui.recents.RecentsViewType.GroupedAll
 
 class RecentMangaItem(
     val mch: MangaChapterHistory = MangaChapterHistory.createBlank(),
@@ -66,10 +67,27 @@ class RecentMangaItem(
         position: Int,
         payloads: MutableList<Any?>?,
     ) {
-        if (mch.manga.id == null) {
-            (holder as? RecentMangaFooterHolder)?.bind((header as? RecentMangaHeaderItem)?.recentsType ?: 0)
-        } else if (chapter.id != null) {
-            (holder as? RecentMangaHolder)?.bind(this)
+        if (mch.manga.id == null && holder is RecentMangaFooterHolder) {
+            holder.bind((header as? RecentMangaHeaderItem)?.recentsType ?: 0)
+        } else if (chapter.id != null && holder is RecentMangaHolder) {
+            holder.bind(this)
+            val recentMangaAdapter = adapter as RecentMangaAdapter
+            val useContainers = recentMangaAdapter.viewType.isUpdates || recentMangaAdapter.viewType == GroupedAll
+            if (useContainers) {
+                val setTop =
+                    (recentMangaAdapter.getItem(position - 1) as? RecentMangaItem)
+                        ?.mch
+                        ?.manga
+                        ?.id == null
+                val setBottom =
+                    (recentMangaAdapter.getItem(position + 1) as? RecentMangaItem)
+                        ?.mch
+                        ?.manga
+                        ?.id == null
+                holder.setCorners(setTop, setBottom)
+            } else {
+                holder.useContainers(false)
+            }
         }
     }
 

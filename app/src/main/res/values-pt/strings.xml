@@ -175,7 +175,7 @@
     <string name="cover_of_image">Imagem de capa da manga</string>
     <!-- Information Text -->
     <string name="no_recent_chapters">Sem capítulos recentes</string>
-    <string name="no_recently_read_manga">Sem manga lida recentemente</string>
+    <string name="no_recently_read_manga">Nenhuma série lida recentemente</string>
     <string name="library_is_empty_add_from_browse">Sua biblioteca está vazia, você pode adicionar séries dos catálogos à sua biblioteca.</string>
     <!-- Download Notification -->
     <string name="could_not_download_unexpected_error">Erro inesperado ao transferir capítulo</string>
@@ -212,11 +212,9 @@
     <string name="installed">Instalado</string>
     <string name="uninstall">Desinstalar</string>
     <string name="untrusted_extension">Extensão não confiável</string>
-    <string name="untrusted_extension_message">Esta extensão possui um certificado não confiável e não foi ativada.
+    <string name="untrusted_extension_message">Extensões maliciosas podem ler quaisquer credenciais de início de sessão guardadas ou executar código arbitrário.
 \n
-\nUma extensão maliciosa podia ler qualquer credencial de entrada armazenada no Tachiyomi ou executar código arbitrário.
-\n
-\nAo confiar neste certificado serão aceites estes riscos.</string>
+\nAo confiar nesta extensão, aceita estes riscos.</string>
     <string name="version_">Versão: %1$s</string>
     <string name="language_">Linguagem: %1$s</string>
     <string name="crop_borders">Cortar bordas</string>
@@ -372,8 +370,8 @@
     <string name="category_deleted">Categoria eliminada</string>
     <string name="manage_category">Gerir categoria</string>
     <string name="add_categories">Adicionar categorias</string>
-    <string name="already_in_category">Manga já está na categoria</string>
-    <string name="confirm_category_deletion_message">Manga nesta categoria serão movidas para a categoria padrão.</string>
+    <string name="already_in_category">Entrada já está na categoria</string>
+    <string name="confirm_category_deletion_message">Entradas nesta categoria serão movidas para a categoria padrão.</string>
     <string name="confirm_category_deletion">Eliminar categoria\?</string>
     <string name="category_is_empty">Categoria está vazia</string>
     <string name="create_new_category">Criar nova categoria</string>
@@ -506,7 +504,7 @@
     <string name="auto_refresh_covers_summary">Atualizar também capas na biblioteca ao atualizar a biblioteca</string>
     <string name="auto_refresh_covers">Atualizar capas automaticamente</string>
     <string name="include_in_global_update">Incluir na atualização global</string>
-    <string name="when_sorting_ignore_articles">Ao ordenar alfabeticamente, ordenar ignorando os artigos (a, an, the) no início dos títulos de manga</string>
+    <string name="when_sorting_ignore_articles">Ao ordenar alfabeticamente, ordenar ignorando os artigos (a, an, the) no início dos títulos de séries</string>
     <string name="sort_by_ignoring_articles">Ordenar ignorando artigos</string>
     <plurals name="notification_and_n_more">
         <item quantity="one">e mais %1$d capítulo</item>
@@ -526,7 +524,7 @@
     <string name="reset_chapter_history">Reiniciar histórico de capítulos</string>
     <string name="reset_chapter_question">Reiniciar capítulo\?</string>
     <string name="grouped">Agrupado</string>
-    <string name="no_recent_read_updated_manga">Nenhum manga lido ou atualizado recentemente</string>
+    <string name="no_recent_read_updated_manga">Nenhuma série lida ou atualizada recentemente</string>
     <string name="search_recents">Pesquisar recentes…</string>
     <string name="view_all_updates">Ver todas as atualizações</string>
     <string name="view_history">Ver histórico</string>
@@ -889,7 +887,7 @@
     <string name="by_source_order">Pela ordem da fonte</string>
     <string name="not_bookmarked">Não foi marcado</string>
     <string name="external_storage_download_notice">TachiyomiS97 requer o acesso total aos ficheiros para descarregar os capítulos. Clique aqui, então ative \"Permitir o acesso para gerir todos os ficheiros\"</string>
-    <string name="external_storage_permission_notice">TachiyomiS97 requer acesso a todos os ficheiros no Android 11 para transferir capítulos, criar backups automáticos, e ler mangas locais.
+    <string name="external_storage_permission_notice">TachiyomiS97 requer acesso a todos os ficheiros no Android 11 para transferir capítulos, criar cópias de segurança automáticas e ler mangas locais.
 \n
 \nNo próximo ecrã, ative \"Permitir acesso de gestão de todos os ficheiros.\"</string>
     <string name="all_files_permission_required">Permissões de ficheiro necessárias</string>
@@ -991,7 +989,7 @@
     <string name="pref_update_only_completely_read">Com capítulo(s) não lidos</string>
     <string name="pref_update_only_non_completed">Com estado \'\'Terminado\'\'</string>
     <string name="pref_update_only_started">Que não começaram a ser lidos</string>
-    <string name="pref_update_only_completely_read_summary">Apenas atualizar manga se não houver capítulo não lido (lido completamente)</string>
+    <string name="pref_update_only_completely_read_summary">Apenas atualizar série se não houver capítulos não lidos (lido completamente)</string>
     <string name="pref_clear_webview_data">Limpar dados do WebView</string>
     <string name="webview_data_deleted">Dados do WebView limpos</string>
     <string name="most_entries">Mais títulos</string>
@@ -1119,4 +1117,29 @@
     <string name="allow_notifications_recommended">Permitir as notificações é recomendado para manter o aplicativo e sua biblioteca atualizados.</string>
     <string name="pref_debug_info">Informações de depuração</string>
     <string name="label_background_activity">Atividade em segundo plano</string>
+    <string name="extension_api_error">Não foi possível obter as extensões disponíveis</string>
+    <string name="ext_revoke_trust">Revogar confiança em extensões desconhecidas</string>
+    <string name="share_cover">Partilhar capa</string>
+    <string name="app_settings">Definições da aplicação</string>
+    <string name="action_add_repo">Adicionar repositório</string>
+    <string name="open_source_repo">Repositório de código aberto</string>
+    <plurals name="num_repos">
+        <item quantity="one">%d repositório</item>
+        <item quantity="many">%d repositórios</item>
+        <item quantity="other">%d repositórios</item>
+    </plurals>
+    <string name="error_repo_exists">Este repositório já existe!</string>
+    <string name="snack_repo_deleted">Repositório eliminado</string>
+    <string name="invalid_repo_name">O nome do repositório é inválido</string>
+    <string name="url_not_set_click_again">O URL do repositório não foi definido, por favor edite o URL</string>
+    <string name="save_pages_separately">Guardar páginas em pastas diferentes</string>
+    <string name="create_folders_by_manga_title">Criar pastas de acordo com os títulos dos manga</string>
+    <string name="source_settings">Definições de fontes</string>
+    <string name="ext_installer_summary">Permite que extensões sejam instaladas sem ação do utilizador e autoriza atualizações automáticas para dispositivos com Android 12</string>
+    <string name="action_add_repo_message">Adicionar repositórios adicionais ao Tachiyomi. Devem ser URL que terminam com \"index.min.json\"</string>
+    <string name="extension_repos">Repositórios de extensões</string>
+    <string name="repo_cannot_be_blank">O nome do repositório não pode ficar vazio</string>
+    <string name="confirm_repo_deletion">Eliminar repositório</string>
+    <string name="delete_repo_confirmation">Deseja eliminar o repositório \"%s\"?</string>
+    <string name="apply">Aplicar</string>
 </resources>

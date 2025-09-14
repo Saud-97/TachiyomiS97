@@ -8,8 +8,10 @@ import eu.kanade.tachiyomi.databinding.SourceItemBinding
 import eu.kanade.tachiyomi.source.LocalSource
 import eu.kanade.tachiyomi.source.icon
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
+import eu.kanade.tachiyomi.util.system.cardColor
 import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.view.compatToolTipText
+import eu.kanade.tachiyomi.util.view.makeContainerShape
 
 class SourceHolder(
     view: View,
@@ -18,6 +20,7 @@ class SourceHolder(
     val binding = SourceItemBinding.bind(view)
 
     init {
+        binding.sourceCard.setCardBackgroundColor(itemView.context.cardColor)
         binding.sourcePin.setOnClickListener {
             adapter.sourceListener.onPinClick(flexibleAdapterPosition)
         }
@@ -38,7 +41,7 @@ class SourceHolder(
         binding.title.text = sourceName
 
         binding.sourcePin.apply {
-            imageTintList =
+            iconTint =
                 ColorStateList.valueOf(
                     context.getResourceColor(
                         if (isPinned) {
@@ -49,7 +52,8 @@ class SourceHolder(
                     ),
                 )
             compatToolTipText = context.getString(if (isPinned) R.string.unpin else R.string.pin)
-            setImageResource(
+            contentDescription = context.getString(if (isPinned) R.string.unpin else R.string.pin)
+            setIconResource(
                 if (isPinned) {
                     R.drawable.ic_pin_24dp
                 } else {
@@ -70,9 +74,19 @@ class SourceHolder(
         binding.sourceLatest.isVisible = source.supportsLatest
     }
 
-    override fun getFrontView(): View = binding.card
+    override fun getFrontView(): View = binding.sourceCard
 
     override fun getRearStartView(): View = binding.startView
 
     override fun getRearEndView(): View = binding.endView
+
+    fun setCorners(
+        top: Boolean,
+        bottom: Boolean,
+    ) {
+        val shapeModel = binding.sourceCard.makeContainerShape(top, bottom)
+        binding.sourceCard.shapeAppearanceModel = shapeModel
+        binding.startView.shapeAppearanceModel = shapeModel
+        binding.endView.shapeAppearanceModel = shapeModel
+    }
 }

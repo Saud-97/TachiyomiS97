@@ -51,6 +51,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat
@@ -540,6 +541,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
         val splitItem = menu.findItem(R.id.action_shift_double_page)
         splitItem?.isVisible = ((viewer as? PagerViewer)?.config?.doublePages ?: false) && !canShowSplitAtBottom()
         binding.chaptersSheet.shiftPageButton.isVisible = ((viewer as? PagerViewer)?.config?.doublePages ?: false) && canShowSplitAtBottom()
+        updateSums()
         (viewer as? PagerViewer)?.config?.let { config ->
             val icon =
                 ContextCompat.getDrawable(
@@ -554,7 +556,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                     },
                 )
             splitItem?.icon = icon
-            binding.chaptersSheet.shiftPageButton.setImageDrawable(icon)
+            binding.chaptersSheet.shiftPageButton.icon = icon
         }
         setBottomNavButtons(preferences.pageLayout().get())
         (binding.toolbar.background as? LayerDrawable)?.let { layerDrawable ->
@@ -577,7 +579,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
         val isDoublePage =
             pageLayout == PageLayout.DOUBLE_PAGES.value ||
                 (pageLayout == PageLayout.AUTOMATIC.value && (viewer as? PagerViewer)?.config?.doublePages ?: false)
-        binding.chaptersSheet.doublePage.setImageDrawable(
+        binding.chaptersSheet.doublePage.icon =
             ContextCompat.getDrawable(
                 this,
                 when {
@@ -585,8 +587,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                     (viewer as? PagerViewer)?.config?.splitPages == true -> R.drawable.ic_book_open_split_24dp
                     else -> R.drawable.ic_single_page_24dp
                 },
-            ),
-        )
+            )
         with(binding.readerNav) {
             listOf(leftPageText, rightPageText).forEach {
                 it.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -599,7 +600,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
 
     private fun updateOrientationShortcut(preference: Int) {
         val orientation = OrientationType.fromPreference(preference)
-        binding.chaptersSheet.rotationSheetButton.setImageResource(orientation.iconRes)
+        binding.chaptersSheet.rotationSheetButton.setIconResource(orientation.iconRes)
     }
 
     private fun updateCropBordersShortcut() {
@@ -620,7 +621,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                 }
             if (lastCropRes != drawableRes) {
                 val drawable = AnimatedVectorDrawableCompat.create(context, drawableRes)
-                setImageDrawable(drawable)
+                icon = drawable
                 drawable?.start()
                 lastCropRes = drawableRes
             }
@@ -655,12 +656,34 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                 ReaderBottomButton.ViewChapters.isIn(enabledButtons)
             shiftPageButton.isVisible =
                 ((viewer as? PagerViewer)?.config?.doublePages ?: false) &&
-                canShowSplitAtBottom()
+                canShowSplitAtBottom()updateSums()
+        }
             binding.toolbar.menu
                 .findItem(R.id.action_shift_double_page)
                 ?.isVisible =
                 ((viewer as? PagerViewer)?.config?.doublePages ?: false) &&
-                !canShowSplitAtBottom()
+                !canShowSplitAtBottom()}
+
+    private fun updateSums() {
+        with(binding.chaptersSheet) {
+            var sum = 1f
+            listOf(
+                chaptersButton,
+                webviewButton,
+                readingMode,
+                rotationSheetButton,
+                cropBordersSheetButton,
+                doublePage,
+                shiftPageButton,
+            ).forEachIndexed { index, button ->
+//                if (button.isVisible && button.parent == null) {
+//                    buttonGroup.addView(button, index)
+//                } else if (!button.isVisible) {
+//                    buttonGroup.removeView(button)
+//                }
+                sum += if (button.isVisible) 1f else 0f
+            }
+            buttonGroup.weightSum = sum
         }
     }
 
@@ -830,7 +853,6 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
 
         with(binding.chaptersSheet) {
             with(doublePage) {
-                compatToolTipText = getString(R.string.page_layout)
                 setOnClickListener {
                     if (preferences.pageLayout().get() == PageLayout.AUTOMATIC.value) {
                         (viewer as? PagerViewer)?.config?.let { config ->
@@ -1015,7 +1037,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
         val peek = 50.dpToPx
         lastVis = window.decorView.rootWindowInsetsCompat?.isVisible(statusBars()) ?: false
         var firstPass = true
-        binding.readerLayout.doOnApplyWindowInsetsCompat { _, insets, _ ->
+        binding.readerLayout.doOnApplyWindowInsetsCompat { v, insets, _ ->
             setNavColor(insets)
             val systemInsets = insets.ignoredSystemInsets
             val currentOrientation = resources.configuration.orientation
@@ -1024,6 +1046,12 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
             val cutOutInsets = if (isLandscapeFully) insets.displayCutout else null
             val vis = insets.isVisible(statusBars())
             val fullscreen = preferences.fullscreen().get() && !isSplitScreen
+            if (!isLandscapeFully) {
+                val cutoutInsets = insets.getInsetsIgnoringVisibility(displayCutout())
+                v.updatePadding(left = cutoutInsets.left, right = cutoutInsets.right)
+            } else {
+                v.updatePadding(left = 0, right = 0)
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (!firstPass && lastVis != vis && fullscreen) {
                     onVisibilityChange(vis)
@@ -1380,7 +1408,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                 viewModel.state.value.manga
                     ?.readingModeType ?: 0,
             )
-        binding.chaptersSheet.readingMode.setImageResource(viewerMode.iconRes)
+        binding.chaptersSheet.readingMode.setIconResource(viewerMode.iconRes)
         startPostponedEnterTransition()
     }
 
@@ -1966,6 +1994,7 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
 
             val params = window.attributes
             if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                binding.root.requestApplyInsets()
                 params.layoutInDisplayCutoutMode =
                     if (preferences.landscapeCutoutBehavior().get() == 0) {
                         WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
