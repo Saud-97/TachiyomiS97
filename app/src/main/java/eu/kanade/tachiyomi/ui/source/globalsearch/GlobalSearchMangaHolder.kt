@@ -18,9 +18,6 @@ import eu.kanade.tachiyomi.data.preference.PreferencesHelper
 import eu.kanade.tachiyomi.databinding.SourceGlobalSearchControllerCardItemBinding
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 import eu.kanade.tachiyomi.util.system.isLTR
-import eu.kanade.tachiyomi.util.system.dpToPx
-import eu.kanade.tachiyomi.util.view.makeShapeCorners
-import eu.kanade.tachiyomi.util.view.setCards
 import uy.kohesive.injekt.injectLazy
 import java.text.DecimalFormat
 

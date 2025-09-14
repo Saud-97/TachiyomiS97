@@ -175,7 +175,9 @@ class DownloadBottomSheet
                     viewHolder?.setWave(isRunning)
                 }
             }
-        }/**
+        }
+
+        /**
          * Called from the presenter to assign the downloads for the adapter.
          *
          * @param downloads the downloads from the queue.

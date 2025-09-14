@@ -180,7 +180,9 @@ class ExtensionHolder(
                 resetStrokeColor()
                 setText(if (adapter.installPrivately) R.string.add else R.string.install)
             }
-        }fun setCorners(
+        }
+
+    fun setCorners(
         top: Boolean,
         bottom: Boolean,
     ) {

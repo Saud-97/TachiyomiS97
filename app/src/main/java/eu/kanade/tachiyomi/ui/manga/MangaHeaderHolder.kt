@@ -637,9 +637,13 @@ class MangaHeaderHolder(
 
             val textColors =
                 intArrayOf(
-                    ColorUtils.setAlphaComponent(root.context.getResourceColor(R.attr.colorOnSurface), 97,
-                    ),root.context.getResourceColor(android.R.attr.textColorPrimaryInverse),
-                )val overflowButton =
+                    ColorUtils.setAlphaComponent(
+                        root.context.getResourceColor(R.attr.colorOnSurface),
+                        97,
+                    ),
+                    root.context.getResourceColor(android.R.attr.textColorPrimaryInverse),
+                )
+            val overflowButton =
                 (buttonLayout as? MaterialButtonGroup)
                     ?.children
                     ?.first { it.tag == MaterialButtonGroup.OVERFLOW_BUTTON_TAG } as? MaterialButton

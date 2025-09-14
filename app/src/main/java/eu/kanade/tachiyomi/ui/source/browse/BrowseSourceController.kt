@@ -321,7 +321,6 @@ open class BrowseSourceController(
 
     private fun updateDisplayMenuItem(
         menu: Menu?,
-
         isListMode: Boolean? = null,
     ) {
         menu?.findItem(R.id.action_display_mode)?.apply {
@@ -449,36 +448,36 @@ open class BrowseSourceController(
         val genreNames = names.map { it.split(":").last().trim() }
         var filterList: FilterList? = null
         genres@ for (genreName in genreNames) {
-        filter@ for (sourceFilter in presenter.sourceFilters) {
-            if (sourceFilter is Filter.Group<*>) {
-                for (filter in sourceFilter.state) {
-                    if (filter is Filter<*> &&
-                        if (useContains) {
-                            filter.name.contains(genreName, true)
-                        } else {
-                            filter.name.equals(genreName, true)
-                        }
-                    ) {
-                        when (filter) {
-                            is Filter.TriState -> filter.state = 1
-                            is Filter.CheckBox -> filter.state = true
-                            else -> break
-                        }
-                        filterList = presenter.sourceFilters
-                        break@filter
-                    }
-                }
-            } else if (sourceFilter is Filter.Select<*>) {
-                val index =
-                    sourceFilter.values
-                        .filterIsInstance<String>()
-                        .indexOfFirst {
+            filter@ for (sourceFilter in presenter.sourceFilters) {
+                if (sourceFilter is Filter.Group<*>) {
+                    for (filter in sourceFilter.state) {
+                        if (filter is Filter<*> &&
                             if (useContains) {
-                                it.contains(genreName, true)
+                                filter.name.contains(genreName, true)
                             } else {
-                                it.equals(genreName, true)
+                                filter.name.equals(genreName, true)
                             }
+                        ) {
+                            when (filter) {
+                                is Filter.TriState -> filter.state = 1
+                                is Filter.CheckBox -> filter.state = true
+                                else -> break
+                            }
+                            filterList = presenter.sourceFilters
+                            break@filter
                         }
+                    }
+                } else if (sourceFilter is Filter.Select<*>) {
+                    val index =
+                        sourceFilter.values
+                            .filterIsInstance<String>()
+                            .indexOfFirst {
+                                if (useContains) {
+                                    it.contains(genreName, true)
+                                } else {
+                                    it.equals(genreName, true)
+                                }
+                            }
 
                     if (index != -1) {
                         sourceFilter.state = index

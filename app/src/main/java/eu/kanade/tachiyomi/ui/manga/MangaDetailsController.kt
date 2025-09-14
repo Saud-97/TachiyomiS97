@@ -1308,7 +1308,8 @@ class MangaDetailsController :
                                 manga?.id?.hashCode() ?: 0,
                                 Intent.createChooser(shareCoverIntent, context.getString(R.string.share)),
                                 PendingIntent.FLAG_IMMUTABLE,
-                            activityOptionsBackgroundOptions(false)?.toBundle(),)
+                                activityOptionsBackgroundOptions(false)?.toBundle(),
+                            )
                         val action =
                             ChooserAction
                                 .Builder(

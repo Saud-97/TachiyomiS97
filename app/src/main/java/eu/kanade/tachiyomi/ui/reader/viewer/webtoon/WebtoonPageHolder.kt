@@ -328,7 +328,8 @@ class WebtoonPageHolder(
                 setWavelength(10.dpToPx)
                 progress = 10
                 waveAmplitude = 1.dpToPx
-                waveSpeed = 20val size = 48.dpToPx
+                waveSpeed = 20
+                val size = 48.dpToPx
                 layoutParams =
                     LayoutParams(size, size).apply {
                         gravity = Gravity.CENTER

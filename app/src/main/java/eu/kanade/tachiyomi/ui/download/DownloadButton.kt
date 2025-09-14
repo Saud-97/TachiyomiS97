@@ -103,9 +103,10 @@ class DownloadButton
                 }
                 Download.State.QUEUE -> {
                     binding.downloadBorder.isVisible = false
-                    binding.downloadProgress.isVisible =  true
+                    binding.downloadProgress.isVisible = true
                     binding.downloadProgress.isIndeterminate = true
-                    binding.downloadIcon.drawable.setTint(disabledColor)binding.downloadProgress.setIndicatorColor(disabledColor)
+                    binding.downloadIcon.drawable.setTint(disabledColor)
+                    binding.downloadProgress.setIndicatorColor(disabledColor)
                     binding.downloadProgress.progress = 0
                 }
                 Download.State.DOWNLOADING -> {
@@ -116,7 +117,8 @@ class DownloadButton
                     binding.downloadProgress.isIndeterminate = false
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         binding.downloadProgress.setProgress(progress, isAnimating)
-                    } else {binding.downloadProgress.progress = progress
+                    } else {
+                        binding.downloadProgress.progress = progress
                     }
                     binding.downloadProgress.trackColor = progressBGColor
                     binding.downloadProgress.setIndicatorColor(downloadedColor)

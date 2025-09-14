@@ -129,11 +129,13 @@ open class BaseWebViewActivity : BaseActivity<WebviewActivityBinding>() {
                         view: WebView?,
                         newProgress: Int,
                     ) {
-                        binding.progressBar.isVisible = trueif (newProgress == 0) {
+                        binding.progressBar.isVisible = true
+                        if (newProgress == 0) {
                             binding.progressBar.isIndeterminate = true
                         } else {
                             binding.progressBar.isIndeterminate = false
-                        binding.progressBar.progress = newProgress}
+                            binding.progressBar.progress = newProgress
+                        }
                         if (newProgress == 100) {
                             binding.progressBar.isInvisible = true
                             invalidateOptionsMenu()

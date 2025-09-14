@@ -656,13 +656,15 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                 ReaderBottomButton.ViewChapters.isIn(enabledButtons)
             shiftPageButton.isVisible =
                 ((viewer as? PagerViewer)?.config?.doublePages ?: false) &&
-                canShowSplitAtBottom()updateSums()
+                canShowSplitAtBottom()
+            updateSums()
         }
-            binding.toolbar.menu
-                .findItem(R.id.action_shift_double_page)
-                ?.isVisible =
-                ((viewer as? PagerViewer)?.config?.doublePages ?: false) &&
-                !canShowSplitAtBottom()}
+        binding.toolbar.menu
+            .findItem(R.id.action_shift_double_page)
+            ?.isVisible =
+            ((viewer as? PagerViewer)?.config?.doublePages ?: false) &&
+            !canShowSplitAtBottom()
+    }
 
     private fun updateSums() {
         with(binding.chaptersSheet) {

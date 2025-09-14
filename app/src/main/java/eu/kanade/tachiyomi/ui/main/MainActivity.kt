@@ -114,8 +114,8 @@ import eu.kanade.tachiyomi.util.manga.MangaCoverMetadata
 import eu.kanade.tachiyomi.util.manga.MangaShortcutManager
 import eu.kanade.tachiyomi.util.system.contextCompatDrawable
 import eu.kanade.tachiyomi.util.system.dpToPx
-import eu.kanade.tachiyomi.util.system.executeOnIO
 import eu.kanade.tachiyomi.util.system.end
+import eu.kanade.tachiyomi.util.system.executeOnIO
 import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.system.hasSideNavBar
 import eu.kanade.tachiyomi.util.system.ignoredDisplayCutout
@@ -959,7 +959,8 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                         179,
                     )
                 }
-            }window.navigationBarColor = Color.TRANSPARENT
+            }
+        window.navigationBarColor = Color.TRANSPARENT
         window.statusBarColor = Color.TRANSPARENT
     }
 

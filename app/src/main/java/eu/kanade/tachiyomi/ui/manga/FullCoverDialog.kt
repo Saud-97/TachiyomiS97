@@ -117,7 +117,7 @@ class FullCoverDialog(
 
                 override fun handleOnBackPressed() {
                     if (binding.mangaCoverFull.isClickable) {
-                        val motionEvent = MotionEvent.obtain(startTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, lastX, lastY, 0,)
+                        val motionEvent = MotionEvent.obtain(startTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, lastX, lastY, 0)
                         velocityTracker.addMovement(motionEvent)
                         motionEvent.recycle()
                         animateBack()

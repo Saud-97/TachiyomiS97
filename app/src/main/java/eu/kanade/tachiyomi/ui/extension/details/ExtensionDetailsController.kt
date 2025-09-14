@@ -158,14 +158,16 @@ class ExtensionDetailsController(
                     concatAdapterConfig,
                     PreferenceGroupAdapter(screen),
                 )
-        } else {val extHeaderAdapter = ExtensionDetailsHeaderAdapter(presenter)
-        extHeaderAdapter.setHasStableIds(true)
-        binding.extensionPrefsRecycler.adapter =
-            ConcatAdapter(
-                concatAdapterConfig,
-                extHeaderAdapter,
-                PreferenceGroupAdapter(screen),
-            )}
+        } else {
+            val extHeaderAdapter = ExtensionDetailsHeaderAdapter(presenter)
+            extHeaderAdapter.setHasStableIds(true)
+            binding.extensionPrefsRecycler.adapter =
+                ConcatAdapter(
+                    concatAdapterConfig,
+                    extHeaderAdapter,
+                    PreferenceGroupAdapter(screen),
+                )
+        }
         binding.extensionPrefsRecycler.addItemDecoration(ExtensionSettingsDividerItemDecoration(context))
     }
 
@@ -260,15 +262,16 @@ class ExtensionDetailsController(
         val context = screen.context
 
         val prefs = mutableListOf<Preference>()
-        if (showSwitch) {val block: (@DSL SwitchPreferenceCompat).() -> Unit = {
-            key = source.preferenceKey() + "_enabled"
-            title =
-                when {
-                    isMultiSource && !isMultiLangSingleSource -> source.toString()
-                    else -> LocaleHelper.getSourceDisplayName(source.lang, context)
-                }
-            isPersistent = false
-            isChecked = source.isEnabled()
+        if (showSwitch) {
+            val block: (@DSL SwitchPreferenceCompat).() -> Unit = {
+                key = source.preferenceKey() + "_enabled"
+                title =
+                    when {
+                        isMultiSource && !isMultiLangSingleSource -> source.toString()
+                        else -> LocaleHelper.getSourceDisplayName(source.lang, context)
+                    }
+                isPersistent = false
+                isChecked = source.isEnabled()
 
                 onChange { newValue ->
                     if (source.isLangEnabled()) {
@@ -295,13 +298,13 @@ class ExtensionDetailsController(
                     }
                 }
 
-            // React to enable/disable all changes
-            preferences
-                .hiddenSources()
-                .asFlow()
-                .onEach {
-                    val enabled = source.isEnabled()
-                    isChecked = enabled
+                // React to enable/disable all changes
+                preferences
+                    .hiddenSources()
+                    .asFlow()
+                    .onEach {
+                        val enabled = source.isEnabled()
+                        isChecked = enabled
                     }.launchIn(viewScope)
             }
 

@@ -162,9 +162,9 @@ class RecentsPresenter(
                             query,
                             showRead,
                             isUngrouped,
-                             pageOffset,
+                            pageOffset,
                             !updatePageCount && !isOnFirstPage,
-                        if (limit == 0) {
+                            if (limit == 0) {
                                 if (includeReadAnyway) {
                                     50
                                 } else {
@@ -172,20 +172,21 @@ class RecentsPresenter(
                                 }
                             } else {
                                 limit
-                            },).executeOnIO()
+                            },
+                        ).executeOnIO()
                 }
                 RecentsViewType.History -> {
                     val items =
                         if (groupChaptersHistory == GroupType.BySeries) {
                             db.getRecentMangaLimit(
                                 query,
-                                 pageOffset,
+                                pageOffset,
                                 !updatePageCount && !isOnFirstPage,
                             )
                         } else {
                             db.getHistoryUngrouped(
                                 query,
-                                 pageOffset,
+                                pageOffset,
                                 !updatePageCount && !isOnFirstPage,
                             )
                         }
@@ -248,7 +249,7 @@ class RecentsPresenter(
                     db
                         .getRecentChapters(
                             query,
-                             pageOffset,
+                            pageOffset,
                             !updatePageCount && !isOnFirstPage,
                         ).executeOnIO()
                         .groupBy {
@@ -421,12 +422,12 @@ class RecentsPresenter(
                 }
             }
 
-            recentItems =
-                if (isOnFirstPage || !updatePageCount) {
-                    newItems
-                } else {
-                    recentItems + newItems
-                }
+        recentItems =
+            if (isOnFirstPage || !updatePageCount) {
+                newItems
+            } else {
+                recentItems + newItems
+            }
 
         val newCount = itemCount + newItems.size + newItems.sumOf { it.mch.extraChapters.size } + extraCount
         val hasNewItems = newItems.isNotEmpty()
@@ -774,9 +775,9 @@ class RecentsPresenter(
             val presenter = RecentsPresenter()
             presenter.viewType = RecentsViewType.UngroupedAll
             presenter.runRecents(
-                    updatePageCount = customAmount > 0,
+                updatePageCount = customAmount > 0,
                 limit = (customAmount * 1.5).roundToInt(),
-                    includeReadAnyway = includeRead,
+                includeReadAnyway = includeRead,
             )
             return presenter.recentItems
                 .filter { it.mch.manga.id != null }
