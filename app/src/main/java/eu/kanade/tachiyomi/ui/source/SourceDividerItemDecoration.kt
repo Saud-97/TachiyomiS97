@@ -6,8 +6,9 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 
-class SourceDividerItemDecoration(context: Context) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
-
+class SourceDividerItemDecoration(
+    context: Context,
+) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
     private val divider: Drawable
 
     init {
@@ -16,7 +17,11 @@ class SourceDividerItemDecoration(context: Context) : androidx.recyclerview.widg
         a.recycle()
     }
 
-    override fun onDraw(c: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
+    override fun onDraw(
+        c: Canvas,
+        parent: androidx.recyclerview.widget.RecyclerView,
+        state: androidx.recyclerview.widget.RecyclerView.State,
+    ) {
         val childCount = parent.childCount
         for (i in 0 until childCount - 1) {
             val child = parent.getChildAt(i)

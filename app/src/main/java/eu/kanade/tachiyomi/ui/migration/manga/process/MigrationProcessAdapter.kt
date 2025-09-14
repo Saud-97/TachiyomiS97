@@ -27,7 +27,6 @@ import java.util.Date
 class MigrationProcessAdapter(
     val controller: MigrationListController,
 ) : FlexibleAdapter<MigrationProcessItem>(null, controller, true) {
-
     private val db: DatabaseHelper by injectLazy()
     var items: List<MigrationProcessItem> = emptyList()
     val preferences: PreferencesHelper by injectLazy()
@@ -46,10 +45,17 @@ class MigrationProcessAdapter(
     }
 
     interface MigrationProcessInterface {
-        fun onMenuItemClick(position: Int, item: MenuItem)
+        fun onMenuItemClick(
+            position: Int,
+            item: MenuItem,
+        )
+
         fun enableButtons()
+
         fun removeManga(item: MigrationProcessItem)
+
         fun noMigration()
+
         fun updateCount()
     }
 
@@ -59,15 +65,17 @@ class MigrationProcessAdapter(
         if (allMangasDone()) menuItemListener.enableButtons()
     }
 
-    fun allMangasDone() = (
-        items.all {
-            it.manga.migrationStatus != MigrationStatus
-                .RUNNUNG
-        } && items.any { it.manga.migrationStatus == MigrationStatus.MANGA_FOUND }
+    fun allMangasDone() =
+        (
+            items.all {
+                it.manga.migrationStatus !=
+                    MigrationStatus
+                        .RUNNUNG
+            } &&
+                items.any { it.manga.migrationStatus == MigrationStatus.MANGA_FOUND }
         )
 
-    fun mangasSkipped() =
-        (items.count { it.manga.migrationStatus == MigrationStatus.MANGA_NOT_FOUND })
+    fun mangasSkipped() = (items.count { it.manga.migrationStatus == MigrationStatus.MANGA_NOT_FOUND })
 
     suspend fun performMigrations(copy: Boolean) {
         withContext(Dispatchers.IO) {
@@ -76,7 +84,8 @@ class MigrationProcessAdapter(
                     val manga = migratingManga.manga
                     if (manga.searchResult.initialized) {
                         val toMangaObj =
-                            db.getManga(manga.searchResult.get() ?: return@forEach)
+                            db
+                                .getManga(manga.searchResult.get() ?: return@forEach)
                                 .executeAsBlocking()
                                 ?: return@forEach
                         val prevManga = manga.manga() ?: return@forEach
@@ -95,7 +104,10 @@ class MigrationProcessAdapter(
         }
     }
 
-    fun migrateManga(position: Int, copy: Boolean) {
+    fun migrateManga(
+        position: Int,
+        copy: Boolean,
+    ) {
         launchUI {
             val manga = getItem(position)?.manga ?: return@launchUI
             db.inTransaction {
@@ -139,7 +151,6 @@ class MigrationProcessAdapter(
     }
 
     companion object {
-
         fun migrateMangaInternal(
             flags: Int,
             db: DatabaseHelper,
@@ -168,13 +179,16 @@ class MigrationProcessAdapter(
                             chapter.bookmark = prevChapter.bookmark
                             chapter.read = prevChapter.read
                             chapter.date_fetch = prevChapter.date_fetch
-                            prevHistoryList.find { it.chapter_id == prevChapter.id }
+                            prevHistoryList
+                                .find { it.chapter_id == prevChapter.id }
                                 ?.let { prevHistory ->
-                                    val history = History.create(chapter)
-                                        .apply {
-                                            last_read = prevHistory.last_read
-                                            time_read = prevHistory.time_read
-                                        }
+                                    val history =
+                                        History
+                                            .create(chapter)
+                                            .apply {
+                                                last_read = prevHistory.last_read
+                                                time_read = prevHistory.time_read
+                                            }
                                     historyList.add(history)
                                 }
                         } else if (chapter.chapter_number <= maxChapterRead) {
@@ -198,8 +212,9 @@ class MigrationProcessAdapter(
                         track.id = null
                         track.manga_id = manga.id!!
 
-                        val service = enhancedServices
-                            .firstOrNull { it.isTrackFrom(track, prevManga, prevSource) }
+                        val service =
+                            enhancedServices
+                                .firstOrNull { it.isTrackFrom(track, prevManga, prevSource) }
                         if (service != null) {
                             service.migrateTrack(track, manga, source)
                         } else {

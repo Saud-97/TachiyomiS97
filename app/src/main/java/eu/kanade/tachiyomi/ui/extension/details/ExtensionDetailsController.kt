@@ -57,11 +57,11 @@ import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 
 @SuppressLint("RestrictedApi")
-class ExtensionDetailsController(bundle: Bundle? = null) :
-    BaseCoroutineController<ExtensionDetailControllerBinding, ExtensionDetailsPresenter>(bundle),
+class ExtensionDetailsController(
+    bundle: Bundle? = null,
+) : BaseCoroutineController<ExtensionDetailControllerBinding, ExtensionDetailsPresenter>(bundle),
     PreferenceManager.OnDisplayPreferenceDialogListener,
     DialogPreference.TargetFragment {
-
     private var lastOpenPreferencePosition: Int? = null
 
     private var preferenceScreen: PreferenceScreen? = null
@@ -84,9 +84,7 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
 
     override val presenter = ExtensionDetailsPresenter(args.getString(PKGNAME_KEY)!!)
 
-    override fun getTitle(): String? {
-        return resources?.getString(R.string.extension_info)
-    }
+    override fun getTitle(): String? = resources?.getString(R.string.extension_info)
 
     @SuppressLint("PrivateResource")
     override fun onViewCreated(view: View) {
@@ -98,16 +96,22 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
 
         val themedContext by lazy { getPreferenceThemeContext() }
         val manager = PreferenceManager(themedContext)
-        val dataStore = SharedPreferencesDataStore(
-            context.getSharedPreferences(extension.getPreferenceKey(), Context.MODE_PRIVATE),
-        )
+        val dataStore =
+            SharedPreferencesDataStore(
+                context.getSharedPreferences(extension.getPreferenceKey(), Context.MODE_PRIVATE),
+            )
         manager.preferenceDataStore = dataStore
         manager.onDisplayPreferenceDialogListener = this
         val screen = manager.createPreferenceScreen(themedContext)
         preferenceScreen = screen
 
         val multiSource = extension.sources.size > 1
-        val isMultiLangSingleSource = multiSource && extension.sources.map { it.name }.distinct().size == 1
+        val isMultiLangSingleSource =
+            multiSource &&
+                extension.sources
+                    .map { it.name }
+                    .distinct()
+                    .size == 1
         val langauges = preferences.enabledLanguages().get()
 
         for (source in extension.sources.sortedByDescending { it.isLangEnabled(langauges) }) {
@@ -117,17 +121,20 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
         manager.setPreferences(screen)
 
         binding.extensionPrefsRecycler.layoutManager = LinearLayoutManagerAccurateOffset(context)
-        val concatAdapterConfig = ConcatAdapter.Config.Builder()
-            .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
-            .build()
+        val concatAdapterConfig =
+            ConcatAdapter.Config
+                .Builder()
+                .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
+                .build()
         screen.setShouldUseGeneratedIds(true)
         val extHeaderAdapter = ExtensionDetailsHeaderAdapter(presenter)
         extHeaderAdapter.setHasStableIds(true)
-        binding.extensionPrefsRecycler.adapter = ConcatAdapter(
-            concatAdapterConfig,
-            extHeaderAdapter,
-            PreferenceGroupAdapter(screen),
-        )
+        binding.extensionPrefsRecycler.adapter =
+            ConcatAdapter(
+                concatAdapterConfig,
+                extHeaderAdapter,
+                PreferenceGroupAdapter(screen),
+            )
         binding.extensionPrefsRecycler.addItemDecoration(ExtensionSettingsDividerItemDecoration(context))
     }
 
@@ -150,7 +157,10 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
         lastOpenPreferencePosition = savedInstanceState.get(LASTOPENPREFERENCE_KEY) as? Int
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.extension_details, menu)
         menu.findItem(R.id.action_open_repo)?.isVisible = presenter.extension?.repoUrl != null
     }
@@ -164,14 +174,17 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
     }
 
     private fun clearCookies() {
-        val urls = presenter.extension?.sources
-            ?.filterIsInstance<HttpSource>()
-            ?.map { it.baseUrl }
-            ?.distinct() ?: emptyList()
+        val urls =
+            presenter.extension
+                ?.sources
+                ?.filterIsInstance<HttpSource>()
+                ?.map { it.baseUrl }
+                ?.distinct() ?: emptyList()
 
-        val cleared = urls.sumOf {
-            network.cookieJar.remove(it.toHttpUrl())
-        }
+        val cleared =
+            urls.sumOf {
+                network.cookieJar.remove(it.toHttpUrl())
+            }
 
         Timber.d("Cleared $cleared cookies for: ${urls.joinToString()}")
         val context = view?.context ?: return
@@ -180,17 +193,24 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
 
     private fun openRepo() {
         val regex = """https://(?:raw.githubusercontent.com|github.com)/(.+?)/(.+?)/.+""".toRegex()
-        val url = regex.find(presenter.extension?.repoUrl.orEmpty())
-            ?.let {
-                val (user, repo) = it.destructured
-                "https://github.com/$user/$repo"
-            }
-            ?: presenter.extension?.repoUrl ?: return
+        val url =
+            regex
+                .find(presenter.extension?.repoUrl.orEmpty())
+                ?.let {
+                    val (user, repo) = it.destructured
+                    "https://github.com/$user/$repo"
+                }
+                ?: presenter.extension?.repoUrl ?: return
         openInBrowser(url)
     }
 
-    private fun createUrl(url: String, pkgName: String, pkgFactory: String?, path: String = ""): String {
-        return if (!pkgFactory.isNullOrEmpty()) {
+    private fun createUrl(
+        url: String,
+        pkgName: String,
+        pkgFactory: String?,
+        path: String = "",
+    ): String =
+        if (!pkgFactory.isNullOrEmpty()) {
             when (path.isEmpty()) {
                 true -> "$url/multisrc/src/main/java/eu/kanade/tachiyomi/multisrc/$pkgFactory"
                 else -> "$url/multisrc/overrides/$pkgFactory/" + (pkgName.split(".").lastOrNull() ?: "") + path
@@ -198,18 +218,23 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
         } else {
             url + "/src/" + pkgName.replace(".", "/") + path
         }
-    }
 
-    private fun addPreferencesForSource(screen: PreferenceScreen, source: Source, isMultiSource: Boolean, isMultiLangSingleSource: Boolean) {
+    private fun addPreferencesForSource(
+        screen: PreferenceScreen,
+        source: Source,
+        isMultiSource: Boolean,
+        isMultiLangSingleSource: Boolean,
+    ) {
         val context = screen.context
 
         val prefs = mutableListOf<Preference>()
         val block: (@DSL SwitchPreferenceCompat).() -> Unit = {
             key = source.preferenceKey() + "_enabled"
-            title = when {
-                isMultiSource && !isMultiLangSingleSource -> source.toString()
-                else -> LocaleHelper.getSourceDisplayName(source.lang, context)
-            }
+            title =
+                when {
+                    isMultiSource && !isMultiLangSingleSource -> source.toString()
+                    else -> LocaleHelper.getSourceDisplayName(source.lang, context)
+                }
             isPersistent = false
             isChecked = source.isEnabled()
 
@@ -239,12 +264,13 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
             }
 
             // React to enable/disable all changes
-            preferences.hiddenSources().asFlow()
+            preferences
+                .hiddenSources()
+                .asFlow()
                 .onEach {
                     val enabled = source.isEnabled()
                     isChecked = enabled
-                }
-                .launchIn(viewScope)
+                }.launchIn(viewScope)
         }
 
         screen.switchPreference(block)
@@ -276,7 +302,10 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
         }
     }
 
-    private fun toggleSource(source: Source, enable: Boolean) {
+    private fun toggleSource(
+        source: Source,
+        enable: Boolean,
+    ) {
         if (enable) {
             preferences.hiddenSources() -= source.id.toString()
         } else {
@@ -295,66 +324,68 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
 
         val screen = preference.parent!!
 
-        lastOpenPreferencePosition = (0 until screen.preferenceCount).indexOfFirst {
-            screen.getPreference(it) === preference
-        }
+        lastOpenPreferencePosition =
+            (0 until screen.preferenceCount).indexOfFirst {
+                screen.getPreference(it) === preference
+            }
 
         val context = preferences.context
-        val matPref = when (preference) {
-            is EditTextPreference -> EditTextResetPreference(activity, context).apply {
-                dialogSummary = preference.dialogMessage
-                onPreferenceChangeListener = preference.onPreferenceChangeListener
-            }
-
-            is ListPreference -> ListMatPreference(activity, context).apply {
-                isPersistent = false
-                defaultValue = preference.value
-                entries = preference.entries.map { it.toString() }
-                entryValues = preference.entryValues.map { it.toString() }
-                onChange {
-                    if (preference.callChangeListener(it)) {
-                        preference.value = it as? String
-                        true
-                    } else {
-                        false
+        val matPref =
+            when (preference) {
+                is EditTextPreference ->
+                    EditTextResetPreference(activity, context).apply {
+                        dialogSummary = preference.dialogMessage
+                        onPreferenceChangeListener = preference.onPreferenceChangeListener
                     }
-                }
-            }
 
-            is MultiSelectListPreference -> MultiListMatPreference(activity, context).apply {
-                isPersistent = false
-                defaultValue = preference.values
-                entries = preference.entries.map { it.toString() }
-                entryValues = preference.entryValues.map { it.toString() }
-                onChange { newValue ->
-                    if (newValue is Set<*> && preference.callChangeListener(newValue)) {
-                        preference.values = newValue.map { it.toString() }.toSet()
-                        true
-                    } else {
-                        false
+                is ListPreference ->
+                    ListMatPreference(activity, context).apply {
+                        isPersistent = false
+                        defaultValue = preference.value
+                        entries = preference.entries.map { it.toString() }
+                        entryValues = preference.entryValues.map { it.toString() }
+                        onChange {
+                            if (preference.callChangeListener(it)) {
+                                preference.value = it as? String
+                                true
+                            } else {
+                                false
+                            }
+                        }
                     }
-                }
+
+                is MultiSelectListPreference ->
+                    MultiListMatPreference(activity, context).apply {
+                        isPersistent = false
+                        defaultValue = preference.values
+                        entries = preference.entries.map { it.toString() }
+                        entryValues = preference.entryValues.map { it.toString() }
+                        onChange { newValue ->
+                            if (newValue is Set<*> && preference.callChangeListener(newValue)) {
+                                preference.values = newValue.map { it.toString() }.toSet()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    }
+
+                else -> throw IllegalArgumentException(
+                    "Tried to display dialog for unknown " +
+                        "preference type. Did you forget to override onDisplayPreferenceDialog()?",
+                )
             }
-
-            else -> throw IllegalArgumentException(
-                "Tried to display dialog for unknown " +
-                    "preference type. Did you forget to override onDisplayPreferenceDialog()?",
-            )
-        }
-        matPref.apply {
-            key = preference.key
-            preferenceDataStore = preference.preferenceDataStore
-            title = (preference as? DialogPreference)?.dialogTitle ?: preference.title
-        }.performClick()
+        matPref
+            .apply {
+                key = preference.key
+                preferenceDataStore = preference.preferenceDataStore
+                title = (preference as? DialogPreference)?.dialogTitle ?: preference.title
+            }.performClick()
     }
 
-    private fun Source.isEnabled(): Boolean {
-        return id.toString() !in preferences.hiddenSources().get() && isLangEnabled()
-    }
+    private fun Source.isEnabled(): Boolean = id.toString() !in preferences.hiddenSources().get() && isLangEnabled()
 
-    private fun Source.isLangEnabled(langs: Set<String>? = null): Boolean {
-        return lang in (langs ?: preferences.enabledLanguages().get())
-    }
+    private fun Source.isLangEnabled(langs: Set<String>? = null): Boolean = lang in (langs ?: preferences.enabledLanguages().get())
 
     private fun Extension.getPreferenceKey(): String = "extension_$pkgName"
 

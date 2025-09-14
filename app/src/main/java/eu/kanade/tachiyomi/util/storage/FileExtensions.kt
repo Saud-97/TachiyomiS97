@@ -12,10 +12,9 @@ import java.io.File
  *
  * @param context context of application
  */
-fun File.getUriCompat(context: Context): Uri {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+fun File.getUriCompat(context: Context): Uri =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", this)
     } else {
         Uri.fromFile(this)
     }
-}

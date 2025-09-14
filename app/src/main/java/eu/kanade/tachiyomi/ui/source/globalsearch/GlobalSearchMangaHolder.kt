@@ -21,10 +21,12 @@ import eu.kanade.tachiyomi.util.view.setCards
 import uy.kohesive.injekt.injectLazy
 import java.text.DecimalFormat
 
-class GlobalSearchMangaHolder(view: View, adapter: GlobalSearchCardAdapter) :
-    BaseFlexibleViewHolder(view, adapter) {
-
+class GlobalSearchMangaHolder(
+    view: View,
+    adapter: GlobalSearchCardAdapter,
+) : BaseFlexibleViewHolder(view, adapter) {
     private val binding = SourceGlobalSearchControllerCardItemBinding.bind(view)
+
     init {
         itemView.setOnClickListener {
             val item = adapter.getItem(flexibleAdapterPosition)
@@ -59,12 +61,15 @@ class GlobalSearchMangaHolder(view: View, adapter: GlobalSearchCardAdapter) :
     fun setImage(manga: Manga) {
         binding.itemImage.dispose()
         if (!manga.thumbnail_url.isNullOrEmpty()) {
-            val request = ImageRequest.Builder(itemView.context).data(manga)
-                .placeholder(android.R.color.transparent)
-                .memoryCachePolicy(CachePolicy.DISABLED)
-                .target(CoverViewTarget(binding.itemImage, binding.progress))
-                .setParameter(MangaCoverFetcher.useCustomCover, false)
-                .build()
+            val request =
+                ImageRequest
+                    .Builder(itemView.context)
+                    .data(manga)
+                    .placeholder(android.R.color.transparent)
+                    .memoryCachePolicy(CachePolicy.DISABLED)
+                    .target(CoverViewTarget(binding.itemImage, binding.progress))
+                    .setParameter(MangaCoverFetcher.useCustomCover, false)
+                    .build()
             Coil.imageLoader(itemView.context).enqueue(request)
         }
     }
@@ -84,15 +89,17 @@ class GlobalSearchMangaHolder(view: View, adapter: GlobalSearchCardAdapter) :
 
         val latestChapter = mangaChapters.maxOfOrNull { it.chapter_number } ?: -1f
         if (latestChapter >= 0f) {
-            binding.subtitle.text = binding.root.context.getString(
-                R.string.latest_,
-                DecimalFormat("#.#").format(latestChapter),
-            )
+            binding.subtitle.text =
+                binding.root.context.getString(
+                    R.string.latest_,
+                    DecimalFormat("#.#").format(latestChapter),
+                )
         } else {
-            binding.subtitle.text = binding.root.context.getString(
-                R.string.latest_,
-                binding.root.context.getString(R.string.unknown),
-            )
+            binding.subtitle.text =
+                binding.root.context.getString(
+                    R.string.latest_,
+                    binding.root.context.getString(R.string.unknown),
+                )
         }
     }
 

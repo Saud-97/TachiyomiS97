@@ -15,18 +15,20 @@ import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class AppUpdateJob(private val context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
-    override suspend fun doWork(): Result = coroutineScope {
-        try {
-            AppUpdateChecker().checkForUpdate(context)
-            Result.success()
-        } catch (e: Exception) {
-            Timber.e(e)
-            Result.failure()
+class AppUpdateJob(
+    private val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
+    override suspend fun doWork(): Result =
+        coroutineScope {
+            try {
+                AppUpdateChecker().checkForUpdate(context)
+                Result.success()
+            } catch (e: Exception) {
+                Timber.e(e)
+                Result.failure()
+            }
         }
-    }
 
     fun NotificationCompat.Builder.update(block: NotificationCompat.Builder.() -> Unit) {
         block()
@@ -37,19 +39,21 @@ class AppUpdateJob(private val context: Context, workerParams: WorkerParameters)
         private const val TAG = "UpdateChecker"
 
         fun setupTask(context: Context) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+            val constraints =
+                Constraints
+                    .Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
 
-            val request = PeriodicWorkRequestBuilder<AppUpdateJob>(
-                2,
-                TimeUnit.DAYS,
-                3,
-                TimeUnit.HOURS,
-            )
-                .addTag(TAG)
-                .setConstraints(constraints)
-                .build()
+            val request =
+                PeriodicWorkRequestBuilder<AppUpdateJob>(
+                    2,
+                    TimeUnit.DAYS,
+                    3,
+                    TimeUnit.HOURS,
+                ).addTag(TAG)
+                    .setConstraints(constraints)
+                    .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.UPDATE, request)
         }

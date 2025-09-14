@@ -6,7 +6,6 @@ import com.nightlynexus.viewstatepageradapter.ViewStatePagerAdapter
 import java.util.Stack
 
 abstract class RecyclerViewPagerAdapter : ViewStatePagerAdapter() {
-
     private val pool = Stack<View>()
 
     var recycle = true
@@ -17,17 +16,30 @@ abstract class RecyclerViewPagerAdapter : ViewStatePagerAdapter() {
 
     protected abstract fun createView(container: ViewGroup): View
 
-    protected abstract fun bindView(view: View, position: Int)
+    protected abstract fun bindView(
+        view: View,
+        position: Int,
+    )
 
-    protected open fun recycleView(view: View, position: Int) {}
+    protected open fun recycleView(
+        view: View,
+        position: Int,
+    ) {}
 
-    override fun createView(container: ViewGroup, position: Int): View {
+    override fun createView(
+        container: ViewGroup,
+        position: Int,
+    ): View {
         val view = if (pool.isNotEmpty()) pool.pop() else createView(container)
         bindView(view, position)
         return view
     }
 
-    override fun destroyView(container: ViewGroup, position: Int, view: View) {
+    override fun destroyView(
+        container: ViewGroup,
+        position: Int,
+        view: View,
+    ) {
         recycleView(view, position)
         if (recycle) pool.push(view)
     }

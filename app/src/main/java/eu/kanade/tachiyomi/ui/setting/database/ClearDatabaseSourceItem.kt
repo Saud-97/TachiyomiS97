@@ -13,27 +13,38 @@ import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.source.icon
 
-data class ClearDatabaseSourceItem(val source: Source, val mangaCount: Int) : AbstractFlexibleItem<ClearDatabaseSourceItem.Holder>() {
-
+data class ClearDatabaseSourceItem(
+    val source: Source,
+    val mangaCount: Int,
+) : AbstractFlexibleItem<ClearDatabaseSourceItem.Holder>() {
     val isStub: Boolean = source is SourceManager.StubSource
 
-    override fun getLayoutRes(): Int {
-        return R.layout.clear_database_source_item
-    }
+    override fun getLayoutRes(): Int = R.layout.clear_database_source_item
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>?, holder: Holder?, position: Int, payloads: MutableList<Any>?) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>?,
+        holder: Holder?,
+        position: Int,
+        payloads: MutableList<Any>?,
+    ) {
         holder?.bind(source, mangaCount)
     }
 
-    class Holder(view: View, adapter: FlexibleAdapter<*>) : FlexibleViewHolder(view, adapter) {
-
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<*>,
+    ) : FlexibleViewHolder(view, adapter) {
         private val binding = ClearDatabaseSourceItemBinding.bind(view)
 
-        fun bind(source: Source, count: Int) {
+        fun bind(
+            source: Source,
+            count: Int,
+        ) {
             binding.title.text = source.toString()
             binding.description.text = itemView.context.getString(R.string.clear_database_source_item_count, count)
 

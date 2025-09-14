@@ -2,8 +2,9 @@ package eu.kanade.tachiyomi.widget
 
 import android.content.Context
 
-class PreCachingLayoutManager(context: Context) : androidx.recyclerview.widget.LinearLayoutManager(context) {
-
+class PreCachingLayoutManager(
+    context: Context,
+) : androidx.recyclerview.widget.LinearLayoutManager(context) {
     init {
         isItemPrefetchEnabled = false
     }

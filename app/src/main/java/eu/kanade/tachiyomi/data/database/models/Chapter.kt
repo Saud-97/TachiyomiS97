@@ -3,8 +3,9 @@ package eu.kanade.tachiyomi.data.database.models
 import eu.kanade.tachiyomi.source.model.SChapter
 import java.io.Serializable
 
-interface Chapter : SChapter, Serializable {
-
+interface Chapter :
+    SChapter,
+    Serializable {
     var id: Long?
 
     var manga_id: Long?
@@ -25,21 +26,23 @@ interface Chapter : SChapter, Serializable {
         get() = chapter_number >= 0f
 
     companion object {
+        fun create(): Chapter =
+            ChapterImpl().apply {
+                chapter_number = -1f
+            }
 
-        fun create(): Chapter = ChapterImpl().apply {
-            chapter_number = -1f
-        }
-
-        fun List<Chapter>.copy(): List<Chapter> {
-            return map {
+        fun List<Chapter>.copy(): List<Chapter> =
+            map {
                 ChapterImpl().apply {
                     copyFrom(it)
                 }
             }
-        }
     }
 
-    fun copyFrom(other: Chapter, overwrite: Boolean = true) {
+    fun copyFrom(
+        other: Chapter,
+        overwrite: Boolean = true,
+    ) {
         id = other.id
         manga_id = other.manga_id
         read = other.read

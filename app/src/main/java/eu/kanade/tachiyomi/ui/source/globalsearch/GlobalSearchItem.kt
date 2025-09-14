@@ -15,26 +15,27 @@ import eu.kanade.tachiyomi.source.CatalogueSource
  * @param results the search results.
  * @param highlighted whether this search item should be highlighted/marked in the catalogue search view.
  */
-class GlobalSearchItem(val source: CatalogueSource, val results: List<GlobalSearchMangaItem>?, val highlighted: Boolean = false) :
-    AbstractFlexibleItem<GlobalSearchHolder>() {
-
+class GlobalSearchItem(
+    val source: CatalogueSource,
+    val results: List<GlobalSearchMangaItem>?,
+    val highlighted: Boolean = false,
+) : AbstractFlexibleItem<GlobalSearchHolder>() {
     /**
      * Set view.
      *
      * @return id of view
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.source_global_search_controller_card
-    }
+    override fun getLayoutRes(): Int = R.layout.source_global_search_controller_card
 
     /**
      * Create view holder (see [GlobalSearchAdapter].
      *
      * @return holder of view.
      */
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): GlobalSearchHolder {
-        return GlobalSearchHolder(view, adapter as GlobalSearchAdapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): GlobalSearchHolder = GlobalSearchHolder(view, adapter as GlobalSearchAdapter)
 
     /**
      * Bind item to view.
@@ -65,7 +66,5 @@ class GlobalSearchItem(val source: CatalogueSource, val results: List<GlobalSear
      *
      * @return hashcode
      */
-    override fun hashCode(): Int {
-        return source.id.toInt()
-    }
+    override fun hashCode(): Int = source.id.toInt()
 }

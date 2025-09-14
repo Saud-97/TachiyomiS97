@@ -10,9 +10,10 @@ import eu.kanade.tachiyomi.databinding.ExtensionCardHeaderBinding
 import eu.kanade.tachiyomi.extension.model.InstalledExtensionsOrder
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 
-class ExtensionGroupHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) :
-    BaseFlexibleViewHolder(view, adapter) {
-
+class ExtensionGroupHolder(
+    view: View,
+    adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+) : BaseFlexibleViewHolder(view, adapter) {
     private val binding = ExtensionCardHeaderBinding.bind(view)
 
     init {

@@ -23,7 +23,6 @@ abstract class WebViewInterceptor(
     private val context: Context,
     private val defaultUserAgentProvider: () -> String,
 ) : Interceptor {
-
     /**
      * When this is called, it initializes the WebView if it wasn't already. We use this to avoid
      * blocking the main thread too much. If used too often we could consider moving it to the
@@ -46,7 +45,11 @@ abstract class WebViewInterceptor(
 
     abstract fun shouldIntercept(response: Response): Boolean
 
-    abstract fun intercept(chain: Interceptor.Chain, request: Request, response: Response): Response
+    abstract fun intercept(
+        chain: Interceptor.Chain,
+        request: Request,
+        response: Response,
+    ): Response
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -66,35 +69,37 @@ abstract class WebViewInterceptor(
         return intercept(chain, request, response)
     }
 
-    fun parseHeaders(headers: Headers): Map<String, String> {
-        return headers
+    fun parseHeaders(headers: Headers): Map<String, String> =
+        headers
             // Keeping unsafe header makes webview throw [net::ERR_INVALID_ARGUMENT]
             .filter { (name, value) ->
                 isRequestHeaderSafe(name, value)
-            }
-            .groupBy(keySelector = { (name, _) -> name }) { (_, value) -> value }
+            }.groupBy(keySelector = { (name, _) -> name }) { (_, value) -> value }
             .mapValues { it.value.getOrNull(0).orEmpty() }
-    }
 
     fun CountDownLatch.awaitFor30Seconds() {
         await(30, TimeUnit.SECONDS)
     }
 
-    fun createWebView(request: Request): WebView {
-        return WebView(context).apply {
+    fun createWebView(request: Request): WebView =
+        WebView(context).apply {
             setDefaultSettings()
             // Avoid sending empty User-Agent, Chromium WebView will reset to default if empty
             settings.userAgentString = request.header("User-Agent") ?: defaultUserAgentProvider()
         }
-    }
 }
 
 // Based on [IsRequestHeaderSafe] in https://source.chromium.org/chromium/chromium/src/+/main:services/network/public/cpp/header_util.cc
-private fun isRequestHeaderSafe(_name: String, _value: String): Boolean {
+private fun isRequestHeaderSafe(
+    _name: String,
+    _value: String,
+): Boolean {
     val name = _name.lowercase(Locale.ENGLISH)
     val value = _value.lowercase(Locale.ENGLISH)
     if (name in unsafeHeaderNames || name.startsWith("proxy-")) return false
     if (name == "connection" && value == "upgrade") return false
     return true
 }
-private val unsafeHeaderNames = listOf("content-length", "host", "trailer", "te", "upgrade", "cookie2", "keep-alive", "transfer-encoding", "set-cookie")
+
+private val unsafeHeaderNames =
+    listOf("content-length", "host", "trailer", "te", "upgrade", "cookie2", "keep-alive", "transfer-encoding", "set-cookie")

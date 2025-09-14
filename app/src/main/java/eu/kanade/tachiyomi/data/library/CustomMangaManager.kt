@@ -9,8 +9,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 
-class CustomMangaManager(val context: Context) {
-
+class CustomMangaManager(
+    val context: Context,
+) {
     private val editJson = File(context.getExternalFilesDir(null), "edits.json")
 
     private var customMangaMap = mutableMapOf<Long, Manga>()
@@ -20,8 +21,8 @@ class CustomMangaManager(val context: Context) {
     }
 
     companion object {
-        fun Manga.toJson(): MangaJson {
-            return MangaJson(
+        fun Manga.toJson(): MangaJson =
+            MangaJson(
                 id!!,
                 title,
                 author,
@@ -30,7 +31,6 @@ class CustomMangaManager(val context: Context) {
                 genre?.split(", ")?.toTypedArray(),
                 status.takeUnless { it == -1 },
             )
-        }
     }
 
     fun getManga(manga: Manga): Manga? = customMangaMap[manga.id]
@@ -38,17 +38,21 @@ class CustomMangaManager(val context: Context) {
     private fun fetchCustomData() {
         if (!editJson.exists() || !editJson.isFile) return
 
-        val json = try {
-            Json.decodeFromString<MangaList>(editJson.bufferedReader().use { it.readText() })
-        } catch (e: Exception) {
-            null
-        } ?: return
+        val json =
+            try {
+                Json.decodeFromString<MangaList>(editJson.bufferedReader().use { it.readText() })
+            } catch (e: Exception) {
+                null
+            } ?: return
 
         val mangasJson = json.mangas ?: return
-        customMangaMap = mangasJson.mapNotNull { mangaObject ->
-            val id = mangaObject.id ?: return@mapNotNull null
-            id to mangaObject.toManga()
-        }.toMap().toMutableMap()
+        customMangaMap =
+            mangasJson
+                .mapNotNull { mangaObject ->
+                    val id = mangaObject.id ?: return@mapNotNull null
+                    id to mangaObject.toManga()
+                }.toMap()
+                .toMutableMap()
     }
 
     fun saveMangaInfo(manga: MangaJson) {
@@ -90,16 +94,16 @@ class CustomMangaManager(val context: Context) {
         val genre: Array<String>? = null,
         val status: Int? = null,
     ) {
-
-        fun toManga() = MangaImpl().apply {
-            id = this@MangaJson.id
-            title = this@MangaJson.title ?: ""
-            author = this@MangaJson.author
-            artist = this@MangaJson.artist
-            description = this@MangaJson.description
-            genre = this@MangaJson.genre?.joinToString(", ")
-            status = this@MangaJson.status ?: -1
-        }
+        fun toManga() =
+            MangaImpl().apply {
+                id = this@MangaJson.id
+                title = this@MangaJson.title ?: ""
+                author = this@MangaJson.author
+                artist = this@MangaJson.artist
+                description = this@MangaJson.description
+                genre = this@MangaJson.genre?.joinToString(", ")
+                status = this@MangaJson.status ?: -1
+            }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -109,8 +113,6 @@ class CustomMangaManager(val context: Context) {
             return true
         }
 
-        override fun hashCode(): Int {
-            return id.hashCode()
-        }
+        override fun hashCode(): Int = id.hashCode()
     }
 }

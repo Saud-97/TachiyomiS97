@@ -8,9 +8,9 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem
  *
  * @param controller The containing controller.
  */
-class RepoAdapter(controller: RepoController) :
-    FlexibleAdapter<AbstractFlexibleItem<*>>(null, controller, true) {
-
+class RepoAdapter(
+    controller: RepoController,
+) : FlexibleAdapter<AbstractFlexibleItem<*>>(null, controller, true) {
     /**
      * Listener called when an item of the list is released.
      */
@@ -32,7 +32,12 @@ class RepoAdapter(controller: RepoController) :
          * Called when an item of the list is released.
          */
         fun onLogoClick(position: Int)
-        fun onRepoRename(position: Int, newName: String): Boolean
+
+        fun onRepoRename(
+            position: Int,
+            newName: String,
+        ): Boolean
+
         fun onItemDelete(position: Int)
     }
 }

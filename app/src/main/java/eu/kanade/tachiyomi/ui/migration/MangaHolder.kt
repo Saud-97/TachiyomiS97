@@ -15,7 +15,6 @@ class MangaHolder(
     adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
     showOutline: Boolean,
 ) : BaseFlexibleViewHolder(view, adapter) {
-
     private val binding = MangaListItemBinding.bind(view)
 
     init {

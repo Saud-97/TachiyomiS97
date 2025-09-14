@@ -11,9 +11,10 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.concurrent.TimeUnit
 
-class DelayedLibrarySuggestionsJob(context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
+class DelayedLibrarySuggestionsJob(
+    context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         val preferences = Injekt.get<PreferencesHelper>()
         if (preferences.showLibrarySearchSuggestions().isNotSet()) {
@@ -26,12 +27,16 @@ class DelayedLibrarySuggestionsJob(context: Context, workerParams: WorkerParamet
     companion object {
         private const val TAG = "DelayedLibrarySuggestions"
 
-        fun setupTask(context: Context, enabled: Boolean) {
+        fun setupTask(
+            context: Context,
+            enabled: Boolean,
+        ) {
             if (enabled) {
-                val request = OneTimeWorkRequestBuilder<DelayedLibrarySuggestionsJob>()
-                    .setInitialDelay(1, TimeUnit.DAYS)
-                    .addTag(TAG)
-                    .build()
+                val request =
+                    OneTimeWorkRequestBuilder<DelayedLibrarySuggestionsJob>()
+                        .setInitialDelay(1, TimeUnit.DAYS)
+                        .addTag(TAG)
+                        .build()
 
                 WorkManager.getInstance(context).enqueueUniqueWork(TAG, ExistingWorkPolicy.KEEP, request)
             } else {

@@ -13,11 +13,10 @@ class MigrationSourceAdapter(
     var items: List<MigrationSourceItem>,
     controllerPre: PreMigrationController,
 ) : FlexibleAdapter<MigrationSourceItem>(
-    items,
-    controllerPre,
-    true,
-) {
-
+        items,
+        controllerPre,
+        true,
+    ) {
     val extensionManager: ExtensionManager = Injekt.get()
     val enabledLanguages = Injekt.get<PreferencesHelper>().enabledLanguages().get()
 
@@ -36,11 +35,12 @@ class MigrationSourceAdapter(
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         val sourceManager: SourceManager by injectLazy()
-        savedInstanceState.getParcelableArrayList<MigrationSourceItem.ParcelableSI>(
-            SELECTED_SOURCES_KEY,
-        )?.let {
-            updateDataSet(it.map { MigrationSourceItem.fromParcelable(sourceManager, it) })
-        }
+        savedInstanceState
+            .getParcelableArrayList<MigrationSourceItem.ParcelableSI>(
+                SELECTED_SOURCES_KEY,
+            )?.let {
+                updateDataSet(it.map { MigrationSourceItem.fromParcelable(sourceManager, it) })
+            }
 
         super.onRestoreInstanceState(savedInstanceState)
     }

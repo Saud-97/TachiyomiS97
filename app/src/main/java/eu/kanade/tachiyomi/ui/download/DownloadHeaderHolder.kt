@@ -7,8 +7,10 @@ import eu.davidea.flexibleadapter.FlexibleAdapter
 import eu.davidea.viewholders.ExpandableViewHolder
 import eu.kanade.tachiyomi.databinding.DownloadHeaderBinding
 
-class DownloadHeaderHolder(view: View, adapter: FlexibleAdapter<*>) : ExpandableViewHolder(view, adapter) {
-
+class DownloadHeaderHolder(
+    view: View,
+    adapter: FlexibleAdapter<*>,
+) : ExpandableViewHolder(view, adapter) {
     private val binding = DownloadHeaderBinding.bind(view)
 
     @SuppressLint("SetTextI18n")
@@ -17,7 +19,10 @@ class DownloadHeaderHolder(view: View, adapter: FlexibleAdapter<*>) : Expandable
         binding.title.text = "${item.name} (${item.size})"
     }
 
-    override fun onActionStateChanged(position: Int, actionState: Int) {
+    override fun onActionStateChanged(
+        position: Int,
+        actionState: Int,
+    ) {
         super.onActionStateChanged(position, actionState)
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             binding.container.isDragged = true

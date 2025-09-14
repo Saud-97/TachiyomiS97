@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.merge
 
 class WorkerInfoController : BaseCoroutineController<SubDebugControllerBinding, WorkerInfoPresenter>() {
-
     companion object {
         const val title = "Worker info"
     }
@@ -29,8 +28,8 @@ class WorkerInfoController : BaseCoroutineController<SubDebugControllerBinding, 
     private val fastAdapter = FastAdapter.with(itemAdapter)
 
     override fun getTitle() = title
-    override fun createBinding(inflater: LayoutInflater) =
-        SubDebugControllerBinding.inflate(inflater)
+
+    override fun createBinding(inflater: LayoutInflater) = SubDebugControllerBinding.inflate(inflater)
 
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
@@ -53,17 +52,21 @@ class WorkerInfoController : BaseCoroutineController<SubDebugControllerBinding, 
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.sub_debug_info, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_copy -> copyToClipboard(
-                "${presenter.enqueued.value}\n${presenter.finished.value}\n${presenter.running.value}",
-                "Backup file schema",
-                true,
-            )
+            R.id.action_copy ->
+                copyToClipboard(
+                    "${presenter.enqueued.value}\n${presenter.finished.value}\n${presenter.running.value}",
+                    "Backup file schema",
+                    true,
+                )
         }
         return super.onOptionsItemSelected(item)
     }

@@ -6,7 +6,10 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
 
-fun PackageManager.getApplicationInfoCompat(packageName: String, flags: Int): ApplicationInfo =
+fun PackageManager.getApplicationInfoCompat(
+    packageName: String,
+    flags: Int,
+): ApplicationInfo =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(flags.toLong()))
     } else {
@@ -14,7 +17,10 @@ fun PackageManager.getApplicationInfoCompat(packageName: String, flags: Int): Ap
         getApplicationInfo(packageName, flags)
     }
 
-fun PackageManager.resolveActivityCompat(intent: Intent, flags: Int): ResolveInfo? =
+fun PackageManager.resolveActivityCompat(
+    intent: Intent,
+    flags: Int,
+): ResolveInfo? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         resolveActivity(intent, PackageManager.ResolveInfoFlags.of(flags.toLong()))
     } else {
@@ -22,7 +28,10 @@ fun PackageManager.resolveActivityCompat(intent: Intent, flags: Int): ResolveInf
         resolveActivity(intent, flags)
     }
 
-fun PackageManager.resolveServiceCompat(intent: Intent, flags: Int): ResolveInfo? =
+fun PackageManager.resolveServiceCompat(
+    intent: Intent,
+    flags: Int,
+): ResolveInfo? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         resolveService(intent, PackageManager.ResolveInfoFlags.of(flags.toLong()))
     } else {
@@ -30,7 +39,10 @@ fun PackageManager.resolveServiceCompat(intent: Intent, flags: Int): ResolveInfo
         resolveService(intent, flags)
     }
 
-fun PackageManager.queryIntentActivitiesCompat(intent: Intent, flags: Int): List<ResolveInfo> =
+fun PackageManager.queryIntentActivitiesCompat(
+    intent: Intent,
+    flags: Int,
+): List<ResolveInfo> =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(flags.toLong()))
     } else {

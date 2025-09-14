@@ -29,26 +29,20 @@ class StatsPresenter(
     private val downloadManager: DownloadManager = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
 ) {
-
     private val libraryMangas = getLibrary()
     val mangaDistinct = libraryMangas.distinct()
 
-    private fun getLibrary(): MutableList<LibraryManga> {
-        return db.getLibraryMangas().executeAsBlocking()
-    }
+    private fun getLibrary(): MutableList<LibraryManga> = db.getLibraryMangas().executeAsBlocking()
 
-    fun getTracks(manga: Manga): MutableList<Track> {
-        return db.getTracks(manga).executeAsBlocking()
-    }
+    fun getTracks(manga: Manga): MutableList<Track> = db.getTracks(manga).executeAsBlocking()
 
-    fun getLoggedTrackers(): List<TrackService> {
-        return trackManager.services.filter { it.isLogged }
-    }
+    fun getLoggedTrackers(): List<TrackService> = trackManager.services.filter { it.isLogged }
 
     fun getSources(): List<CatalogueSource> {
         val languages = prefs.enabledLanguages().get()
         val hiddenCatalogues = prefs.hiddenSources().get()
-        return sourceManager.getCatalogueSources()
+        return sourceManager
+            .getCatalogueSources()
             .filter { it.lang in languages }
             .filterNot { it.id.toString() in hiddenCatalogues }
     }
@@ -57,7 +51,8 @@ class StatsPresenter(
         val includedCategories = prefs.libraryUpdateCategories().get().map(String::toInt)
         val excludedCategories = prefs.libraryUpdateCategoriesExclude().get().map(String::toInt)
         val restrictions = prefs.libraryUpdateMangaRestriction().get()
-        return libraryMangas.groupBy { it.id }
+        return libraryMangas
+            .groupBy { it.id }
             .filterNot { it.value.any { manga -> manga.category in excludedCategories } }
             .filter { includedCategories.isEmpty() || it.value.any { manga -> manga.category in includedCategories } }
             .filterNot {
@@ -68,9 +63,7 @@ class StatsPresenter(
             }
     }
 
-    fun getDownloadCount(manga: LibraryManga): Int {
-        return downloadManager.getDownloadCount(manga)
-    }
+    fun getDownloadCount(manga: LibraryManga): Int = downloadManager.getDownloadCount(manga)
 
     fun get10PointScore(track: Track): Float? {
         val service = trackManager.getService(track.sync_id)

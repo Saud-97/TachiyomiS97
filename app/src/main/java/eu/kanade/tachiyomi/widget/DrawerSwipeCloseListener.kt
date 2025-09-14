@@ -8,7 +8,6 @@ class DrawerSwipeCloseListener(
     private val drawer: androidx.drawerlayout.widget.DrawerLayout,
     private val navigationView: ViewGroup,
 ) : androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
-
     override fun onDrawerOpened(drawerView: View) {
         if (drawerView == navigationView) {
             drawer.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED, drawerView)

@@ -21,26 +21,30 @@ class TabbedReaderSettingsSheet(
     val readerActivity: ReaderActivity,
     showColorFilterSettings: Boolean = false,
 ) : TabbedBottomSheetDialog(readerActivity) {
-    private val generalView: ReaderGeneralView = View.inflate(
-        readerActivity,
-        R.layout.reader_general_layout,
-        null,
-    ) as ReaderGeneralView
-    private val pagedView: ReaderPagedView = View.inflate(
-        readerActivity,
-        R.layout.reader_paged_layout,
-        null,
-    ) as ReaderPagedView
-    private val filterView: ReaderFilterView = View.inflate(
-        readerActivity,
-        R.layout.reader_color_filter,
-        null,
-    ) as ReaderFilterView
+    private val generalView: ReaderGeneralView =
+        View.inflate(
+            readerActivity,
+            R.layout.reader_general_layout,
+            null,
+        ) as ReaderGeneralView
+    private val pagedView: ReaderPagedView =
+        View.inflate(
+            readerActivity,
+            R.layout.reader_paged_layout,
+            null,
+        ) as ReaderPagedView
+    private val filterView: ReaderFilterView =
+        View.inflate(
+            readerActivity,
+            R.layout.reader_color_filter,
+            null,
+        ) as ReaderFilterView
 
-    var showWebtoonView: Boolean = run {
-        val mangaViewer = readerActivity.viewModel.getMangaReadingMode()
-        ReadingModeType.isWebtoonType(mangaViewer)
-    }
+    var showWebtoonView: Boolean =
+        run {
+            val mangaViewer = readerActivity.viewModel.getMangaReadingMode()
+            ReadingModeType.isWebtoonType(mangaViewer)
+        }
 
     override var offset = 0
 
@@ -54,17 +58,19 @@ class TabbedReaderSettingsSheet(
         }
     }
 
-    override fun getTabViews(): List<View> = listOf(
-        generalView,
-        pagedView,
-        filterView,
-    )
+    override fun getTabViews(): List<View> =
+        listOf(
+            generalView,
+            pagedView,
+            filterView,
+        )
 
-    override fun getTabTitles(): List<Int> = listOf(
-        R.string.general,
-        if (showWebtoonView) R.string.webtoon else R.string.paged,
-        R.string.filter,
-    )
+    override fun getTabTitles(): List<Int> =
+        listOf(
+            R.string.general,
+            if (showWebtoonView) R.string.webtoon else R.string.paged,
+            R.string.filter,
+        )
 
     init {
         generalView.activity = readerActivity
@@ -123,7 +129,8 @@ class TabbedReaderSettingsSheet(
                     } else {
                         sheetBehavior.expand()
                         sheetBehavior.skipCollapsed = true
-                        window?.attributes = window?.attributes?.apply { screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE }
+                        window?.attributes =
+                            window?.attributes?.apply { screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE }
                     }
                 }
 

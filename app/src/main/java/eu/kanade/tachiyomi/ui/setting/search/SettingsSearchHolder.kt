@@ -15,10 +15,12 @@ import kotlin.reflect.full.createInstance
  * @param view view of [SettingsSearchItem]
  * @param adapter instance of [SettingsSearchAdapter]
  */
-class SettingsSearchHolder(view: View, val adapter: SettingsSearchAdapter) :
-    FlexibleViewHolder(view, adapter) {
-
+class SettingsSearchHolder(
+    view: View,
+    val adapter: SettingsSearchAdapter,
+) : FlexibleViewHolder(view, adapter) {
     private val binding = SettingsSearchControllerCardBinding.bind(view)
+
     init {
         binding.titleWrapper.setOnClickListener {
             adapter.getItem(bindingAdapterPosition)?.let {

@@ -10,25 +10,28 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.util.view.setAnimVectorCompat
 
-class SortGroup(val filter: Filter.Sort) : AbstractExpandableHeaderItem<SortGroup.Holder, ISectionable<*, *>>() {
-
+class SortGroup(
+    val filter: Filter.Sort,
+) : AbstractExpandableHeaderItem<SortGroup.Holder, ISectionable<*, *>>() {
     init {
         isExpanded = false
     }
 
-    override fun getLayoutRes(): Int {
-        return R.layout.navigation_view_group
-    }
+    override fun getLayoutRes(): Int = R.layout.navigation_view_group
 
-    override fun getItemViewType(): Int {
-        return 100
-    }
+    override fun getItemViewType(): Int = 100
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: Holder, position: Int, payloads: MutableList<Any?>?) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: Holder,
+        position: Int,
+        payloads: MutableList<Any?>?,
+    ) {
         holder.title.text = filter.name
 
         holder.icon.setAnimVectorCompat(
@@ -48,9 +51,10 @@ class SortGroup(val filter: Filter.Sort) : AbstractExpandableHeaderItem<SortGrou
         return filter == (other as SortGroup).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 
-    class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : GroupItem.Holder(view, adapter)
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : GroupItem.Holder(view, adapter)
 }

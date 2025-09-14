@@ -24,7 +24,9 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.TreeMap
 
-class SettingsSourcesController : SettingsController(), FloatingSearchInterface {
+class SettingsSourcesController :
+    SettingsController(),
+    FloatingSearchInterface {
     init {
         setHasOptionsMenu(true)
     }
@@ -38,54 +40,54 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
     private var sourcesByLang: TreeMap<String, MutableList<HttpSource>> = TreeMap()
     private var sorting = SourcesSort.Alpha
 
-    override fun getSearchTitle(): String? {
-        return view?.context?.getString(R.string.search)
-    }
+    override fun getSearchTitle(): String? = view?.context?.getString(R.string.search)
 
-    override fun setupPreferenceScreen(screen: PreferenceScreen) = screen.apply {
-        titleRes = R.string.filter
-        sorting = SourcesSort.from(preferences.sourceSorting().get()) ?: SourcesSort.Alpha
-        activity?.invalidateOptionsMenu()
-        // Get the list of active language codes.
-        val activeLangsCodes = preferences.enabledLanguages().get()
+    override fun setupPreferenceScreen(screen: PreferenceScreen) =
+        screen.apply {
+            titleRes = R.string.filter
+            sorting = SourcesSort.from(preferences.sourceSorting().get()) ?: SourcesSort.Alpha
+            activity?.invalidateOptionsMenu()
+            // Get the list of active language codes.
+            val activeLangsCodes = preferences.enabledLanguages().get()
 
-        // Get a map of sources grouped by language.
-        sourcesByLang = onlineSources.groupByTo(TreeMap()) { it.lang }
+            // Get a map of sources grouped by language.
+            sourcesByLang = onlineSources.groupByTo(TreeMap()) { it.lang }
 
-        // Order first by active languages, then inactive ones
-        orderedLangs = sourcesByLang.keys.filter { it in activeLangsCodes } + sourcesByLang.keys
-            .filterNot { it in activeLangsCodes }
+            // Order first by active languages, then inactive ones
+            orderedLangs = sourcesByLang.keys.filter { it in activeLangsCodes } +
+                sourcesByLang.keys
+                    .filterNot { it in activeLangsCodes }
 
-        orderedLangs.forEach { lang ->
-            // Create a preference group and set initial state and change listener
-            langPrefs.add(
-                Pair(
-                    lang,
-                    SwitchPreferenceCategory(context).apply {
-                        preferenceScreen.addPreference(this)
-                        title = LocaleHelper.getSourceDisplayName(lang, context)
-                        isPersistent = false
-                        if (lang in activeLangsCodes) {
-                            setChecked(true)
-                            addLanguageSources(this, sortedSources(sourcesByLang[lang]))
-                        }
-
-                        onChange { newValue ->
-                            val checked = newValue as Boolean
-                            if (!checked) {
-                                preferences.enabledLanguages() -= lang
-                                removeAll()
-                            } else {
-                                preferences.enabledLanguages() += lang
+            orderedLangs.forEach { lang ->
+                // Create a preference group and set initial state and change listener
+                langPrefs.add(
+                    Pair(
+                        lang,
+                        SwitchPreferenceCategory(context).apply {
+                            preferenceScreen.addPreference(this)
+                            title = LocaleHelper.getSourceDisplayName(lang, context)
+                            isPersistent = false
+                            if (lang in activeLangsCodes) {
+                                setChecked(true)
                                 addLanguageSources(this, sortedSources(sourcesByLang[lang]))
                             }
-                            true
-                        }
-                    },
-                ),
-            )
+
+                            onChange { newValue ->
+                                val checked = newValue as Boolean
+                                if (!checked) {
+                                    preferences.enabledLanguages() -= lang
+                                    removeAll()
+                                } else {
+                                    preferences.enabledLanguages() += lang
+                                    addLanguageSources(this, sortedSources(sourcesByLang[lang]))
+                                }
+                                true
+                            }
+                        },
+                    ),
+                )
+            }
         }
-    }
 
     override fun setDivider(divider: Drawable?) {
         super.setDivider(null)
@@ -96,71 +98,74 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
      *
      * @param group the language category.
      */
-    private fun addLanguageSources(group: PreferenceGroup, sources: List<HttpSource>) {
+    private fun addLanguageSources(
+        group: PreferenceGroup,
+        sources: List<HttpSource>,
+    ) {
         val hiddenCatalogues = preferences.hiddenSources().get()
 
-        val selectAllPreference = CheckBoxPreference(group.context).apply {
-            title = "\t\t${context.getString(R.string.all_sources)}"
-            key = "all_${sources.first().lang}"
-            isPersistent = false
-            isChecked = sources.all { it.id.toString() !in hiddenCatalogues }
-            isVisible = query.isEmpty()
-
-            onChange { newValue ->
-                val checked = newValue as Boolean
-                val current = preferences.hiddenSources().get().toMutableSet()
-                if (checked) {
-                    current.removeAll(sources.map { it.id.toString() })
-                } else {
-                    current.addAll(sources.map { it.id.toString() })
-                }
-                preferences.hiddenSources().set(current)
-                group.removeAll()
-                addLanguageSources(group, sortedSources(sources))
-                true
-            }
-        }
-        group.addPreference(selectAllPreference)
-
-        sources.forEach { source ->
-            val sourcePreference = CheckBoxPreference(group.context).apply {
-                val id = source.id.toString()
-                title = source.name
-                key = getSourceKey(source.id)
+        val selectAllPreference =
+            CheckBoxPreference(group.context).apply {
+                title = "\t\t${context.getString(R.string.all_sources)}"
+                key = "all_${sources.first().lang}"
                 isPersistent = false
-                isChecked = id !in hiddenCatalogues
-                isVisible = query.isEmpty() || source.name.contains(query, ignoreCase = true)
-
-                val sourceIcon = source.icon()
-                if (sourceIcon != null) {
-                    icon = sourceIcon
-                }
+                isChecked = sources.all { it.id.toString() !in hiddenCatalogues }
+                isVisible = query.isEmpty()
 
                 onChange { newValue ->
                     val checked = newValue as Boolean
-                    val current = preferences.hiddenSources().get()
-
-                    preferences.hiddenSources().set(
-                        if (checked) {
-                            current - id
-                        } else {
-                            current + id
-                        },
-                    )
-
+                    val current = preferences.hiddenSources().get().toMutableSet()
+                    if (checked) {
+                        current.removeAll(sources.map { it.id.toString() })
+                    } else {
+                        current.addAll(sources.map { it.id.toString() })
+                    }
+                    preferences.hiddenSources().set(current)
                     group.removeAll()
                     addLanguageSources(group, sortedSources(sources))
                     true
                 }
             }
+        group.addPreference(selectAllPreference)
+
+        sources.forEach { source ->
+            val sourcePreference =
+                CheckBoxPreference(group.context).apply {
+                    val id = source.id.toString()
+                    title = source.name
+                    key = getSourceKey(source.id)
+                    isPersistent = false
+                    isChecked = id !in hiddenCatalogues
+                    isVisible = query.isEmpty() || source.name.contains(query, ignoreCase = true)
+
+                    val sourceIcon = source.icon()
+                    if (sourceIcon != null) {
+                        icon = sourceIcon
+                    }
+
+                    onChange { newValue ->
+                        val checked = newValue as Boolean
+                        val current = preferences.hiddenSources().get()
+
+                        preferences.hiddenSources().set(
+                            if (checked) {
+                                current - id
+                            } else {
+                                current + id
+                            },
+                        )
+
+                        group.removeAll()
+                        addLanguageSources(group, sortedSources(sources))
+                        true
+                    }
+                }
 
             group.addPreference(sourcePreference)
         }
     }
 
-    private fun getSourceKey(sourceId: Long): String {
-        return "source_$sourceId"
-    }
+    private fun getSourceKey(sourceId: Long): String = "source_$sourceId"
 
     /**
      * Adds items to the options menu.
@@ -168,7 +173,10 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
      * @param menu menu containing options.
      * @param inflater used to load the menu xml.
      */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.settings_sources, menu)
         if (sorting == SourcesSort.Alpha) {
             menu.findItem(R.id.action_sort_alpha).isChecked = true
@@ -177,16 +185,18 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
         }
 
         val useSearchTB = showFloatingBar()
-        val searchItem = if (useSearchTB) {
-            activityBinding?.searchToolbar?.searchItem
-        } else {
-            (menu.findItem(R.id.action_search))
-        }
-        val searchView = if (useSearchTB) {
-            activityBinding?.searchToolbar?.searchView
-        } else {
-            searchItem?.actionView as? SearchView
-        }
+        val searchItem =
+            if (useSearchTB) {
+                activityBinding?.searchToolbar?.searchItem
+            } else {
+                (menu.findItem(R.id.action_search))
+            }
+        val searchView =
+            if (useSearchTB) {
+                activityBinding?.searchToolbar?.searchView
+            } else {
+                searchItem?.actionView as? SearchView
+            }
         if (!useSearchTB) {
             searchView?.maxWidth = Int.MAX_VALUE
         }
@@ -220,12 +230,14 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
     override fun showFloatingBar() = activityBinding?.appBar?.useLargeToolbar == true
 
     var expandActionViewFromInteraction = false
-    private fun MenuItem.fixExpand(onExpand: ((MenuItem) -> Boolean)? = null, onCollapse: ((MenuItem) -> Boolean)? = null) {
+
+    private fun MenuItem.fixExpand(
+        onExpand: ((MenuItem) -> Boolean)? = null,
+        onCollapse: ((MenuItem) -> Boolean)? = null,
+    ) {
         setOnActionExpandListener(
             object : MenuItem.OnActionExpandListener {
-                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                    return onExpand?.invoke(item) ?: true
-                }
+                override fun onMenuItemActionExpand(item: MenuItem): Boolean = onExpand?.invoke(item) ?: true
 
                 override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                     activity?.invalidateOptionsMenu()
@@ -241,14 +253,13 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
         }
     }
 
-    private fun invalidateMenuOnExpand(): Boolean {
-        return if (expandActionViewFromInteraction) {
+    private fun invalidateMenuOnExpand(): Boolean =
+        if (expandActionViewFromInteraction) {
             activity?.invalidateOptionsMenu()
             false
         } else {
             true
         }
-    }
 
     private fun drawSources() {
         val activeLangsCodes = preferences.enabledLanguages().get()
@@ -278,18 +289,20 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
      * @return True if this event has been consumed, false if it has not.
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        sorting = when (item.itemId) {
-            R.id.action_sort_alpha -> SourcesSort.Alpha
-            R.id.action_sort_enabled -> SourcesSort.Enabled
-            else -> return super.onOptionsItemSelected(item)
-        }
+        sorting =
+            when (item.itemId) {
+                R.id.action_sort_alpha -> SourcesSort.Alpha
+                R.id.action_sort_enabled -> SourcesSort.Enabled
+                else -> return super.onOptionsItemSelected(item)
+            }
         item.isChecked = true
         (activity as? MainActivity)?.let {
-            val otherTB = if (it.currentToolbar == it.binding.searchToolbar) {
-                it.binding.toolbar
-            } else {
-                it.binding.searchToolbar
-            }
+            val otherTB =
+                if (it.currentToolbar == it.binding.searchToolbar) {
+                    it.binding.toolbar
+                } else {
+                    it.binding.searchToolbar
+                }
             otherTB.menu.findItem(item.itemId).isChecked = true
         }
         preferences.sourceSorting().set(sorting.value)
@@ -297,8 +310,12 @@ class SettingsSourcesController : SettingsController(), FloatingSearchInterface 
         return true
     }
 
-    enum class SourcesSort(val value: Int) {
-        Alpha(0), Enabled(1);
+    enum class SourcesSort(
+        val value: Int,
+    ) {
+        Alpha(0),
+        Enabled(1),
+        ;
 
         companion object {
             fun from(i: Int): SourcesSort? = entries.find { it.value == i }

@@ -22,13 +22,14 @@ import eu.kanade.tachiyomi.util.view.collapse
 import eu.kanade.tachiyomi.util.view.doOnApplyWindowInsetsCompat
 import eu.kanade.tachiyomi.widget.E2EBottomSheetDialog
 
-class SourceFilterSheet(val activity: Activity) :
-    E2EBottomSheetDialog<SourceFilterSheetBinding>(activity) {
-
+class SourceFilterSheet(
+    val activity: Activity,
+) : E2EBottomSheetDialog<SourceFilterSheetBinding>(activity) {
     private var filterChanged = true
 
-    val adapter: FlexibleAdapter<IFlexible<*>> = FlexibleAdapter<IFlexible<*>>(null)
-        .setDisplayHeadersAtStartUp(true)
+    val adapter: FlexibleAdapter<IFlexible<*>> =
+        FlexibleAdapter<IFlexible<*>>(null)
+            .setDisplayHeadersAtStartUp(true)
 
     var onSearchClicked = {}
 
@@ -37,6 +38,7 @@ class SourceFilterSheet(val activity: Activity) :
     override var recyclerView: RecyclerView? = binding.filtersRecycler
 
     override fun createBinding(inflater: LayoutInflater) = SourceFilterSheetBinding.inflate(inflater)
+
     init {
         binding.searchBtn.setOnClickListener { dismiss() }
         binding.resetBtn.setOnClickListener { onResetClicked() }
@@ -45,7 +47,8 @@ class SourceFilterSheet(val activity: Activity) :
         sheetBehavior.collapse()
 
         binding.titleLayout.checkHeightThen {
-            activity.window.decorView.rootWindowInsetsCompat?.let { setCardViewMax(it) }
+            activity.window.decorView.rootWindowInsetsCompat
+                ?.let { setCardViewMax(it) }
         }
 
         binding.cardView.doOnApplyWindowInsetsCompat { _, insets, _ ->
@@ -97,11 +100,17 @@ class SourceFilterSheet(val activity: Activity) :
 
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, progress: Float) {
+                override fun onSlide(
+                    bottomSheet: View,
+                    progress: Float,
+                ) {
                     updateBottomButtons()
                 }
 
-                override fun onStateChanged(p0: View, state: Int) {
+                override fun onStateChanged(
+                    p0: View,
+                    state: Int,
+                ) {
                     updateBottomButtons()
                 }
             },
@@ -110,8 +119,9 @@ class SourceFilterSheet(val activity: Activity) :
 
     fun setCardViewMax(insets: WindowInsetsCompat) {
         val fullHeight = activity.window.decorView.height
-        val newHeight = fullHeight - insets.getInsets(systemBars()).top -
-            binding.titleLayout.height - 75.dpToPx
+        val newHeight =
+            fullHeight - insets.getInsets(systemBars()).top -
+                binding.titleLayout.height - 75.dpToPx
         if ((binding.cardView.layoutParams as ConstraintLayout.LayoutParams).matchConstraintMaxHeight != newHeight) {
             binding.cardView.updateLayoutParams<ConstraintLayout.LayoutParams> {
                 matchConstraintMaxHeight = newHeight
@@ -134,8 +144,10 @@ class SourceFilterSheet(val activity: Activity) :
         val array = context.obtainStyledAttributes(attrsArray)
         val headerHeight = array.getDimensionPixelSize(0, 0)
         binding.titleLayout.updatePaddingRelative(
-            bottom = activity.window.decorView.rootWindowInsetsCompat
-                ?.getInsets(systemBars())?.bottom ?: 0,
+            bottom =
+                activity.window.decorView.rootWindowInsetsCompat
+                    ?.getInsets(systemBars())
+                    ?.bottom ?: 0,
         )
 
         binding.titleLayout.updateLayoutParams<ConstraintLayout.LayoutParams> {

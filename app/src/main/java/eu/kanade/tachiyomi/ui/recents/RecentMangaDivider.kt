@@ -8,8 +8,9 @@ import android.view.View
 import eu.kanade.tachiyomi.util.system.dpToPx
 import eu.kanade.tachiyomi.util.system.isLTR
 
-class RecentMangaDivider(context: Context) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
-
+class RecentMangaDivider(
+    context: Context,
+) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
     private val divider: Drawable
 
     init {
@@ -18,7 +19,11 @@ class RecentMangaDivider(context: Context) : androidx.recyclerview.widget.Recycl
         a.recycle()
     }
 
-    override fun onDraw(c: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
+    override fun onDraw(
+        c: Canvas,
+        parent: androidx.recyclerview.widget.RecyclerView,
+        state: androidx.recyclerview.widget.RecyclerView.State,
+    ) {
         val childCount = parent.childCount
         for (i in 0 until childCount - 1) {
             val child = parent.getChildAt(i)

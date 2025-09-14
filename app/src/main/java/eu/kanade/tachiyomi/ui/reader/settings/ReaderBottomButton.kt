@@ -3,7 +3,10 @@ package eu.kanade.tachiyomi.ui.reader.settings
 import androidx.annotation.StringRes
 import eu.kanade.tachiyomi.R
 
-enum class ReaderBottomButton(val value: String, @StringRes val stringRes: Int) {
+enum class ReaderBottomButton(
+    val value: String,
+    @StringRes val stringRes: Int,
+) {
     ViewChapters("vc", R.string.view_chapters),
     WebView("wb", R.string.open_in_webview),
     ReadingMode("rm", R.string.reading_mode),
@@ -18,11 +21,12 @@ enum class ReaderBottomButton(val value: String, @StringRes val stringRes: Int) 
     fun isIn(buttons: Collection<String>) = value in buttons
 
     companion object {
-        val BUTTONS_DEFAULTS = setOf(
-            ViewChapters,
-            WebView,
-            PageLayout,
-            CropBordersWebtoon,
-        ).map { it.value }.toSet()
+        val BUTTONS_DEFAULTS =
+            setOf(
+                ViewChapters,
+                WebView,
+                PageLayout,
+                CropBordersWebtoon,
+            ).map { it.value }.toSet()
     }
 }

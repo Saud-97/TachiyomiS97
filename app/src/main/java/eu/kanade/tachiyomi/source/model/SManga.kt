@@ -4,7 +4,6 @@ import eu.kanade.tachiyomi.data.database.models.MangaImpl
 import java.io.Serializable
 
 interface SManga : Serializable {
-
     var url: String
 
     var title: String
@@ -39,8 +38,10 @@ interface SManga : Serializable {
         get() = (this as? MangaImpl)?.ogStatus ?: status
 
     val hasSameAuthorAndArtist: Boolean
-        get() = author == artist || artist.isNullOrBlank() ||
-            author?.contains(artist ?: "", true) == true
+        get() =
+            author == artist ||
+                artist.isNullOrBlank() ||
+                author?.contains(artist ?: "", true) == true
 
     fun copyFrom(other: SManga) {
         if (other.author != null) {
@@ -72,17 +73,18 @@ interface SManga : Serializable {
         }
     }
 
-    fun copy() = create().also {
-        it.url = url
-        it.title = title
-        it.artist = artist
-        it.author = author
-        it.description = description
-        it.genre = genre
-        it.status = status
-        it.thumbnail_url = thumbnail_url
-        it.initialized = initialized
-    }
+    fun copy() =
+        create().also {
+            it.url = url
+            it.title = title
+            it.artist = artist
+            it.author = author
+            it.description = description
+            it.genre = genre
+            it.status = status
+            it.thumbnail_url = thumbnail_url
+            it.initialized = initialized
+        }
 
     companion object {
         const val UNKNOWN = 0
@@ -93,8 +95,6 @@ interface SManga : Serializable {
         const val CANCELLED = 5
         const val ON_HIATUS = 6
 
-        fun create(): SManga {
-            return MangaImpl()
-        }
+        fun create(): SManga = MangaImpl()
     }
 }

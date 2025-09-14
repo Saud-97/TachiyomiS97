@@ -12,7 +12,10 @@ import eu.kanade.tachiyomi.util.system.getResourceColor
  *
  * @param drawable id of drawable resource
  */
-fun ImageView.setVectorCompat(@DrawableRes drawable: Int, @AttrRes tint: Int? = null) {
+fun ImageView.setVectorCompat(
+    @DrawableRes drawable: Int,
+    @AttrRes tint: Int? = null,
+) {
     val vector = AppCompatResources.getDrawable(context, drawable)
     if (tint != null) {
         vector?.mutate()
@@ -21,7 +24,10 @@ fun ImageView.setVectorCompat(@DrawableRes drawable: Int, @AttrRes tint: Int? = 
     setImageDrawable(vector)
 }
 
-fun ImageView.setAnimVectorCompat(@DrawableRes drawable: Int, @AttrRes tint: Int? = null) {
+fun ImageView.setAnimVectorCompat(
+    @DrawableRes drawable: Int,
+    @AttrRes tint: Int? = null,
+) {
     val vector = AnimatedVectorDrawableCompat.create(context, drawable)
     if (tint != null) {
         vector?.mutate()

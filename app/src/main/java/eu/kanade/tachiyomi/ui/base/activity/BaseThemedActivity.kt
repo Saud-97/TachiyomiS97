@@ -10,7 +10,6 @@ import eu.kanade.tachiyomi.util.system.setThemeByPref
 import uy.kohesive.injekt.injectLazy
 
 abstract class BaseThemedActivity : AppCompatActivity() {
-
     val preferences: PreferencesHelper by injectLazy()
     private var updatedTheme: Resources.Theme? = null
 

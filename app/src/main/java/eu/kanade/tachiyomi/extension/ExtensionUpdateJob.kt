@@ -39,25 +39,28 @@ import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 import java.util.concurrent.TimeUnit
 
-class ExtensionUpdateJob(private val context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
+class ExtensionUpdateJob(
+    private val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
+    override suspend fun doWork(): Result =
+        coroutineScope {
+            val pendingUpdates =
+                try {
+                    ExtensionApi().checkForUpdates(context)
+                } catch (e: Exception) {
+                    return@coroutineScope Result.failure()
+                }
 
-    override suspend fun doWork(): Result = coroutineScope {
-        val pendingUpdates = try {
-            ExtensionApi().checkForUpdates(context)
-        } catch (e: Exception) {
-            return@coroutineScope Result.failure()
+            if (pendingUpdates.isNotEmpty()) {
+                createUpdateNotification(pendingUpdates)
+            } else {
+                val preferences: PreferencesHelper by injectLazy()
+                preferences.extensionUpdatesCount().set(0)
+            }
+
+            Result.success()
         }
-
-        if (pendingUpdates.isNotEmpty()) {
-            createUpdateNotification(pendingUpdates)
-        } else {
-            val preferences: PreferencesHelper by injectLazy()
-            preferences.extensionUpdatesCount().set(0)
-        }
-
-        Result.success()
-    }
 
     private fun createUpdateNotification(extensionsList: List<Extension.Available>) {
         val extensions = extensionsList.toMutableList()
@@ -91,7 +94,8 @@ class ExtensionUpdateJob(private val context: Context, workerParams: WorkerParam
                 (
                     preferences.autoUpdateExtensions() == AppDownloadInstallJob.ALWAYS ||
                         !cm.isActiveNetworkMetered
-                    ) && !libraryServiceRunning
+                ) &&
+                !libraryServiceRunning
             ) {
                 // Re-run this job if not all the extensions can be auto updated
                 val showUpdates = (extensionsInstalledByApp.size != extensions.size).toInt()
@@ -156,41 +160,54 @@ class ExtensionUpdateJob(private val context: Context, workerParams: WorkerParam
         private const val AUTO_TAG = "AutoExtensionUpdate"
         private const val RUN_AUTO = "run_auto"
 
-        fun runJobAgain(context: Context, networkType: NetworkType, runAutoInstaller: Boolean = true) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(networkType)
-                .build()
+        fun runJobAgain(
+            context: Context,
+            networkType: NetworkType,
+            runAutoInstaller: Boolean = true,
+        ) {
+            val constraints =
+                Constraints
+                    .Builder()
+                    .setRequiredNetworkType(networkType)
+                    .build()
 
             val data = Data.Builder()
             data.putBoolean(RUN_AUTO, runAutoInstaller)
 
-            val request = OneTimeWorkRequestBuilder<ExtensionUpdateJob>()
-                .setConstraints(constraints)
-                .addTag(AUTO_TAG)
-                .setInputData(data.build())
-                .build()
+            val request =
+                OneTimeWorkRequestBuilder<ExtensionUpdateJob>()
+                    .setConstraints(constraints)
+                    .addTag(AUTO_TAG)
+                    .setInputData(data.build())
+                    .build()
 
-            WorkManager.getInstance(context)
+            WorkManager
+                .getInstance(context)
                 .enqueueUniqueWork(AUTO_TAG, ExistingWorkPolicy.REPLACE, request)
         }
 
-        fun setupTask(context: Context, forceAutoUpdateJob: Boolean? = null) {
+        fun setupTask(
+            context: Context,
+            forceAutoUpdateJob: Boolean? = null,
+        ) {
             val preferences = Injekt.get<PreferencesHelper>()
             val autoUpdateJob = forceAutoUpdateJob ?: preferences.automaticExtUpdates().get()
             if (autoUpdateJob) {
-                val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
+                val constraints =
+                    Constraints
+                        .Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
 
-                val request = PeriodicWorkRequestBuilder<ExtensionUpdateJob>(
-                    12,
-                    TimeUnit.HOURS,
-                    1,
-                    TimeUnit.HOURS,
-                )
-                    .addTag(TAG)
-                    .setConstraints(constraints)
-                    .build()
+                val request =
+                    PeriodicWorkRequestBuilder<ExtensionUpdateJob>(
+                        12,
+                        TimeUnit.HOURS,
+                        1,
+                        TimeUnit.HOURS,
+                    ).addTag(TAG)
+                        .setConstraints(constraints)
+                        .build()
 
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.UPDATE, request)
             } else {

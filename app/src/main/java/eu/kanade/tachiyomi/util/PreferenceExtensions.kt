@@ -8,7 +8,10 @@ import android.widget.Spinner
 import com.fredporciuncula.flow.preferences.Preference
 import eu.kanade.tachiyomi.widget.IgnoreFirstSpinnerListener
 
-inline fun <reified T> SharedPreferences.getItem(key: String, default: T): T {
+inline fun <reified T> SharedPreferences.getItem(
+    key: String,
+    default: T,
+): T {
     @Suppress("UNCHECKED_CAST")
     return when (default) {
         is String -> getString(key, default) as T
@@ -25,7 +28,10 @@ inline fun <reified T> SharedPreferences.getItem(key: String, default: T): T {
 /**
  * Binds a checkbox or switch view with a boolean preference.
  */
-fun CompoundButton.bindToPreference(pref: Preference<Boolean>, block: ((Boolean) -> Unit)? = null) {
+fun CompoundButton.bindToPreference(
+    pref: Preference<Boolean>,
+    block: ((Boolean) -> Unit)? = null,
+) {
     setOnCheckedChangeListener { _, _ -> }
     isChecked = pref.get()
     setOnCheckedChangeListener { _, isChecked ->
@@ -37,7 +43,10 @@ fun CompoundButton.bindToPreference(pref: Preference<Boolean>, block: ((Boolean)
 /**
  * Binds a radio group with a int preference.
  */
-fun RadioGroup.bindToPreference(pref: Preference<Int>, block: (() -> Unit)? = null) {
+fun RadioGroup.bindToPreference(
+    pref: Preference<Int>,
+    block: (() -> Unit)? = null,
+) {
     (getChildAt(pref.get()) as? RadioButton)?.isChecked = true
     setOnCheckedChangeListener { _, checkedId ->
         val index = indexOfChild(findViewById(checkedId))
@@ -53,8 +62,9 @@ fun Spinner.bindToPreference(
     pref: Preference<Int>,
     offset: Int = 0,
 ) {
-    onItemSelectedListener = IgnoreFirstSpinnerListener { position ->
-        pref.set(position + offset)
-    }
+    onItemSelectedListener =
+        IgnoreFirstSpinnerListener { position ->
+            pref.set(position + offset)
+        }
     setSelection(pref.get() - offset, false)
 }

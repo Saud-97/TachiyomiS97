@@ -18,7 +18,6 @@ import java.text.DecimalFormatSymbols
 class MangaDetailsAdapter(
     val controller: MangaDetailsController,
 ) : BaseChapterAdapter<IFlexible<*>>(controller) {
-
     val preferences: PreferencesHelper by injectLazy()
 
     val hasShownSwipeTut
@@ -29,24 +28,21 @@ class MangaDetailsAdapter(
     val delegate: MangaDetailsInterface = controller
     val presenter = controller.presenter
 
-    val decimalFormat = DecimalFormat(
-        "#.###",
-        DecimalFormatSymbols()
-            .apply { decimalSeparator = '.' },
-    )
+    val decimalFormat =
+        DecimalFormat(
+            "#.###",
+            DecimalFormatSymbols()
+                .apply { decimalSeparator = '.' },
+        )
 
     fun setChapters(items: List<ChapterItem>?) {
         this.items = items ?: emptyList()
         performFilter()
     }
 
-    fun indexOf(item: ChapterItem): Int {
-        return items.indexOf(item)
-    }
+    fun indexOf(item: ChapterItem): Int = items.indexOf(item)
 
-    fun indexOf(chapterId: Long): Int {
-        return currentItems.indexOfFirst { it is ChapterItem && it.id == chapterId }
-    }
+    fun indexOf(chapterId: Long): Int = currentItems.indexOfFirst { it is ChapterItem && it.id == chapterId }
 
     fun performFilter() {
         val s = getFilter(String::class.java)
@@ -62,19 +58,24 @@ class MangaDetailsAdapter(
         }
     }
 
-    override fun onItemSwiped(position: Int, direction: Int) {
+    override fun onItemSwiped(
+        position: Int,
+        direction: Int,
+    ) {
         super.onItemSwiped(position, direction)
         when (direction) {
-            ItemTouchHelper.RIGHT -> if (recyclerView.resources.isLTR) {
-                controller.bookmarkChapter(position)
-            } else {
-                controller.toggleReadChapter(position)
-            }
-            ItemTouchHelper.LEFT -> if (recyclerView.resources.isLTR) {
-                controller.toggleReadChapter(position)
-            } else {
-                controller.bookmarkChapter(position)
-            }
+            ItemTouchHelper.RIGHT ->
+                if (recyclerView.resources.isLTR) {
+                    controller.bookmarkChapter(position)
+                } else {
+                    controller.toggleReadChapter(position)
+                }
+            ItemTouchHelper.LEFT ->
+                if (recyclerView.resources.isLTR) {
+                    controller.toggleReadChapter(position)
+                } else {
+                    controller.bookmarkChapter(position)
+                }
         }
     }
 
@@ -97,16 +98,17 @@ class MangaDetailsAdapter(
                     getChapterName(chapter)
                 }
             }
-            MangaDetailsPresenter.TENS_OF_CHAPTERS -> recyclerView.context.getString(
-                R.string.chapters_,
-                get10sRange(chapter.chapter_number),
-            )
+            MangaDetailsPresenter.TENS_OF_CHAPTERS ->
+                recyclerView.context.getString(
+                    R.string.chapters_,
+                    get10sRange(chapter.chapter_number),
+                )
             else -> getChapterName(chapter)
         }
     }
 
-    private fun getChapterName(item: ChapterItem): String {
-        return if (item.chapter_number > 0) {
+    private fun getChapterName(item: ChapterItem): String =
+        if (item.chapter_number > 0) {
             recyclerView.context.getString(
                 R.string.chapter_,
                 decimalFormat.format(item.chapter_number),
@@ -114,7 +116,6 @@ class MangaDetailsAdapter(
         } else {
             item.name
         }
-    }
 
     private fun get10sRange(value: Float): String {
         val number = value.toInt()
@@ -126,26 +127,57 @@ class MangaDetailsAdapter(
         }
     }
 
-    interface MangaDetailsInterface : MangaHeaderInterface, DownloadInterface
+    interface MangaDetailsInterface :
+        MangaHeaderInterface,
+        DownloadInterface
 
     interface MangaHeaderInterface {
         fun coverColor(): Int?
+
         fun accentColor(): Int?
+
         fun mangaPresenter(): MangaDetailsPresenter
+
         fun prepareToShareManga()
+
         fun openInWebView()
+
         fun startDownloadRange(position: Int)
+
         fun readNextChapter(readingButton: View)
+
         fun topCoverHeight(): Int
-        fun showFloatingActionMode(view: TextView, content: String? = null, isTag: Boolean = false)
+
+        fun showFloatingActionMode(
+            view: TextView,
+            content: String? = null,
+            isTag: Boolean = false,
+        )
+
         fun showChapterFilter()
+
         fun favoriteManga(longPress: Boolean)
-        fun copyContentToClipboard(content: String, label: Int, useToast: Boolean = false)
+
+        fun copyContentToClipboard(
+            content: String,
+            label: Int,
+            useToast: Boolean = false,
+        )
+
         fun customActionMode(view: TextView): ActionMode.Callback
-        fun copyContentToClipboard(content: String, label: String?, useToast: Boolean = false)
+
+        fun copyContentToClipboard(
+            content: String,
+            label: String?,
+            useToast: Boolean = false,
+        )
+
         fun zoomImageFromThumb(thumbView: View)
+
         fun showTrackingSheet()
+
         fun updateScroll()
+
         fun setFavButtonPopup(popupView: View)
     }
 }

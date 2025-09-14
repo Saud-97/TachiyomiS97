@@ -13,8 +13,9 @@ import eu.kanade.tachiyomi.databinding.TrackSearchItemBinding
 import eu.kanade.tachiyomi.util.system.dpToPx
 import java.util.Locale
 
-class TrackSearchItem(val trackSearch: TrackSearch) : AbstractItem<TrackSearchItem.ViewHolder>() {
-
+class TrackSearchItem(
+    val trackSearch: TrackSearch,
+) : AbstractItem<TrackSearchItem.ViewHolder>() {
     /** defines the type defining this item. must be unique. preferably an id */
     override val type: Int = R.id.track_search_cover
 
@@ -24,22 +25,25 @@ class TrackSearchItem(val trackSearch: TrackSearch) : AbstractItem<TrackSearchIt
     override val layoutRes: Int = R.layout.track_search_item
     override var identifier = trackSearch.media_id
 
-    override fun getViewHolder(v: View): ViewHolder {
-        return ViewHolder(v)
-    }
+    override fun getViewHolder(v: View): ViewHolder = ViewHolder(v)
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<TrackSearchItem>(view) {
-
+    class ViewHolder(
+        view: View,
+    ) : FastAdapter.ViewHolder<TrackSearchItem>(view) {
         val binding = TrackSearchItemBinding.bind(view)
 
         init {
             binding.trackSearchCover.shapeAppearanceModel =
-                binding.trackSearchCover.shapeAppearanceModel.toBuilder()
+                binding.trackSearchCover.shapeAppearanceModel
+                    .toBuilder()
                     .setAllCorners(CornerFamily.ROUNDED, 5f.dpToPx)
                     .build()
         }
 
-        override fun bindView(item: TrackSearchItem, payloads: List<Any>) {
+        override fun bindView(
+            item: TrackSearchItem,
+            payloads: List<Any>,
+        ) {
             val track = item.trackSearch
             binding.checkbox.isVisible = item.isSelected
             binding.trackSearchTitle.text = track.title
@@ -56,18 +60,20 @@ class TrackSearchItem(val trackSearch: TrackSearch) : AbstractItem<TrackSearchIt
                 binding.trackSearchStatus.isVisible = false
                 binding.trackSearchStatusResult.isVisible = false
             } else {
-                binding.trackSearchStatusResult.text = track.publishing_status.replaceFirstChar {
-                    it.titlecase(Locale.getDefault())
-                }
+                binding.trackSearchStatusResult.text =
+                    track.publishing_status.replaceFirstChar {
+                        it.titlecase(Locale.getDefault())
+                    }
             }
 
             if (track.publishing_type.isBlank()) {
                 binding.trackSearchType.isVisible = false
                 binding.trackSearchTypeResult.isVisible = false
             } else {
-                binding.trackSearchTypeResult.text = track.publishing_type.replaceFirstChar {
-                    it.titlecase(Locale.getDefault())
-                }
+                binding.trackSearchTypeResult.text =
+                    track.publishing_type.replaceFirstChar {
+                        it.titlecase(Locale.getDefault())
+                    }
             }
 
             if (track.start_date.isBlank()) {

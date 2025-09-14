@@ -13,7 +13,6 @@ class ExtensionDetailsPresenter(
     val pkgName: String,
     private val extensionManager: ExtensionManager = Injekt.get(),
 ) : BaseCoroutinePresenter<ExtensionDetailsController>() {
-
     val extension = extensionManager.installedExtensionsFlow.value.find { it.pkgName == pkgName }
 
     override fun onCreate() {
@@ -27,8 +26,7 @@ class ExtensionDetailsPresenter(
             .onEach { extensions ->
                 extensions.filter { it.pkgName == pkgName }
                 presenterScope.launchUI { view?.onExtensionUninstalled() }
-            }
-            .launchIn(presenterScope)
+            }.launchIn(presenterScope)
     }
 
     fun uninstallExtension() {

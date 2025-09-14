@@ -39,5 +39,7 @@ class FadeChangeHandler : AnimatorChangeHandler {
 
     override fun resetFromView(from: View) {}
 
-    override fun copy(): ControllerChangeHandler = eu.kanade.tachiyomi.ui.base.controller.FadeChangeHandler(animationDuration, removesFromViewOnPush)
+    override fun copy(): ControllerChangeHandler =
+        eu.kanade.tachiyomi.ui.base.controller
+            .FadeChangeHandler(animationDuration, removesFromViewOnPush)
 }

@@ -56,8 +56,9 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.FileOutputStream
 
-class BackupCreator(val context: Context) {
-
+class BackupCreator(
+    val context: Context,
+) {
     private val preferenceStore: PreferenceStore = Injekt.get()
     val parser = ProtoBuf
     private val db: DatabaseHelper = Injekt.get()
@@ -71,26 +72,32 @@ class BackupCreator(val context: Context) {
      * @param uri path of Uri
      * @param isAutoBackup backup called from scheduled backup job
      */
-    fun createBackup(uri: Uri, flags: Int, isAutoBackup: Boolean): String {
+    fun createBackup(
+        uri: Uri,
+        flags: Int,
+        isAutoBackup: Boolean,
+    ): String {
         // Create root object
         var backup: Backup? = null
 
         db.inTransaction {
-            val databaseManga = db.getFavoriteMangas().executeAsBlocking() +
-                if (flags and BACKUP_READ_MANGA_MASK == BACKUP_READ_MANGA) {
-                    db.getReadNotInLibraryMangas().executeAsBlocking()
-                } else {
-                    emptyList()
-                }
+            val databaseManga =
+                db.getFavoriteMangas().executeAsBlocking() +
+                    if (flags and BACKUP_READ_MANGA_MASK == BACKUP_READ_MANGA) {
+                        db.getReadNotInLibraryMangas().executeAsBlocking()
+                    } else {
+                        emptyList()
+                    }
 
-            backup = Backup(
-                backupMangas(databaseManga, flags),
-                backupCategories(),
-                emptyList(),
-                backupExtensionInfo(databaseManga),
-                backupAppPreferences(flags),
-                backupSourcePreferences(flags),
-            )
+            backup =
+                Backup(
+                    backupMangas(databaseManga, flags),
+                    backupCategories(),
+                    emptyList(),
+                    backupExtensionInfo(databaseManga),
+                    backupAppPreferences(flags),
+                    backupSourcePreferences(flags),
+                )
         }
 
         var file: UniFile? = null
@@ -103,7 +110,8 @@ class BackupCreator(val context: Context) {
 
                     // Delete older backups
                     val numberOfBackups = preferences.numberOfBackups().get()
-                    dir.listFiles { _, filename -> Backup.filenameRegex.matches(filename) }
+                    dir
+                        .listFiles { _, filename -> Backup.filenameRegex.matches(filename) }
                         .orEmpty()
                         .sortedByDescending { it.name }
                         .drop(numberOfBackups - 1)
@@ -114,7 +122,7 @@ class BackupCreator(val context: Context) {
                 } else {
                     UniFile.fromUri(context, uri)
                 }
-                )
+            )
                 ?: throw Exception("Couldn't create backup file")
 
             if (!file.isFile) {
@@ -126,10 +134,15 @@ class BackupCreator(val context: Context) {
                 throw IllegalStateException(context.getString(R.string.empty_backup_error))
             }
 
-            file.openOutputStream().also {
-                // Force overwrite old file
-                (it as? FileOutputStream)?.channel?.truncate(0)
-            }.sink().gzip().buffer().use { it.write(byteArray) }
+            file
+                .openOutputStream()
+                .also {
+                    // Force overwrite old file
+                    (it as? FileOutputStream)?.channel?.truncate(0)
+                }.sink()
+                .gzip()
+                .buffer()
+                .use { it.write(byteArray) }
             val fileUri = file.uri
 
             // Make sure it's a valid backup file
@@ -143,32 +156,33 @@ class BackupCreator(val context: Context) {
         }
     }
 
-    private fun backupMangas(mangas: List<Manga>, flags: Int): List<BackupManga> {
-        return mangas.map {
+    private fun backupMangas(
+        mangas: List<Manga>,
+        flags: Int,
+    ): List<BackupManga> =
+        mangas.map {
             backupManga(it, flags)
         }
-    }
 
-    private fun backupExtensionInfo(mangas: List<Manga>): List<BackupSource> {
-        return mangas
+    private fun backupExtensionInfo(mangas: List<Manga>): List<BackupSource> =
+        mangas
             .asSequence()
             .map { it.source }
             .distinct()
             .map { sourceManager.getOrStub(it) }
             .map { BackupSource.copyFrom(it) }
             .toList()
-    }
 
     /**
      * Backup the categories of library
      *
      * @return list of [BackupCategory] to be backed up
      */
-    private fun backupCategories(): List<BackupCategory> {
-        return db.getCategories()
+    private fun backupCategories(): List<BackupCategory> =
+        db
+            .getCategories()
             .executeAsBlocking()
             .map { BackupCategory.copyFrom(it) }
-    }
 
     /**
      * Convert a manga to Json
@@ -177,9 +191,22 @@ class BackupCreator(val context: Context) {
      * @param options options for the backup
      * @return [BackupManga] containing manga in a serializable form
      */
-    private fun backupManga(manga: Manga, options: Int): BackupManga {
+    private fun backupManga(
+        manga: Manga,
+        options: Int,
+    ): BackupManga {
         // Entry for this manga
-        val mangaObject = BackupManga.copyFrom(manga, if (options and BACKUP_CUSTOM_INFO_MASK == BACKUP_CUSTOM_INFO) customMangaManager else null)
+        val mangaObject =
+            BackupManga.copyFrom(
+                manga,
+                if (options and BACKUP_CUSTOM_INFO_MASK ==
+                    BACKUP_CUSTOM_INFO
+                ) {
+                    customMangaManager
+                } else {
+                    null
+                },
+            )
 
         // Check if user wants chapter information in backup
         if (options and BACKUP_CHAPTER_MASK == BACKUP_CHAPTER) {
@@ -211,10 +238,11 @@ class BackupCreator(val context: Context) {
         if (options and BACKUP_HISTORY_MASK == BACKUP_HISTORY) {
             val historyForManga = db.getHistoryByMangaId(manga.id!!).executeAsBlocking()
             if (historyForManga.isNotEmpty()) {
-                val history = historyForManga.mapNotNull { history ->
-                    val url = db.getChapter(history.chapter_id).executeAsBlocking()?.url
-                    url?.let { BackupHistory(url, history.last_read, history.time_read) }
-                }
+                val history =
+                    historyForManga.mapNotNull { history ->
+                        val url = db.getChapter(history.chapter_id).executeAsBlocking()?.url
+                        url?.let { BackupHistory(url, history.last_read, history.time_read) }
+                    }
                 if (history.isNotEmpty()) {
                     mangaObject.history = history
                 }
@@ -231,7 +259,8 @@ class BackupCreator(val context: Context) {
 
     private fun backupSourcePreferences(flags: Int): List<BackupSourcePreferences> {
         if (flags and BACKUP_SOURCE_PREFS_MASK != BACKUP_SOURCE_PREFS) return emptyList()
-        return sourceManager.getOnlineSources()
+        return sourceManager
+            .getOnlineSources()
             .filterIsInstance<ConfigurableSource>()
             .map {
                 BackupSourcePreferences(
@@ -243,7 +272,8 @@ class BackupCreator(val context: Context) {
 
     @Suppress("UNCHECKED_CAST")
     private fun Map<String, *>.toBackupPreferences(): List<BackupPreference> {
-        return this.filterKeys { !Preference.isPrivate(it) }
+        return this
+            .filterKeys { !Preference.isPrivate(it) }
             .mapNotNull { (key, value) ->
                 // j2k fork differences
                 if (key == "library_sorting_mode" && value is Int) {
@@ -257,9 +287,10 @@ class BackupCreator(val context: Context) {
                     is Float -> BackupPreference(key, FloatPreferenceValue(value))
                     is String -> BackupPreference(key, StringPreferenceValue(value))
                     is Boolean -> BackupPreference(key, BooleanPreferenceValue(value))
-                    is Set<*> -> (value as? Set<String>)?.let {
-                        BackupPreference(key, StringSetPreferenceValue(it))
-                    }
+                    is Set<*> ->
+                        (value as? Set<String>)?.let {
+                            BackupPreference(key, StringSetPreferenceValue(it))
+                        }
                     else -> null
                 }
             }

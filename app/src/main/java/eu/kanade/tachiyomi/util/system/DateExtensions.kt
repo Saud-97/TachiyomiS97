@@ -10,15 +10,17 @@ import java.util.TimeZone
 val Long.timeSpanFromNow: String
     get() = DateUtils.getRelativeTimeSpanString(this).toString()
 
-fun Long.timeSpanFromNow(context: Context): String {
-    return if (this == 0L) {
+fun Long.timeSpanFromNow(context: Context): String =
+    if (this == 0L) {
         context.getString(R.string.a_while_ago).lowercase(Locale.ROOT)
     } else {
         DateUtils.getRelativeTimeSpanString(this).toString()
     }
-}
 
-fun Context.timeSpanFromNow(res: Int, time: Long) = getString(res, time.timeSpanFromNow(this))
+fun Context.timeSpanFromNow(
+    res: Int,
+    time: Long,
+) = getString(res, time.timeSpanFromNow(this))
 
 /**
  * Convert local time millisecond value to Calendar instance in UTC
@@ -29,9 +31,10 @@ fun Long.toUtcCalendar(): Calendar? {
     if (this == 0L) {
         return null
     }
-    val rawCalendar = Calendar.getInstance().apply {
-        timeInMillis = this@toUtcCalendar
-    }
+    val rawCalendar =
+        Calendar.getInstance().apply {
+            timeInMillis = this@toUtcCalendar
+        }
     return Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
         clear()
         set(
@@ -54,9 +57,10 @@ fun Long.toLocalCalendar(): Calendar? {
     if (this == 0L) {
         return null
     }
-    val rawCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-        timeInMillis = this@toLocalCalendar
-    }
+    val rawCalendar =
+        Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = this@toLocalCalendar
+        }
     return Calendar.getInstance().apply {
         clear()
         set(

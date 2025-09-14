@@ -9,23 +9,17 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-fun launchUI(block: suspend CoroutineScope.() -> Unit): Job =
-    GlobalScope.launch(Dispatchers.Main, CoroutineStart.DEFAULT, block)
+fun launchUI(block: suspend CoroutineScope.() -> Unit): Job = GlobalScope.launch(Dispatchers.Main, CoroutineStart.DEFAULT, block)
 
-fun launchIO(block: suspend CoroutineScope.() -> Unit): Job =
-    GlobalScope.launch(Dispatchers.IO, CoroutineStart.DEFAULT, block)
+fun launchIO(block: suspend CoroutineScope.() -> Unit): Job = GlobalScope.launch(Dispatchers.IO, CoroutineStart.DEFAULT, block)
 
-fun launchNow(block: suspend CoroutineScope.() -> Unit): Job =
-    GlobalScope.launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED, block)
+fun launchNow(block: suspend CoroutineScope.() -> Unit): Job = GlobalScope.launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED, block)
 
-fun CoroutineScope.launchIO(block: suspend CoroutineScope.() -> Unit): Job =
-    launch(Dispatchers.IO, block = block)
+fun CoroutineScope.launchIO(block: suspend CoroutineScope.() -> Unit): Job = launch(Dispatchers.IO, block = block)
 
-fun CoroutineScope.launchUI(block: suspend CoroutineScope.() -> Unit): Job =
-    launch(Dispatchers.Main, block = block)
+fun CoroutineScope.launchUI(block: suspend CoroutineScope.() -> Unit): Job = launch(Dispatchers.Main, block = block)
 
-fun CoroutineScope.launchNonCancellable(block: suspend CoroutineScope.() -> Unit): Job =
-    launchIO { withContext(NonCancellable, block) }
+fun CoroutineScope.launchNonCancellable(block: suspend CoroutineScope.() -> Unit): Job = launchIO { withContext(NonCancellable, block) }
 
 suspend fun <T> withUIContext(block: suspend CoroutineScope.() -> T) = withContext(Dispatchers.Main, block)
 

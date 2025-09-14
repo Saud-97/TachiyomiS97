@@ -53,8 +53,9 @@ import java.io.File
  *
  * @param context The application context.
  */
-internal class ExtensionInstaller(private val context: Context) {
-
+internal class ExtensionInstaller(
+    private val context: Context,
+) {
     /**
      * The system's download manager
      */
@@ -76,23 +77,25 @@ internal class ExtensionInstaller(private val context: Context) {
     private var installer: ShizukuInstaller? = null
 
     private val shizukuInstaller: ShizukuInstaller?
-        get() = installer ?: run {
-            try {
-                installer = ShizukuInstaller(context) {
-                    it.onDestroy()
-                    ioScope.launch {
-                        delay(500)
-                        _downloadsSharedFlow.emit("Finished" to (InstallStep.Installed to null))
+        get() =
+            installer ?: run {
+                try {
+                    installer =
+                        ShizukuInstaller(context) {
+                            it.onDestroy()
+                            ioScope.launch {
+                                delay(500)
+                                _downloadsSharedFlow.emit("Finished" to (InstallStep.Installed to null))
+                            }
+                            installer = null
+                        }
+                } catch (e: Exception) {
+                    ioScope.launchUI {
+                        context.toast(e.message)
                     }
-                    installer = null
                 }
-            } catch (e: Exception) {
-                ioScope.launchUI {
-                    context.toast(e.message)
-                }
+                installer
             }
-            installer
-        }
 
     /**
      * StateFlow used to notify the installation step of every download.
@@ -102,8 +105,11 @@ internal class ExtensionInstaller(private val context: Context) {
 
     /** Map of download id to installer session id */
     val downloadInstallerMap = hashMapOf<String, Int>()
-    fun emitToFlow(name: String, extensionInfo: ExtensionIntallInfo) =
-        ioScope.launch { _downloadsSharedFlow.emit(name to extensionInfo) }
+
+    fun emitToFlow(
+        name: String,
+        extensionInfo: ExtensionIntallInfo,
+    ) = ioScope.launch { _downloadsSharedFlow.emit(name to extensionInfo) }
 
     /**
      * Adds the given extension to the downloads queue and returns a flow containing its
@@ -112,7 +118,11 @@ internal class ExtensionInstaller(private val context: Context) {
      * @param url The url of the apk.
      * @param extension The extension to install.
      */
-    suspend fun downloadAndInstall(url: String, extension: ExtensionManager.ExtensionInfo, scope: CoroutineScope): Flow<ExtensionIntallInfo> {
+    suspend fun downloadAndInstall(
+        url: String,
+        extension: ExtensionManager.ExtensionInfo,
+        scope: CoroutineScope,
+    ): Flow<ExtensionIntallInfo> {
         val pkgName = extension.pkgName
 
         val oldDownload = activeDownloads[pkgName]
@@ -132,15 +142,16 @@ internal class ExtensionInstaller(private val context: Context) {
         downloadReceiver.register()
 
         val downloadUri = url.toUri()
-        val request = DownloadManager.Request(downloadUri)
-            .setTitle(extension.name)
-            .setMimeType(APK_MIME)
-            .setDestinationInExternalFilesDir(
-                context,
-                Environment.DIRECTORY_DOWNLOADS,
-                downloadUri.lastPathSegment,
-            )
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        val request =
+            DownloadManager
+                .Request(downloadUri)
+                .setTitle(extension.name)
+                .setMimeType(APK_MIME)
+                .setDestinationInExternalFilesDir(
+                    context,
+                    Environment.DIRECTORY_DOWNLOADS,
+                    downloadUri.lastPathSegment,
+                ).setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
         val id = downloadManager.enqueue(request)
         activeDownloads[pkgName] = id
@@ -153,27 +164,25 @@ internal class ExtensionInstaller(private val context: Context) {
                 .transformWhile {
                     emit(it)
                     !it.first.isCompleted()
-                }
-                .flowOn(Dispatchers.IO)
+                }.flowOn(Dispatchers.IO)
                 .catch { e ->
                     Timber.e(e)
                     emit(InstallStep.Error to null)
-                }
-                .onCompletion {
+                }.onCompletion {
                     deleteDownload(pkgName)
-                }
-                .collect {
+                }.collect {
                     _downloadsSharedFlow.emit(extension.pkgName to it)
                 }
         }
 
-        return _downloadsSharedFlow.filter { it.first == extension.pkgName }.map { it.second }
+        return _downloadsSharedFlow
+            .filter { it.first == extension.pkgName }
+            .map { it.second }
             .flowOn(Dispatchers.IO)
             .transformWhile {
                 emit(it)
                 !it.first.isCompleted()
-            }
-            .onCompletion {
+            }.onCompletion {
                 deleteDownload(pkgName)
             }
     }
@@ -190,31 +199,31 @@ internal class ExtensionInstaller(private val context: Context) {
 
         return flow {
             while (true) {
-                val newDownloadState = try {
-                    downloadManager.query(query)?.use { cursor ->
-                        cursor.moveToFirst()
-                        cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                val newDownloadState =
+                    try {
+                        downloadManager.query(query)?.use { cursor ->
+                            cursor.moveToFirst()
+                            cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                        }
+                    } catch (_: Exception) {
+                        null
                     }
-                } catch (_: Exception) {
-                    null
-                }
                 if (newDownloadState != null) {
                     emit(newDownloadState)
                 }
                 delay(1000)
             }
-        }
-            .distinctUntilChanged()
+        }.distinctUntilChanged()
             .transformWhile {
                 emit(it)
                 !(it == DownloadManager.STATUS_SUCCESSFUL || it == DownloadManager.STATUS_FAILED)
-            }
-            .flatMapConcat { downloadState ->
-                val step = when (downloadState) {
-                    DownloadManager.STATUS_PENDING -> InstallStep.Pending
-                    DownloadManager.STATUS_RUNNING -> InstallStep.Downloading
-                    else -> return@flatMapConcat emptyFlow()
-                }
+            }.flatMapConcat { downloadState ->
+                val step =
+                    when (downloadState) {
+                        DownloadManager.STATUS_PENDING -> InstallStep.Pending
+                        DownloadManager.STATUS_RUNNING -> InstallStep.Downloading
+                        else -> return@flatMapConcat emptyFlow()
+                    }
                 flowOf(ExtensionIntallInfo(step, null))
             }
     }
@@ -225,8 +234,8 @@ internal class ExtensionInstaller(private val context: Context) {
      *
      * @param pkgName The pkgName of the download mapped to the session to poll.
      */
-    private fun pollInstallStatus(pkgName: String): Flow<ExtensionIntallInfo> {
-        return flow {
+    private fun pollInstallStatus(pkgName: String): Flow<ExtensionIntallInfo> =
+        flow {
             while (true) {
                 val sessionId = downloadInstallerMap[pkgName]
                 if (sessionId != null) {
@@ -236,30 +245,29 @@ internal class ExtensionInstaller(private val context: Context) {
                 }
                 delay(500)
             }
+        }.takeWhile { info ->
+            val sessionId = downloadInstallerMap[pkgName]
+            if (sessionId != null) {
+                info.second != null || installer?.isInQueue(pkgName) == true
+            } else {
+                true
+            }
+        }.catch {
+            Timber.e(it)
+        }.onCompletion {
+            deleteDownload(pkgName)
+            emit(InstallStep.Done to null)
         }
-            .takeWhile { info ->
-                val sessionId = downloadInstallerMap[pkgName]
-                if (sessionId != null) {
-                    info.second != null || installer?.isInQueue(pkgName) == true
-                } else {
-                    true
-                }
-            }
-            .catch {
-                Timber.e(it)
-            }
-            .onCompletion {
-                deleteDownload(pkgName)
-                emit(InstallStep.Done to null)
-            }
-    }
 
     /**
      * Starts an intent to install the extension at the given uri.
      *
      * @param uri The uri of the extension to install.
      */
-    fun installApk(downloadId: Long, uri: Uri) {
+    fun installApk(
+        downloadId: Long,
+        uri: Uri,
+    ) {
         val pkgName = activeDownloads.entries.find { it.value == downloadId }?.key
         val useActivity =
             (pkgName?.let { !ExtensionLoader.isExtensionInstalledByApp(context, pkgName) } ?: true) ||
@@ -274,7 +282,10 @@ internal class ExtensionInstaller(private val context: Context) {
             PRIVATE -> installPrivately(downloadId, pkgName, uri)
             else -> {
                 val extensionManager = Injekt.get<ExtensionManager>()
-                if (extensionManager.installedExtensionsFlow.value.find { it.pkgName == pkgName }?.isShared == false) {
+                if (extensionManager.installedExtensionsFlow.value
+                        .find { it.pkgName == pkgName }
+                        ?.isShared == false
+                ) {
                     installPrivately(downloadId, pkgName, uri)
                     return
                 }
@@ -283,8 +294,7 @@ internal class ExtensionInstaller(private val context: Context) {
                         Intent(context, ExtensionInstallActivity::class.java)
                     } else {
                         Intent(context, ExtensionInstallBroadcast::class.java)
-                    }
-                        .setDataAndType(uri, APK_MIME)
+                    }.setDataAndType(uri, APK_MIME)
                         .putExtra(EXTRA_DOWNLOAD_ID, downloadId)
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 if (useActivity) {
@@ -296,7 +306,11 @@ internal class ExtensionInstaller(private val context: Context) {
         }
     }
 
-    private fun installPrivately(downloadId: Long, pkgName: String?, uri: Uri) {
+    private fun installPrivately(
+        downloadId: Long,
+        pkgName: String?,
+        uri: Uri,
+    ) {
         val tempFile = File(context.cacheDir, "temp_$downloadId")
 
         pkgName ?: return
@@ -334,8 +348,9 @@ internal class ExtensionInstaller(private val context: Context) {
     fun uninstallApk(pkgName: String) {
         if (context.isPackageInstalled(pkgName)) {
             @Suppress("DEPRECATION")
-            val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE, "package:$pkgName".toUri())
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val intent =
+                Intent(Intent.ACTION_UNINSTALL_PACKAGE, "package:$pkgName".toUri())
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         } else {
             ExtensionLoader.uninstallPrivateExtension(context, pkgName)
@@ -349,7 +364,10 @@ internal class ExtensionInstaller(private val context: Context) {
      * @param pkgName the name of the package being installed
      * @param sessionId The id of the package manager's session or other installer.
      */
-    fun setInstalling(pkgName: String, sessionId: Int) {
+    fun setInstalling(
+        pkgName: String,
+        sessionId: Int,
+    ) {
         emitToFlow(pkgName, ExtensionIntallInfo(InstallStep.Installing, null))
         downloadInstallerMap[pkgName] = sessionId
     }
@@ -363,7 +381,8 @@ internal class ExtensionInstaller(private val context: Context) {
         setInstallationResult(downloadId, false)
         try {
             context.packageManager.packageInstaller.abandonSession(sessionId)
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+        }
     }
 
     fun cleanUpInstallation(pkgName: String) {
@@ -371,7 +390,8 @@ internal class ExtensionInstaller(private val context: Context) {
         downloadInstallerMap.remove(pkgName)
         try {
             context.packageManager.packageInstaller.abandonSession(sessionId)
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+        }
     }
 
     /**
@@ -380,7 +400,10 @@ internal class ExtensionInstaller(private val context: Context) {
      * @param downloadId The id of the download.
      * @param result Whether the extension was installed or not.
      */
-    fun setInstallationResult(pkgName: String, result: Boolean) {
+    fun setInstallationResult(
+        pkgName: String,
+        result: Boolean,
+    ) {
         if (result) {
             deleteDownload(pkgName)
         }
@@ -409,7 +432,6 @@ internal class ExtensionInstaller(private val context: Context) {
      * Receiver that listens to download status events.
      */
     private inner class DownloadCompletionReceiver : BroadcastReceiver() {
-
         /**
          * Whether this receiver is currently registered.
          */
@@ -441,7 +463,10 @@ internal class ExtensionInstaller(private val context: Context) {
          * downloads and notifies its installation step.
          */
         @SuppressLint("Range")
-        override fun onReceive(context: Context, intent: Intent?) {
+        override fun onReceive(
+            context: Context,
+            intent: Intent?,
+        ) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0) ?: return
 
             // Avoid events for downloads we didn't request
@@ -462,9 +487,11 @@ internal class ExtensionInstaller(private val context: Context) {
             val query = DownloadManager.Query().setFilterById(id)
             downloadManager.query(query).use { cursor ->
                 if (cursor.moveToFirst()) {
-                    val localUri = cursor.getString(
-                        cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI),
-                    ).removePrefix(FILE_SCHEME)
+                    val localUri =
+                        cursor
+                            .getString(
+                                cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI),
+                            ).removePrefix(FILE_SCHEME)
 
                     installApk(id, File(localUri).getUriCompat(context))
                 }

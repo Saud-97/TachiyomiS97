@@ -13,8 +13,10 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 
-class Anilist(private val context: Context, id: Int) : TrackService(id) {
-
+class Anilist(
+    private val context: Context,
+    id: Int,
+) : TrackService(id) {
     companion object {
         const val READING = 1
         const val COMPLETED = 2
@@ -67,35 +69,39 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
     override fun isCompletedStatus(index: Int) = getStatusList()[index] == COMPLETED
 
     override fun completedStatus() = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = PLAN_TO_READ
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            COMPLETED -> getString(R.string.completed)
-            PAUSED -> getString(R.string.paused)
-            DROPPED -> getString(R.string.dropped)
-            REREADING -> getString(R.string.rereading)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                COMPLETED -> getString(R.string.completed)
+                PAUSED -> getString(R.string.paused)
+                DROPPED -> getString(R.string.dropped)
+                REREADING -> getString(R.string.rereading)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            COMPLETED -> getString(R.string.completed)
-            PAUSED -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            REREADING -> getString(R.string.rereading)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                COMPLETED -> getString(R.string.completed)
+                PAUSED -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                REREADING -> getString(R.string.rereading)
+                else -> ""
+            }
         }
-    }
 
-    override fun getScoreList(): List<String> {
-        return when (scorePreference.get()) {
+    override fun getScoreList(): List<String> =
+        when (scorePreference.get()) {
             // 10 point
             POINT_10 -> IntRange(0, 10).map(Int::toString)
             // 100 point
@@ -108,29 +114,29 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
             POINT_10_DECIMAL -> IntRange(0, 100).map { (it / 10f).toString() }
             else -> throw Exception("Unknown score type")
         }
-    }
 
-    override fun indexToScore(index: Int): Float {
-        return when (scorePreference.get()) {
+    override fun indexToScore(index: Int): Float =
+        when (scorePreference.get()) {
             // 10 point
             POINT_10 -> index * 10f
             // 100 point
             POINT_100 -> index.toFloat()
             // 5 stars
-            POINT_5 -> when (index) {
-                0 -> 0f
-                else -> index * 20f - 10f
-            }
+            POINT_5 ->
+                when (index) {
+                    0 -> 0f
+                    else -> index * 20f - 10f
+                }
             // Smiley
-            POINT_3 -> when (index) {
-                0 -> 0f
-                else -> index * 25f + 10f
-            }
+            POINT_3 ->
+                when (index) {
+                    0 -> 0f
+                    else -> index * 25f + 10f
+                }
             // 10 point decimal
             POINT_10_DECIMAL -> index.toFloat()
             else -> throw Exception("Unknown score type")
         }
-    }
 
     override fun get10PointScore(score: Float) = score / 10
 
@@ -138,16 +144,18 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
         val score = track.score
 
         return when (scorePreference.get()) {
-            POINT_5 -> when (score) {
-                0f -> "0 ★"
-                else -> "${((score + 10) / 20).toInt()} ★"
-            }
-            POINT_3 -> when {
-                score == 0f -> "0"
-                score <= 35 -> "😦"
-                score <= 60 -> "😐"
-                else -> "😊"
-            }
+            POINT_5 ->
+                when (score) {
+                    0f -> "0 ★"
+                    else -> "${((score + 10) / 20).toInt()} ★"
+                }
+            POINT_3 ->
+                when {
+                    score == 0f -> "0"
+                    score <= 35 -> "😦"
+                    score <= 60 -> "😐"
+                    else -> "😊"
+                }
             else -> track.toAnilistScore()
         }
     }
@@ -159,12 +167,16 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
         return api.addLibManga(track)
     }
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead, setToComplete = true, mustReadToComplete = true)
         // If user was using API v1 fetch library_id
         if (track.library_id == null || track.library_id!! == 0L) {
-            val libManga = api.findLibManga(track, getUsername().toInt())
-                ?: throw Exception("$track not found on user library")
+            val libManga =
+                api.findLibManga(track, getUsername().toInt())
+                    ?: throw Exception("$track not found on user library")
             track.library_id = libManga.library_id
         }
 
@@ -185,9 +197,7 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
 
     override fun canRemoveFromService(): Boolean = true
 
-    override suspend fun removeFromService(track: Track): Boolean {
-        return api.remove(track)
-    }
+    override suspend fun removeFromService(track: Track): Boolean = api.remove(track)
 
     override suspend fun search(query: String) = api.search(query)
 
@@ -199,10 +209,13 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
         return track
     }
 
-    override suspend fun login(username: String, password: String) = login(password)
+    override suspend fun login(
+        username: String,
+        password: String,
+    ) = login(password)
 
-    suspend fun login(token: String): Boolean {
-        return try {
+    suspend fun login(token: String): Boolean =
+        try {
             val oauth = api.createOAuth(token)
             interceptor.setAuth(oauth)
             val (username, scoreType) = api.getCurrentUser()
@@ -214,10 +227,9 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
             logout()
             false
         }
-    }
 
-    suspend fun updatingScoring(): Pair<Boolean, Exception?> {
-        return try {
+    suspend fun updatingScoring(): Pair<Boolean, Exception?> =
+        try {
             val (_, scoreType) = api.getCurrentUser()
             scorePreference.set(scoreType)
             true to null
@@ -225,7 +237,6 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
             Timber.e(e)
             false to e
         }
-    }
 
     override fun logout() {
         super.logout()
@@ -237,12 +248,11 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
         trackPreferences.trackToken(this).set(json.encodeToString(oAuth))
     }
 
-    fun loadOAuth(): OAuth? {
-        return try {
+    fun loadOAuth(): OAuth? =
+        try {
             json.decodeFromString<OAuth>(trackPreferences.trackToken(this).get())
         } catch (e: Exception) {
             Timber.e(e)
             null
         }
-    }
 }

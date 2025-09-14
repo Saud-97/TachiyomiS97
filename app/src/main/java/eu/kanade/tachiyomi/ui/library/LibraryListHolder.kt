@@ -25,7 +25,6 @@ class LibraryListHolder(
     private val view: View,
     adapter: LibraryCategoryAdapter,
 ) : LibraryHolder(view, adapter) {
-
     private val binding = MangaListItemBinding.bind(view)
 
     /**
@@ -47,13 +46,14 @@ class LibraryListHolder(
                 binding.title.text = null
                 binding.title.isVisible = false
             } else {
-                binding.title.text = itemView.context.getString(
-                    if (adapter.hasActiveFilters) {
-                        R.string.no_matches_for_filters_short
-                    } else {
-                        R.string.category_is_empty
-                    },
-                )
+                binding.title.text =
+                    itemView.context.getString(
+                        if (adapter.hasActiveFilters) {
+                            R.string.no_matches_for_filters_short
+                        } else {
+                            R.string.category_is_empty
+                        },
+                    )
             }
             binding.title.textAlignment = View.TEXT_ALIGNMENT_CENTER
             binding.card.isVisible = false
@@ -78,8 +78,12 @@ class LibraryListHolder(
                 item.manga.author?.trim() ?: ""
             } else {
                 listOfNotNull(
-                    item.manga.author?.trim()?.takeIf { it.isNotBlank() },
-                    item.manga.artist?.trim()?.takeIf { it.isNotBlank() },
+                    item.manga.author
+                        ?.trim()
+                        ?.takeIf { it.isNotBlank() },
+                    item.manga.artist
+                        ?.trim()
+                        ?.takeIf { it.isNotBlank() },
                 ).joinToString(", ")
             }
 
@@ -97,7 +101,10 @@ class LibraryListHolder(
         binding.coverThumbnail.loadManga(item.manga)
     }
 
-    override fun onActionStateChanged(position: Int, actionState: Int) {
+    override fun onActionStateChanged(
+        position: Int,
+        actionState: Int,
+    ) {
         super.onActionStateChanged(position, actionState)
         if (actionState == 2) {
             binding.card.isDragged = true

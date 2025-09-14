@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.onEach
 /**
  * Common configuration for all viewers.
  */
-abstract class ViewerConfig(preferences: PreferencesHelper, protected val scope: CoroutineScope) {
-
+abstract class ViewerConfig(
+    preferences: PreferencesHelper,
+    protected val scope: CoroutineScope,
+) {
     var imagePropertyChangedListener: (() -> Unit)? = null
     var reloadChapterListener: ((Boolean) -> Unit)? = null
 
@@ -32,19 +34,24 @@ abstract class ViewerConfig(preferences: PreferencesHelper, protected val scope:
         protected set
 
     init {
-        preferences.readWithLongTap()
+        preferences
+            .readWithLongTap()
             .register({ longTapEnabled = it })
 
-        preferences.doubleTapAnimSpeed()
+        preferences
+            .doubleTapAnimSpeed()
             .register({ doubleTapAnimDuration = it })
 
-        preferences.readWithVolumeKeys()
+        preferences
+            .readWithVolumeKeys()
             .register({ volumeKeysEnabled = it })
 
-        preferences.readWithVolumeKeysInverted()
+        preferences
+            .readWithVolumeKeysInverted()
             .register({ volumeKeysInverted = it })
 
-        preferences.alwaysShowChapterTransition()
+        preferences
+            .alwaysShowChapterTransition()
             .register({ alwaysShowChapterTransition = it })
     }
 
@@ -56,8 +63,7 @@ abstract class ViewerConfig(preferences: PreferencesHelper, protected val scope:
             .onEach {
                 valueAssignment(it)
                 onChanged(it)
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
     }
 
     protected abstract fun defaultNavigation(): ViewerNavigation

@@ -7,7 +7,6 @@ import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.util.view.DeferredField
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlin.coroutines.CoroutineContext
 
 class MigratingManga(
@@ -19,7 +18,7 @@ class MigratingManga(
     val searchResult = DeferredField<Long?>()
 
     // <MAX, PROGRESS>
-    val progress = ConflatedBroadcastChannel(1 to 0)
+//    val progress = ConflatedBroadcastChannel(1 to 0)
 
     val migrationJob = parentContext + SupervisorJob() + Dispatchers.Default
 
@@ -27,14 +26,13 @@ class MigratingManga(
 
     @Volatile
     private var manga: Manga? = null
+
     suspend fun manga(): Manga? {
         if (manga == null) manga = db.getManga(mangaId).executeAsBlocking()
         return manga
     }
 
-    suspend fun mangaSource(): Source {
-        return sourceManager.getOrStub(manga()?.source ?: -1)
-    }
+    suspend fun mangaSource(): Source = sourceManager.getOrStub(manga()?.source ?: -1)
 
     fun toModal(): MigrationProcessItem {
         // Create the model object.

@@ -9,10 +9,8 @@ import eu.kanade.tachiyomi.source.model.Page
 abstract class BaseChapterItem<T : BaseChapterHolder, H : AbstractHeaderItem<*>>(
     val chapter: Chapter,
     header: H? = null,
-) :
-    AbstractSectionableItem<T, H?>(header),
+) : AbstractSectionableItem<T, H?>(header),
     Chapter by chapter {
-
     private var _status: Download.State = Download.State.default
 
     val progress: Int
@@ -23,7 +21,9 @@ abstract class BaseChapterItem<T : BaseChapterHolder, H : AbstractHeaderItem<*>>
 
     var status: Download.State
         get() = download?.status ?: _status
-        set(value) { _status = value }
+        set(value) {
+            _status = value
+        }
 
     @Transient var download: Download? = null
 
@@ -38,7 +38,5 @@ abstract class BaseChapterItem<T : BaseChapterHolder, H : AbstractHeaderItem<*>>
         return false
     }
 
-    override fun hashCode(): Int {
-        return (chapter.id ?: 0L).hashCode()
-    }
+    override fun hashCode(): Int = (chapter.id ?: 0L).hashCode()
 }

@@ -34,32 +34,42 @@ class MangaPlus : DelegatedHttpSource() {
 
     override suspend fun fetchMangaFromChapterUrl(uri: Uri): Triple<Chapter, Manga, List<SChapter>>? {
         val url = chapterUrl(uri) ?: return null
-        val request = GET(
-            chapterUrlTemplate.replace("##", uri.pathSegments[1]),
-            delegate!!.headers,
-            CacheControl.FORCE_NETWORK,
-        )
+        val request =
+            GET(
+                chapterUrlTemplate.replace("##", uri.pathSegments[1]),
+                delegate!!.headers,
+                CacheControl.FORCE_NETWORK,
+            )
         return withContext(Dispatchers.IO) {
             val response = network.client.newCall(request).await()
             if (response.code != 200) throw Exception("HTTP error ${response.code}")
             val body = response.body.string()
             val match = titleIdRegex.find(body)
-            val titleId = match?.groupValues?.firstOrNull()?.substringAfterLast("/")
-                ?: error("Title not found")
-            val title = titleRegex.find(body)?.groups?.firstOrNull()?.value?.substringAfter("Plus ")
-                ?: error("Title not found")
+            val titleId =
+                match?.groupValues?.firstOrNull()?.substringAfterLast("/")
+                    ?: error("Title not found")
+            val title =
+                titleRegex
+                    .find(body)
+                    ?.groups
+                    ?.firstOrNull()
+                    ?.value
+                    ?.substringAfter("Plus ")
+                    ?: error("Title not found")
             val trimmedTitle = title.substring(0, title.length - 1)
             val mangaUrl = "#/titles/$titleId"
-            val deferredManga = async {
-                db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking() ?: getMangaInfo(mangaUrl)
-            }
+            val deferredManga =
+                async {
+                    db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking() ?: getMangaInfo(mangaUrl)
+                }
             val deferredChapters = async { getChapters(mangaUrl) }
             val manga = deferredManga.await()
             val chapters = deferredChapters.await()
             val context = Injekt.get<PreferencesHelper>().context
-            val trueChapter = chapters?.find { it.url == url }?.toChapter() ?: error(
-                context.getString(R.string.chapter_not_found),
-            )
+            val trueChapter =
+                chapters?.find { it.url == url }?.toChapter() ?: error(
+                    context.getString(R.string.chapter_not_found),
+                )
             if (manga != null) {
                 Triple(
                     trueChapter,

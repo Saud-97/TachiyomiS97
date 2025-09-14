@@ -29,100 +29,102 @@ class SettingsTrackingController :
     SettingsController(),
     TrackLoginDialog.Listener,
     TrackLogoutDialog.Listener {
-
     private val trackManager: TrackManager by injectLazy()
     val trackPreferences: TrackPreferences by injectLazy()
 
-    override fun setupPreferenceScreen(screen: PreferenceScreen) = screen.apply {
-        titleRes = R.string.tracking
+    override fun setupPreferenceScreen(screen: PreferenceScreen) =
+        screen.apply {
+            titleRes = R.string.tracking
 
-        switchPreference {
-            key = Keys.autoUpdateTrack
-            titleRes = R.string.update_tracking_after_reading
-            defaultValue = true
-        }
-        switchPreference {
-            key = Keys.trackMarkedAsRead
-            titleRes = R.string.update_tracking_marked_read
-            defaultValue = false
-        }
-        switchPreference {
-            key = Keys.twowaySyncTracking
-            titleRes = R.string.two_way_sync_tracking
-            defaultValue = false
-        }
-        preferenceCategory {
-            titleRes = R.string.services
-
-            trackPreference(trackManager.myAnimeList) {
-                activity?.openInBrowser(MyAnimeListApi.authUrl(), trackManager.myAnimeList.getLogoColor(), true)
+            switchPreference {
+                key = Keys.autoUpdateTrack
+                titleRes = R.string.update_tracking_after_reading
+                defaultValue = true
             }
-            trackPreference(trackManager.aniList) {
-                activity?.openInBrowser(AnilistApi.authUrl(), trackManager.aniList.getLogoColor(), true)
+            switchPreference {
+                key = Keys.trackMarkedAsRead
+                titleRes = R.string.update_tracking_marked_read
+                defaultValue = false
             }
-            preference {
-                key = "update_anilist_scoring"
-                isPersistent = false
-                isIconSpaceReserved = true
-                title = context.getString(R.string.update_tracking_scoring_type, context.getString(R.string.anilist))
+            switchPreference {
+                key = Keys.twowaySyncTracking
+                titleRes = R.string.two_way_sync_tracking
+                defaultValue = false
+            }
+            preferenceCategory {
+                titleRes = R.string.services
 
-                preferences.getStringPref(trackManager.aniList.getUsername())
-                    .asImmediateFlowIn(viewScope) {
-                        isVisible = it.isNotEmpty()
-                    }
+                trackPreference(trackManager.myAnimeList) {
+                    activity?.openInBrowser(MyAnimeListApi.authUrl(), trackManager.myAnimeList.getLogoColor(), true)
+                }
+                trackPreference(trackManager.aniList) {
+                    activity?.openInBrowser(AnilistApi.authUrl(), trackManager.aniList.getLogoColor(), true)
+                }
+                preference {
+                    key = "update_anilist_scoring"
+                    isPersistent = false
+                    isIconSpaceReserved = true
+                    title = context.getString(R.string.update_tracking_scoring_type, context.getString(R.string.anilist))
 
-                onClick {
-                    viewScope.launchIO {
-                        val (result, error) = trackManager.aniList.updatingScoring()
-                        if (result) {
-                            view?.snack(R.string.scoring_type_updated)
-                        } else {
-                            view?.snack(
-                                context.getString(
-                                    R.string.could_not_update_scoring_,
-                                    error?.localizedMessage.orEmpty(),
-                                ),
-                            )
+                    preferences
+                        .getStringPref(trackManager.aniList.getUsername())
+                        .asImmediateFlowIn(viewScope) {
+                            isVisible = it.isNotEmpty()
+                        }
+
+                    onClick {
+                        viewScope.launchIO {
+                            val (result, error) = trackManager.aniList.updatingScoring()
+                            if (result) {
+                                view?.snack(R.string.scoring_type_updated)
+                            } else {
+                                view?.snack(
+                                    context.getString(
+                                        R.string.could_not_update_scoring_,
+                                        error?.localizedMessage.orEmpty(),
+                                    ),
+                                )
+                            }
                         }
                     }
                 }
-            }
-            trackPreference(trackManager.kitsu) {
-                val dialog = TrackLoginDialog(trackManager.kitsu, R.string.email)
-                dialog.targetController = this@SettingsTrackingController
-                dialog.showDialog(router)
-            }
-            trackPreference(trackManager.mangaUpdates) {
-                val dialog = TrackLoginDialog(trackManager.mangaUpdates, R.string.username)
-                dialog.targetController = this@SettingsTrackingController
-                dialog.showDialog(router)
-            }
-            trackPreference(trackManager.shikimori) {
-                activity?.openInBrowser(ShikimoriApi.authUrl(), trackManager.shikimori.getLogoColor(), true)
-            }
-            trackPreference(trackManager.bangumi) {
-                activity?.openInBrowser(BangumiApi.authUrl(), trackManager.bangumi.getLogoColor(), true)
-            }
-            infoPreference(R.string.tracking_info)
-        }
-        preferenceCategory {
-            titleRes = R.string.enhanced_services
-            val sourceManager = Injekt.get<SourceManager>()
-            val enhancedTrackers = trackManager.services
-                .filter { service ->
-                    if (service !is EnhancedTrackService) return@filter false
-                    sourceManager.getCatalogueSources().any { service.accept(it) }
+                trackPreference(trackManager.kitsu) {
+                    val dialog = TrackLoginDialog(trackManager.kitsu, R.string.email)
+                    dialog.targetController = this@SettingsTrackingController
+                    dialog.showDialog(router)
                 }
-            enhancedTrackers.forEach { trackPreference(it) }
-            infoPreference(R.string.enhanced_tracking_info)
+                trackPreference(trackManager.mangaUpdates) {
+                    val dialog = TrackLoginDialog(trackManager.mangaUpdates, R.string.username)
+                    dialog.targetController = this@SettingsTrackingController
+                    dialog.showDialog(router)
+                }
+                trackPreference(trackManager.shikimori) {
+                    activity?.openInBrowser(ShikimoriApi.authUrl(), trackManager.shikimori.getLogoColor(), true)
+                }
+                trackPreference(trackManager.bangumi) {
+                    activity?.openInBrowser(BangumiApi.authUrl(), trackManager.bangumi.getLogoColor(), true)
+                }
+                infoPreference(R.string.tracking_info)
+            }
+            preferenceCategory {
+                titleRes = R.string.enhanced_services
+                val sourceManager = Injekt.get<SourceManager>()
+                val enhancedTrackers =
+                    trackManager.services
+                        .filter { service ->
+                            if (service !is EnhancedTrackService) return@filter false
+                            sourceManager.getCatalogueSources().any { service.accept(it) }
+                        }
+                enhancedTrackers.forEach { trackPreference(it) }
+                infoPreference(R.string.enhanced_tracking_info)
+            }
         }
-    }
 
     private inline fun PreferenceGroup.trackPreference(
         service: TrackService,
         crossinline login: () -> Unit = { },
-    ): TrackerPreference {
-        return add(
+    ): TrackerPreference =
+        add(
             TrackerPreference(context).apply {
                 key = trackPreferences.trackUsername(service).key()
                 title = context.getString(service.nameRes())
@@ -149,7 +151,6 @@ class SettingsTrackingController :
                 }
             },
         )
-    }
 
     override fun onActivityResumed(activity: Activity) {
         super.onActivityResumed(activity)

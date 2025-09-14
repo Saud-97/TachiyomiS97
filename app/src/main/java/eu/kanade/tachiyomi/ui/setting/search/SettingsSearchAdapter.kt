@@ -13,9 +13,9 @@ import eu.kanade.tachiyomi.ui.setting.SettingsController
  *
  * @param controller instance of [SettingsSearchController].
  */
-class SettingsSearchAdapter(val controller: SettingsSearchController) :
-    FlexibleAdapter<SettingsSearchItem>(null, controller, true) {
-
+class SettingsSearchAdapter(
+    val controller: SettingsSearchController,
+) : FlexibleAdapter<SettingsSearchItem>(null, controller, true) {
     val titleClickListener: OnTitleClickListener = controller
 
     /**
@@ -55,7 +55,10 @@ class SettingsSearchAdapter(val controller: SettingsSearchController) :
      * @param holder The holder to save.
      * @param outState The bundle where the state is saved.
      */
-    private fun saveHolderState(holder: RecyclerView.ViewHolder, outState: Bundle) {
+    private fun saveHolderState(
+        holder: RecyclerView.ViewHolder,
+        outState: Bundle,
+    ) {
         val key = "holder_${holder.bindingAdapterPosition}"
         val holderState = SparseArray<Parcelable>()
         holder.itemView.saveHierarchyState(holderState)

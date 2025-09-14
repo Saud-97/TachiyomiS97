@@ -5,7 +5,6 @@ import eu.kanade.tachiyomi.source.Source
 import kotlinx.serialization.Serializable
 
 sealed class Extension {
-
     abstract val name: String
     abstract val pkgName: String
     abstract val versionName: String

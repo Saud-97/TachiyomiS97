@@ -4,7 +4,6 @@ import eu.kanade.tachiyomi.data.database.models.ChapterImpl
 import java.io.Serializable
 
 interface SChapter : Serializable {
-
     var url: String
 
     var name: String
@@ -23,19 +22,16 @@ interface SChapter : Serializable {
         scanlator = other.scanlator
     }
 
-    fun toChapter(): ChapterImpl {
-        return ChapterImpl().apply {
+    fun toChapter(): ChapterImpl =
+        ChapterImpl().apply {
             name = this@SChapter.name
             url = this@SChapter.url
             date_upload = this@SChapter.date_upload
             chapter_number = this@SChapter.chapter_number
             scanlator = this@SChapter.scanlator
         }
-    }
 
     companion object {
-        fun create(): SChapter {
-            return SChapterImpl()
-        }
+        fun create(): SChapter = SChapterImpl()
     }
 }

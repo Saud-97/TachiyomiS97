@@ -22,14 +22,16 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.concurrent.TimeUnit
 
-class BackupCreatorJob(private val context: Context, workerParams: WorkerParameters) :
-    Worker(context, workerParams) {
-
+class BackupCreatorJob(
+    private val context: Context,
+    workerParams: WorkerParameters,
+) : Worker(context, workerParams) {
     override fun doWork(): Result {
         val preferences = Injekt.get<PreferencesHelper>()
         val notifier = BackupNotifier(context.localeContext)
-        val uri = inputData.getString(LOCATION_URI_KEY)?.let { Uri.parse(it) }
-            ?: preferences.backupsDirectory().get().toUri()
+        val uri =
+            inputData.getString(LOCATION_URI_KEY)?.let { Uri.parse(it) }
+                ?: preferences.backupsDirectory().get().toUri()
         val flags = inputData.getInt(BACKUP_FLAGS_KEY, BackupConst.BACKUP_ALL)
         val isAutoBackup = inputData.getBoolean(IS_AUTO_BACKUP_KEY, true)
 
@@ -53,20 +55,23 @@ class BackupCreatorJob(private val context: Context, workerParams: WorkerParamet
             return list.find { it.state == WorkInfo.State.RUNNING } != null
         }
 
-        fun setupTask(context: Context, prefInterval: Int? = null) {
+        fun setupTask(
+            context: Context,
+            prefInterval: Int? = null,
+        ) {
             val preferences = Injekt.get<PreferencesHelper>()
             val interval = prefInterval ?: preferences.backupInterval().get()
             val workManager = WorkManager.getInstance(context)
             if (interval > 0) {
-                val request = PeriodicWorkRequestBuilder<BackupCreatorJob>(
-                    interval.toLong(),
-                    TimeUnit.HOURS,
-                    10,
-                    TimeUnit.MINUTES,
-                )
-                    .addTag(TAG_AUTO)
-                    .setInputData(workDataOf(IS_AUTO_BACKUP_KEY to true))
-                    .build()
+                val request =
+                    PeriodicWorkRequestBuilder<BackupCreatorJob>(
+                        interval.toLong(),
+                        TimeUnit.HOURS,
+                        10,
+                        TimeUnit.MINUTES,
+                    ).addTag(TAG_AUTO)
+                        .setInputData(workDataOf(IS_AUTO_BACKUP_KEY to true))
+                        .build()
 
                 workManager.enqueueUniquePeriodicWork(TAG_AUTO, ExistingPeriodicWorkPolicy.UPDATE, request)
             } else {
@@ -74,16 +79,22 @@ class BackupCreatorJob(private val context: Context, workerParams: WorkerParamet
             }
         }
 
-        fun startNow(context: Context, uri: Uri, flags: Int) {
-            val inputData = workDataOf(
-                IS_AUTO_BACKUP_KEY to false,
-                LOCATION_URI_KEY to uri.toString(),
-                BACKUP_FLAGS_KEY to flags,
-            )
-            val request = OneTimeWorkRequestBuilder<BackupCreatorJob>()
-                .addTag(TAG_MANUAL)
-                .setInputData(inputData)
-                .build()
+        fun startNow(
+            context: Context,
+            uri: Uri,
+            flags: Int,
+        ) {
+            val inputData =
+                workDataOf(
+                    IS_AUTO_BACKUP_KEY to false,
+                    LOCATION_URI_KEY to uri.toString(),
+                    BACKUP_FLAGS_KEY to flags,
+                )
+            val request =
+                OneTimeWorkRequestBuilder<BackupCreatorJob>()
+                    .addTag(TAG_MANUAL)
+                    .setInputData(inputData)
+                    .build()
             WorkManager.getInstance(context).enqueueUniqueWork(TAG_MANUAL, ExistingWorkPolicy.KEEP, request)
         }
     }

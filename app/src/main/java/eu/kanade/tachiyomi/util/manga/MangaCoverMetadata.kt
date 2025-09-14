@@ -20,35 +20,43 @@ object MangaCoverMetadata {
 
     fun load() {
         val ratios = preferences.coverRatios().get()
-        coverRatioMap = ConcurrentHashMap(
-            ratios.mapNotNull {
-                val splits = it.split("|")
-                val id = splits.firstOrNull()?.toLongOrNull()
-                val ratio = splits.lastOrNull()?.toFloatOrNull()
-                if (id != null && ratio != null) {
-                    id to ratio
-                } else {
-                    null
-                }
-            }.toMap(),
-        )
+        coverRatioMap =
+            ConcurrentHashMap(
+                ratios
+                    .mapNotNull {
+                        val splits = it.split("|")
+                        val id = splits.firstOrNull()?.toLongOrNull()
+                        val ratio = splits.lastOrNull()?.toFloatOrNull()
+                        if (id != null && ratio != null) {
+                            id to ratio
+                        } else {
+                            null
+                        }
+                    }.toMap(),
+            )
         val colors = preferences.coverColors().get()
-        coverColorMap = ConcurrentHashMap(
-            colors.mapNotNull {
-                val splits = it.split("|")
-                val id = splits.firstOrNull()?.toLongOrNull()
-                val color = splits.getOrNull(1)?.toIntOrNull()
-                val textColor = splits.getOrNull(2)?.toIntOrNull()
-                if (id != null && color != null) {
-                    id to (color to (textColor ?: 0))
-                } else {
-                    null
-                }
-            }.toMap(),
-        )
+        coverColorMap =
+            ConcurrentHashMap(
+                colors
+                    .mapNotNull {
+                        val splits = it.split("|")
+                        val id = splits.firstOrNull()?.toLongOrNull()
+                        val color = splits.getOrNull(1)?.toIntOrNull()
+                        val textColor = splits.getOrNull(2)?.toIntOrNull()
+                        if (id != null && color != null) {
+                            id to (color to (textColor ?: 0))
+                        } else {
+                            null
+                        }
+                    }.toMap(),
+            )
     }
 
-    fun setRatioAndColors(manga: Manga, ogFile: File? = null, force: Boolean = false) {
+    fun setRatioAndColors(
+        manga: Manga,
+        ogFile: File? = null,
+        force: Boolean = false,
+    ) {
         if (!manga.favorite) {
             remove(manga)
         }
@@ -88,23 +96,26 @@ object MangaCoverMetadata {
         coverColorMap.remove(id)
     }
 
-    fun addCoverRatio(manga: Manga, ratio: Float) {
+    fun addCoverRatio(
+        manga: Manga,
+        ratio: Float,
+    ) {
         val id = manga.id ?: return
         coverRatioMap[id] = ratio
     }
 
-    fun addCoverColor(manga: Manga, @ColorInt color: Int, @ColorInt textColor: Int) {
+    fun addCoverColor(
+        manga: Manga,
+        @ColorInt color: Int,
+        @ColorInt textColor: Int,
+    ) {
         val id = manga.id ?: return
         coverColorMap[id] = color to textColor
     }
 
-    fun getColors(manga: Manga): Pair<Int, Int>? {
-        return coverColorMap[manga.id]
-    }
+    fun getColors(manga: Manga): Pair<Int, Int>? = coverColorMap[manga.id]
 
-    fun getRatio(manga: Manga): Float? {
-        return coverRatioMap[manga.id]
-    }
+    fun getRatio(manga: Manga): Float? = coverRatioMap[manga.id]
 
     fun savePrefs() {
         val mapCopy = coverRatioMap.toMap()

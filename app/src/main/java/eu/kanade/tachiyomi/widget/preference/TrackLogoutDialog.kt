@@ -11,15 +11,17 @@ import eu.kanade.tachiyomi.util.system.toast
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-class TrackLogoutDialog(bundle: Bundle? = null) : DialogController(bundle) {
-
+class TrackLogoutDialog(
+    bundle: Bundle? = null,
+) : DialogController(bundle) {
     private val service = Injekt.get<TrackManager>().getService(args.getInt("key"))!!
 
     constructor(service: TrackService) : this(Bundle().apply { putInt("key", service.id) })
 
     override fun onCreateDialog(savedViewState: Bundle?): Dialog {
         val serviceName = activity!!.getString(service.nameRes())
-        return activity!!.materialAlertDialog()
+        return activity!!
+            .materialAlertDialog()
             .setTitle(activity!!.getString(R.string.log_out_from_, serviceName))
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.log_out) { _, _ ->

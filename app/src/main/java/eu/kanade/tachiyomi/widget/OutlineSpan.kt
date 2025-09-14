@@ -15,16 +15,13 @@ class OutlineSpan(
     @ColorInt private val strokeColor: Int,
     @Dimension private val strokeWidth: Float,
 ) : ReplacementSpan() {
-
     override fun getSize(
         paint: Paint,
         text: CharSequence,
         start: Int,
         end: Int,
         fm: Paint.FontMetricsInt?,
-    ): Int {
-        return paint.measureText(text.toString().substring(start until end)).toInt()
-    }
+    ): Int = paint.measureText(text.toString().substring(start until end)).toInt()
 
     override fun draw(
         canvas: Canvas,

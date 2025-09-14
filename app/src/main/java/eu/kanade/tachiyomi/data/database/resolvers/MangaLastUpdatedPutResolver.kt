@@ -10,8 +10,10 @@ import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.database.tables.MangaTable
 
 class MangaLastUpdatedPutResolver : PutResolver<Manga>() {
-
-    override fun performPut(db: StorIOSQLite, manga: Manga) = db.inTransactionReturn {
+    override fun performPut(
+        db: StorIOSQLite,
+        manga: Manga,
+    ) = db.inTransactionReturn {
         val updateQuery = mapToUpdateQuery(manga)
         val contentValues = mapToContentValues(manga)
 
@@ -19,13 +21,16 @@ class MangaLastUpdatedPutResolver : PutResolver<Manga>() {
         PutResult.newUpdateResult(numberOfRowsUpdated, updateQuery.table())
     }
 
-    fun mapToUpdateQuery(manga: Manga) = UpdateQuery.builder()
-        .table(MangaTable.TABLE)
-        .where("${MangaTable.COL_ID} = ?")
-        .whereArgs(manga.id)
-        .build()
+    fun mapToUpdateQuery(manga: Manga) =
+        UpdateQuery
+            .builder()
+            .table(MangaTable.TABLE)
+            .where("${MangaTable.COL_ID} = ?")
+            .whereArgs(manga.id)
+            .build()
 
-    fun mapToContentValues(manga: Manga) = ContentValues(1).apply {
-        put(MangaTable.COL_LAST_UPDATE, manga.last_update)
-    }
+    fun mapToContentValues(manga: Manga) =
+        ContentValues(1).apply {
+            put(MangaTable.COL_LAST_UPDATE, manga.last_update)
+        }
 }

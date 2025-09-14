@@ -7,7 +7,6 @@ import eu.kanade.tachiyomi.ui.library.LibrarySort
 import java.io.Serializable
 
 interface Category : Serializable {
-
     var id: Int?
 
     var name: String
@@ -30,22 +29,22 @@ interface Category : Serializable {
 
     var langId: String?
 
-    fun isAscending(): Boolean {
-        return ((mangaSort?.minus('a') ?: 0) % 2) != 1
-    }
+    fun isAscending(): Boolean = ((mangaSort?.minus('a') ?: 0) % 2) != 1
 
-    fun sortingMode(nullAsDND: Boolean = false): LibrarySort? = LibrarySort.valueOf(mangaSort)
-        ?: if (nullAsDND && !isDynamic) LibrarySort.DragAndDrop else null
+    fun sortingMode(nullAsDND: Boolean = false): LibrarySort? =
+        LibrarySort.valueOf(mangaSort)
+            ?: if (nullAsDND && !isDynamic) LibrarySort.DragAndDrop else null
 
     val isDragAndDrop
-        get() = (
-            mangaSort == null ||
-                mangaSort == LibrarySort.DragAndDrop.categoryValue
-            ) && !isDynamic
+        get() =
+            (
+                mangaSort == null ||
+                    mangaSort == LibrarySort.DragAndDrop.categoryValue
+            ) &&
+                !isDynamic
 
     @StringRes
-    fun sortRes(): Int =
-        (LibrarySort.valueOf(mangaSort) ?: LibrarySort.DragAndDrop).stringRes(isDynamic)
+    fun sortRes(): Int = (LibrarySort.valueOf(mangaSort) ?: LibrarySort.DragAndDrop).stringRes(isDynamic)
 
     fun changeSortTo(sort: Int) {
         mangaSort = (LibrarySort.valueOf(sort) ?: LibrarySort.Title).categoryValue
@@ -54,16 +53,21 @@ interface Category : Serializable {
     companion object {
         var lastCategoriesAddedTo = emptySet<Int>()
 
-        fun create(name: String): Category = CategoryImpl().apply {
-            this.name = name
-        }
+        fun create(name: String): Category =
+            CategoryImpl().apply {
+                this.name = name
+            }
 
         fun createDefault(context: Context): Category =
             create(context.getString(R.string.default_value)).apply {
                 id = 0
             }
 
-        fun createCustom(name: String, libSort: Int, ascending: Boolean): Category =
+        fun createCustom(
+            name: String,
+            libSort: Int,
+            ascending: Boolean,
+        ): Category =
             create(name).apply {
                 val librarySort = LibrarySort.valueOf(libSort) ?: LibrarySort.DragAndDrop
                 changeSortTo(librarySort.mainValue)
@@ -73,7 +77,11 @@ interface Category : Serializable {
                 isDynamic = true
             }
 
-        fun createAll(context: Context, libSort: Int, ascending: Boolean): Category =
+        fun createAll(
+            context: Context,
+            libSort: Int,
+            ascending: Boolean,
+        ): Category =
             createCustom(context.getString(R.string.all), libSort, ascending).apply {
                 id = -1
                 order = -1

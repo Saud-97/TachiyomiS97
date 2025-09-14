@@ -8,8 +8,9 @@ import eu.kanade.tachiyomi.data.database.models.Category
 import eu.kanade.tachiyomi.databinding.AddCategoryItemBinding
 import eu.kanade.tachiyomi.widget.TriStateCheckBox
 
-class AddCategoryItem(val category: Category) : AbstractItem<FastAdapter.ViewHolder<AddCategoryItem>>() {
-
+class AddCategoryItem(
+    val category: Category,
+) : AbstractItem<FastAdapter.ViewHolder<AddCategoryItem>>() {
     /** defines the type defining this item. must be unique. preferably an id */
     override val type: Int = R.id.category_checkbox
 
@@ -25,19 +26,21 @@ class AddCategoryItem(val category: Category) : AbstractItem<FastAdapter.ViewHol
         }
     var skipInversed = false
 
-    override fun getViewHolder(v: View): FastAdapter.ViewHolder<AddCategoryItem> {
-        return ViewHolder(v)
-    }
+    override fun getViewHolder(v: View): FastAdapter.ViewHolder<AddCategoryItem> = ViewHolder(v)
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<AddCategoryItem>(view) {
-
+    class ViewHolder(
+        view: View,
+    ) : FastAdapter.ViewHolder<AddCategoryItem>(view) {
         val binding = AddCategoryItemBinding.bind(view)
 
         init {
             binding.categoryCheckbox.useIndeterminateForIgnore = true
         }
 
-        override fun bindView(item: AddCategoryItem, payloads: List<Any>) {
+        override fun bindView(
+            item: AddCategoryItem,
+            payloads: List<Any>,
+        ) {
             binding.categoryCheckbox.skipInversed = item.skipInversed
             binding.categoryCheckbox.text = item.category.name
             binding.categoryCheckbox.state = item.state

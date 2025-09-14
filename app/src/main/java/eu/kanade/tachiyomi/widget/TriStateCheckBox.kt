@@ -15,9 +15,10 @@ import eu.kanade.tachiyomi.util.view.setAnimVectorCompat
 import eu.kanade.tachiyomi.util.view.setVectorCompat
 import kotlin.math.roundToInt
 
-class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
-    FrameLayout(context, attrs) {
-
+class TriStateCheckBox constructor(
+    context: Context,
+    attrs: AttributeSet?,
+) : FrameLayout(context, attrs) {
     var useIndeterminateForIgnore: Boolean = false
         set(value) {
             field = value
@@ -60,18 +61,20 @@ class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
             state = if (value) State.CHECKED else State.UNCHECKED
         }
 
-    private val binding = TriStateCheckBoxBinding.inflate(
-        LayoutInflater.from(context),
-        this,
-        false,
-    )
+    private val binding =
+        TriStateCheckBoxBinding.inflate(
+            LayoutInflater.from(context),
+            this,
+            false,
+        )
 
-    private val disabledAlpha = run {
-        val typedArray = context.obtainStyledAttributes(intArrayOf(android.R.attr.disabledAlpha))
-        val attrValue = typedArray.getFloat(0, 0f)
-        typedArray.recycle()
-        attrValue
-    }
+    private val disabledAlpha =
+        run {
+            val typedArray = context.obtainStyledAttributes(intArrayOf(android.R.attr.disabledAlpha))
+            val attrValue = typedArray.getFloat(0, 0f)
+            typedArray.recycle()
+            attrValue
+        }
     private var mOnCheckedChangeListener: OnCheckedChangeListener? = null
     private val uncheckedColor = ColorStateList.valueOf(context.getResourceColor(R.attr.colorControlNormal))
     private val checkedColor = ColorStateList.valueOf(context.getResourceColor(R.attr.colorSecondary))
@@ -79,9 +82,10 @@ class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
     private val indeterColor = ColorStateList.valueOf(context.getResourceColor(R.attr.colorPrimary))
     private val ignoreColor get() = if (useIndeterminateForIgnore) indeterColor else inverseColor
 
-    private val disabledColor = ColorStateList.valueOf(
-        ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.colorControlNormal), (disabledAlpha * 255).roundToInt()),
-    )
+    private val disabledColor =
+        ColorStateList.valueOf(
+            ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.colorControlNormal), (disabledAlpha * 255).roundToInt()),
+        )
 
     init {
         addView(binding.root)
@@ -143,7 +147,10 @@ class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
         }
     }
 
-    fun setState(state: State, animated: Boolean = false) {
+    fun setState(
+        state: State,
+        animated: Boolean = false,
+    ) {
         if (animated) {
             animateDrawableToState(state)
         } else {
@@ -170,11 +177,12 @@ class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
                 State.UNCHECKED -> {
                     setAnimVectorCompat(
                         when (oldState) {
-                            State.IGNORE -> if (useIndeterminateForIgnore) {
-                                R.drawable.anim_checkbox_indeterminate_to_blank_24dp
-                            } else {
-                                R.drawable.anim_check_box_x_to_blank_24dp
-                            }
+                            State.IGNORE ->
+                                if (useIndeterminateForIgnore) {
+                                    R.drawable.anim_checkbox_indeterminate_to_blank_24dp
+                                } else {
+                                    R.drawable.anim_check_box_x_to_blank_24dp
+                                }
                             else -> R.drawable.anim_check_box_checked_to_blank_24dp
                         },
                     )
@@ -205,26 +213,27 @@ class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
 
     private fun updateDrawable() {
         with(binding.triStateBox) {
-            backgroundTintList = when (state) {
-                State.UNCHECKED -> {
-                    setVectorCompat(R.drawable.ic_check_box_outline_blank_24dp)
-                    uncheckedColor
+            backgroundTintList =
+                when (state) {
+                    State.UNCHECKED -> {
+                        setVectorCompat(R.drawable.ic_check_box_outline_blank_24dp)
+                        uncheckedColor
+                    }
+                    State.CHECKED -> {
+                        setVectorCompat(R.drawable.ic_check_box_24dp)
+                        checkedColor
+                    }
+                    State.IGNORE -> {
+                        setVectorCompat(
+                            if (useIndeterminateForIgnore) {
+                                R.drawable.ic_check_box_indeterminate_24dp
+                            } else {
+                                R.drawable.ic_check_box_x_24dp
+                            },
+                        )
+                        ignoreColor
+                    }
                 }
-                State.CHECKED -> {
-                    setVectorCompat(R.drawable.ic_check_box_24dp)
-                    checkedColor
-                }
-                State.IGNORE -> {
-                    setVectorCompat(
-                        if (useIndeterminateForIgnore) {
-                            R.drawable.ic_check_box_indeterminate_24dp
-                        } else {
-                            R.drawable.ic_check_box_x_24dp
-                        },
-                    )
-                    ignoreColor
-                }
-            }
             if (this@TriStateCheckBox.isEnabled) imageTintList = backgroundTintList
         }
     }
@@ -246,6 +255,9 @@ class TriStateCheckBox constructor(context: Context, attrs: AttributeSet?) :
          * @param buttonView The compound button view whose state has changed.
          * @param state The new checked state of buttonView.
          */
-        fun onCheckedChanged(buttonView: TriStateCheckBox, state: State)
+        fun onCheckedChanged(
+            buttonView: TriStateCheckBox,
+            state: State,
+        )
     }
 }

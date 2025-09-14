@@ -15,8 +15,10 @@ import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 import java.text.DecimalFormat
 
-class Kitsu(private val context: Context, id: Int) : TrackService(id) {
-
+class Kitsu(
+    private val context: Context,
+    id: Int,
+) : TrackService(id) {
     companion object {
         const val READING = 1
         const val COMPLETED = 2
@@ -45,53 +47,56 @@ class Kitsu(private val context: Context, id: Int) : TrackService(id) {
 
     override fun getLogoColor() = Color.rgb(51, 37, 50)
 
-    override fun getStatusList(): List<Int> {
-        return listOf(READING, PLAN_TO_READ, COMPLETED, ON_HOLD, DROPPED)
-    }
+    override fun getStatusList(): List<Int> = listOf(READING, PLAN_TO_READ, COMPLETED, ON_HOLD, DROPPED)
 
     override fun isCompletedStatus(index: Int) = getStatusList()[index] == COMPLETED
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = PLAN_TO_READ
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.currently_reading)
-            PLAN_TO_READ -> getString(R.string.want_to_read)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.currently_reading)
+                PLAN_TO_READ -> getString(R.string.want_to_read)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                else -> ""
+            }
         }
-    }
 
     override fun getScoreList(): List<String> {
         val df = DecimalFormat("0.#")
         return listOf("0") + IntRange(2, 20).map { df.format(it / 2f) }
     }
 
-    override fun indexToScore(index: Int): Float {
-        return if (index > 0) (index + 1) / 2f else 0f
-    }
+    override fun indexToScore(index: Int): Float = if (index > 0) (index + 1) / 2f else 0f
 
     override fun displayScore(track: Track): String {
         val df = DecimalFormat("0.#")
         return df.format(track.score)
     }
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead, setToComplete = true, mustReadToComplete = false)
         return api.updateLibManga(track)
     }
@@ -116,13 +121,9 @@ class Kitsu(private val context: Context, id: Int) : TrackService(id) {
 
     override fun canRemoveFromService() = true
 
-    override suspend fun removeFromService(track: Track): Boolean {
-        return api.remove(track)
-    }
+    override suspend fun removeFromService(track: Track): Boolean = api.remove(track)
 
-    override suspend fun search(query: String): List<TrackSearch> {
-        return api.search(query)
-    }
+    override suspend fun search(query: String): List<TrackSearch> = api.search(query)
 
     override suspend fun refresh(track: Track): Track {
         val remoteTrack = api.getLibManga(track)
@@ -131,8 +132,11 @@ class Kitsu(private val context: Context, id: Int) : TrackService(id) {
         return track
     }
 
-    override suspend fun login(username: String, password: String): Boolean {
-        return try {
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): Boolean =
+        try {
             val oauth = api.login(username, password)
             interceptor.newAuth(oauth)
             val userId = api.getCurrentUser()
@@ -142,26 +146,22 @@ class Kitsu(private val context: Context, id: Int) : TrackService(id) {
             Timber.e(e)
             false
         }
-    }
 
     override fun logout() {
         super.logout()
         interceptor.newAuth(null)
     }
 
-    private fun getUserId(): String {
-        return getPassword()
-    }
+    private fun getUserId(): String = getPassword()
 
     fun saveToken(oauth: OAuth?) {
         trackPreferences.trackToken(this).set(json.encodeToString(oauth))
     }
 
-    fun restoreToken(): OAuth? {
-        return try {
+    fun restoreToken(): OAuth? =
+        try {
             json.decodeFromString<OAuth>(trackPreferences.trackToken(this).get())
         } catch (e: Exception) {
             null
         }
-    }
 }

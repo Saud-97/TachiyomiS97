@@ -14,7 +14,6 @@ import eu.kanade.tachiyomi.util.system.notificationManager
  * Class to manage the basic information of all the notifications used in the app.
  */
 object Notifications {
-
     /**
      * Common notification channel and ids used anywhere.
      */
@@ -86,10 +85,11 @@ object Notifications {
     const val CHANNEL_INCOGNITO_MODE = "incognito_mode_channel"
     const val ID_INCOGNITO_MODE = -701
 
-    private val deprecatedChannels = listOf(
-        "backup_restore_channel",
-        "library_channel",
-    )
+    private val deprecatedChannels =
+        listOf(
+            "backup_restore_channel",
+            "library_channel",
+        )
 
     /**
      * Creates the notification channels introduced in Android Oreo.
@@ -115,125 +115,129 @@ object Notifications {
             NotificationChannelGroup(GROUP_LIBRARY, context.getString(R.string.library)),
         ).forEach(context.notificationManager::createNotificationChannelGroup)
 
-        val channels = listOf(
-            NotificationChannel(
-                CHANNEL_COMMON,
-                context.getString(R.string.common),
-                NotificationManager.IMPORTANCE_LOW,
-            ),
-            NotificationChannel(
-                CHANNEL_LIBRARY_PROGRESS,
-                context.getString(R.string.updating_library),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                group = GROUP_LIBRARY
-                setShowBadge(false)
-            },
-            NotificationChannel(
-                CHANNEL_LIBRARY_ERROR,
-                context.getString(R.string.channel_errors),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                group = GROUP_LIBRARY
-                setShowBadge(false)
-            },
-            NotificationChannel(
-                CHANNEL_LIBRARY_SKIPPED,
-                context.getString(R.string.channel_skipped),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                group = GROUP_LIBRARY
-                setShowBadge(false)
-            },
-            NotificationChannel(
-                CHANNEL_DOWNLOADER,
-                context.getString(R.string.downloads),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                setShowBadge(false)
-            },
-            NotificationChannel(
-                CHANNEL_UPDATES_TO_EXTS,
-                context.getString(R.string.extension_updates_pending),
-                NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply {
-                group = GROUP_EXTENSION_UPDATES
-            },
-            NotificationChannel(
-                CHANNEL_NEW_CHAPTERS,
-                context.getString(R.string.new_chapters),
-                NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply {
-                group = GROUP_LIBRARY
-            },
-            NotificationChannel(
-                CHANNEL_BACKUP_RESTORE_PROGRESS,
-                context.getString(R.string.progress),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                group = GROUP_BACKUP_RESTORE
-                setShowBadge(false)
-            },
-            NotificationChannel(
-                CHANNEL_BACKUP_RESTORE_COMPLETE,
-                context.getString(R.string.complete),
-                NotificationManager.IMPORTANCE_HIGH,
-            ).apply {
-                group = GROUP_BACKUP_RESTORE
-                setShowBadge(false)
-                setSound(null, null)
-            },
-            NotificationChannel(
-                CHANNEL_CRASH_LOGS,
-                context.getString(R.string.crash_logs),
-                NotificationManager.IMPORTANCE_HIGH,
-            ),
-            NotificationChannel(
-                CHANNEL_INCOGNITO_MODE,
-                context.getString(R.string.incognito_mode),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                lockscreenVisibility = Notification.VISIBILITY_SECRET
-            },
-            NotificationChannel(
-                CHANNEL_EXT_PROGRESS,
-                context.getString(R.string.updating_extensions),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                group = GROUP_EXTENSION_UPDATES
-                setShowBadge(false)
-                setSound(null, null)
-            },
-            NotificationChannel(
-                CHANNEL_EXT_UPDATED,
-                context.getString(R.string.extensions_updated),
-                NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply {
-                group = GROUP_EXTENSION_UPDATES
-            },
-            NotificationChannel(
-                CHANNEL_INSTALLING,
-                context.getString(R.string.installing),
-                NotificationManager.IMPORTANCE_HIGH,
-            ).apply {
-                setShowBadge(false)
-                setSound(null, null)
-                enableVibration(false)
-                group = GROUP_APP_UPDATES
-            },
-            NotificationChannel(
-                CHANNEL_UPDATED,
-                context.getString(R.string.update_completed),
-                NotificationManager.IMPORTANCE_HIGH,
-            ).apply {
-                setShowBadge(false)
-                group = GROUP_APP_UPDATES
-            },
-        )
+        val channels =
+            listOf(
+                NotificationChannel(
+                    CHANNEL_COMMON,
+                    context.getString(R.string.common),
+                    NotificationManager.IMPORTANCE_LOW,
+                ),
+                NotificationChannel(
+                    CHANNEL_LIBRARY_PROGRESS,
+                    context.getString(R.string.updating_library),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    group = GROUP_LIBRARY
+                    setShowBadge(false)
+                },
+                NotificationChannel(
+                    CHANNEL_LIBRARY_ERROR,
+                    context.getString(R.string.channel_errors),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    group = GROUP_LIBRARY
+                    setShowBadge(false)
+                },
+                NotificationChannel(
+                    CHANNEL_LIBRARY_SKIPPED,
+                    context.getString(R.string.channel_skipped),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    group = GROUP_LIBRARY
+                    setShowBadge(false)
+                },
+                NotificationChannel(
+                    CHANNEL_DOWNLOADER,
+                    context.getString(R.string.downloads),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                },
+                NotificationChannel(
+                    CHANNEL_UPDATES_TO_EXTS,
+                    context.getString(R.string.extension_updates_pending),
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                ).apply {
+                    group = GROUP_EXTENSION_UPDATES
+                },
+                NotificationChannel(
+                    CHANNEL_NEW_CHAPTERS,
+                    context.getString(R.string.new_chapters),
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                ).apply {
+                    group = GROUP_LIBRARY
+                },
+                NotificationChannel(
+                    CHANNEL_BACKUP_RESTORE_PROGRESS,
+                    context.getString(R.string.progress),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    group = GROUP_BACKUP_RESTORE
+                    setShowBadge(false)
+                },
+                NotificationChannel(
+                    CHANNEL_BACKUP_RESTORE_COMPLETE,
+                    context.getString(R.string.complete),
+                    NotificationManager.IMPORTANCE_HIGH,
+                ).apply {
+                    group = GROUP_BACKUP_RESTORE
+                    setShowBadge(false)
+                    setSound(null, null)
+                },
+                NotificationChannel(
+                    CHANNEL_CRASH_LOGS,
+                    context.getString(R.string.crash_logs),
+                    NotificationManager.IMPORTANCE_HIGH,
+                ),
+                NotificationChannel(
+                    CHANNEL_INCOGNITO_MODE,
+                    context.getString(R.string.incognito_mode),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_SECRET
+                },
+                NotificationChannel(
+                    CHANNEL_EXT_PROGRESS,
+                    context.getString(R.string.updating_extensions),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    group = GROUP_EXTENSION_UPDATES
+                    setShowBadge(false)
+                    setSound(null, null)
+                },
+                NotificationChannel(
+                    CHANNEL_EXT_UPDATED,
+                    context.getString(R.string.extensions_updated),
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                ).apply {
+                    group = GROUP_EXTENSION_UPDATES
+                },
+                NotificationChannel(
+                    CHANNEL_INSTALLING,
+                    context.getString(R.string.installing),
+                    NotificationManager.IMPORTANCE_HIGH,
+                ).apply {
+                    setShowBadge(false)
+                    setSound(null, null)
+                    enableVibration(false)
+                    group = GROUP_APP_UPDATES
+                },
+                NotificationChannel(
+                    CHANNEL_UPDATED,
+                    context.getString(R.string.update_completed),
+                    NotificationManager.IMPORTANCE_HIGH,
+                ).apply {
+                    setShowBadge(false)
+                    group = GROUP_APP_UPDATES
+                },
+            )
         context.notificationManager.createNotificationChannels(channels)
     }
 
-    fun isNotificationChannelEnabled(context: Context, channelId: String?): Boolean {
+    fun isNotificationChannelEnabled(
+        context: Context,
+        channelId: String?,
+    ): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!channelId.isNullOrBlank()) {
                 val manager =

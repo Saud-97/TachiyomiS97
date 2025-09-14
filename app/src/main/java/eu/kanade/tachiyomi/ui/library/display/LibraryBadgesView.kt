@@ -6,21 +6,25 @@ import eu.kanade.tachiyomi.databinding.LibraryBadgesLayoutBinding
 import eu.kanade.tachiyomi.util.bindToPreference
 import eu.kanade.tachiyomi.widget.BaseLibraryDisplayView
 
-class LibraryBadgesView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
-    BaseLibraryDisplayView<LibraryBadgesLayoutBinding>(context, attrs) {
+class LibraryBadgesView
+    @JvmOverloads
+    constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+    ) : BaseLibraryDisplayView<LibraryBadgesLayoutBinding>(context, attrs) {
+        override fun inflateBinding() = LibraryBadgesLayoutBinding.bind(this)
 
-    override fun inflateBinding() = LibraryBadgesLayoutBinding.bind(this)
-    override fun initGeneralPreferences() {
-        binding.unreadBadgeGroup.bindToPreference(preferences.unreadBadgeType()) {
-            controller?.presenter?.requestUnreadBadgesUpdate()
+        override fun initGeneralPreferences() {
+            binding.unreadBadgeGroup.bindToPreference(preferences.unreadBadgeType()) {
+                controller?.presenter?.requestUnreadBadgesUpdate()
+            }
+            binding.hideReading.bindToPreference(preferences.hideStartReadingButton())
+            binding.downloadBadge.bindToPreference(preferences.downloadBadge()) {
+                controller?.presenter?.requestDownloadBadgesUpdate()
+            }
+            binding.languageBadge.bindToPreference(preferences.languageBadge()) {
+                controller?.presenter?.requestLanguageBadgesUpdate()
+            }
+            binding.showNumberOfItems.bindToPreference(preferences.categoryNumberOfItems())
         }
-        binding.hideReading.bindToPreference(preferences.hideStartReadingButton())
-        binding.downloadBadge.bindToPreference(preferences.downloadBadge()) {
-            controller?.presenter?.requestDownloadBadgesUpdate()
-        }
-        binding.languageBadge.bindToPreference(preferences.languageBadge()) {
-            controller?.presenter?.requestLanguageBadgesUpdate()
-        }
-        binding.showNumberOfItems.bindToPreference(preferences.categoryNumberOfItems())
     }
-}

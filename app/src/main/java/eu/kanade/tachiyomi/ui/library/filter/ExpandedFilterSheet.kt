@@ -37,13 +37,12 @@ class ExpandedFilterSheet(
     private val filterCallback: () -> Unit,
     private val clearFilterCallback: () -> Unit,
 ) : E2EBottomSheetDialog<ExpandedFilterSheetBinding>(activity) {
-
     private val fastAdapter: FastAdapter<ExpandedFilterItem>
     private val itemAdapter = ItemAdapter<ExpandedFilterItem>()
 
     override var recyclerView: RecyclerView? = binding.categoryRecyclerView
-    override fun createBinding(inflater: LayoutInflater) =
-        ExpandedFilterSheetBinding.inflate(inflater)
+
+    override fun createBinding(inflater: LayoutInflater) = ExpandedFilterSheetBinding.inflate(inflater)
 
     val trackerItem = trackersFilter?.let { ExpandedFilterItem(trackersFilter) }
     internal val preferences by injectLazy<PreferencesHelper>()
@@ -54,12 +53,17 @@ class ExpandedFilterSheet(
         }
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                override fun onSlide(
+                    bottomSheet: View,
+                    slideOffset: Float,
+                ) {
                     updateBottomButtons()
                 }
 
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                override fun onStateChanged(
+                    bottomSheet: View,
+                    newState: Int,
+                ) {
                     updateBottomButtons()
                 }
             },
@@ -86,13 +90,12 @@ class ExpandedFilterSheet(
         fastAdapter
             .addEventHook(
                 object : ClickEventHook<ExpandedFilterItem>() {
-                    override fun onBindMany(viewHolder: RecyclerView.ViewHolder): List<View> {
-                        return if (viewHolder is ExpandedFilterItem.ViewHolder) {
+                    override fun onBindMany(viewHolder: RecyclerView.ViewHolder): List<View> =
+                        if (viewHolder is ExpandedFilterItem.ViewHolder) {
                             viewHolder.textViews
                         } else {
                             emptyList()
                         }
-                    }
 
                     override fun onClick(
                         v: View,
@@ -100,19 +103,27 @@ class ExpandedFilterSheet(
                         fastAdapter: FastAdapter<ExpandedFilterItem>,
                         item: ExpandedFilterItem,
                     ) {
-                        val index = (v.parent as ViewGroup).children.toList()
-                            .filterIsInstance<MaterialTextView>().indexOf(v)
+                        val index =
+                            (v.parent as ViewGroup)
+                                .children
+                                .toList()
+                                .filterIsInstance<MaterialTextView>()
+                                .indexOf(v)
                         (v.parent as ViewGroup).children.toList().forEach { it.isActivated = false }
                         item.filter.activeFilter = index
                         v.isActivated = true
                         when (filters[position].headerName) {
                             context.getString(R.string.tracking) -> {
-                                if (index == 0 && trackerItem != null && itemAdapter.adapterItems.contains(
+                                if (index == 0 &&
+                                    trackerItem != null &&
+                                    itemAdapter.adapterItems.contains(
                                         trackerItem,
                                     )
                                 ) {
                                     itemAdapter.remove(itemAdapter.adapterItems.indexOf(trackerItem))
-                                } else if (index > 0 && trackerItem != null && !itemAdapter.adapterItems.contains(
+                                } else if (index > 0 &&
+                                    trackerItem != null &&
+                                    !itemAdapter.adapterItems.contains(
                                         trackerItem,
                                     )
                                 ) {
@@ -163,18 +174,20 @@ class ExpandedFilterSheet(
                 filterOrder.add(it.value)
             }
         }
-        val adapter = FlexibleAdapter(
-            filterOrder.mapNotNull { char ->
-                FilterBottomSheet.Filters.filterOf(char)?.let { ManageFilterItem(char) }
-            },
-            this,
-            true,
-        )
+        val adapter =
+            FlexibleAdapter(
+                filterOrder.mapNotNull { char ->
+                    FilterBottomSheet.Filters.filterOf(char)?.let { ManageFilterItem(char) }
+                },
+                this,
+                true,
+            )
         recycler.layoutManager = LinearLayoutManager(context)
         recycler.adapter = adapter
         adapter.isHandleDragEnabled = true
         adapter.isLongPressDragEnabled = true
-        context.materialAlertDialog()
+        context
+            .materialAlertDialog()
             .setTitle(R.string.reorder_filters)
             .setView(recycler)
             .setNegativeButton(android.R.string.cancel, null)
@@ -208,8 +221,10 @@ class ExpandedFilterSheet(
         super.onCreate(savedInstanceState)
         val headerHeight = (activity as? MainActivity)?.toolbarHeight ?: 0
         binding.buttonLayout.updatePaddingRelative(
-            bottom = activity.window.decorView.rootWindowInsetsCompat
-                ?.getInsets(systemBars())?.bottom ?: 0,
+            bottom =
+                activity.window.decorView.rootWindowInsetsCompat
+                    ?.getInsets(systemBars())
+                    ?.bottom ?: 0,
         )
 
         binding.buttonLayout.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -229,9 +244,11 @@ class ExpandedFilterSheet(
             dismiss()
         }
     }
+
     private fun clearFilters() {
         clearFilterCallback()
     }
+
     private fun applyFilters() {
         val trackingFilter = filters.find { it.headerName == context.getString(R.string.tracking) }
         if (trackingFilter?.activeFilter == 0 && trackerItem != null) {

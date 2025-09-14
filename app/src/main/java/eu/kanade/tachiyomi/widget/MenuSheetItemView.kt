@@ -15,8 +15,10 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.databinding.MenuSheetItemBinding
 import eu.kanade.tachiyomi.util.system.getResourceColor
 
-class MenuSheetItemView constructor(context: Context, attrs: AttributeSet?) :
-    LinearLayout(context, attrs) {
+class MenuSheetItemView constructor(
+    context: Context,
+    attrs: AttributeSet?,
+) : LinearLayout(context, attrs) {
     private val mText: String
     private val mIconRes: Int
     private val mEndIconRes: Int
@@ -44,11 +46,12 @@ class MenuSheetItemView constructor(context: Context, attrs: AttributeSet?) :
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        binding = try {
-            MenuSheetItemBinding.bind(this)
-        } catch (e: Exception) {
-            MenuSheetItemBinding.inflate(LayoutInflater.from(context), this, true)
-        }
+        binding =
+            try {
+                MenuSheetItemBinding.bind(this)
+            } catch (e: Exception) {
+                MenuSheetItemBinding.inflate(LayoutInflater.from(context), this, true)
+            }
         text = mText
         setIcon(mIconRes)
         setEndIcon(mEndIconRes)
@@ -67,11 +70,15 @@ class MenuSheetItemView constructor(context: Context, attrs: AttributeSet?) :
             binding?.itemTextView?.textSize = value
         }
 
-    fun setText(@StringRes res: Int) {
+    fun setText(
+        @StringRes res: Int,
+    ) {
         text = context.getString(res)
     }
 
-    fun selectWithEndIcon(@DrawableRes endDrawableRes: Int) {
+    fun selectWithEndIcon(
+        @DrawableRes endDrawableRes: Int,
+    ) {
         isSelected = true
         setEndIcon(endDrawableRes)
     }
@@ -88,18 +95,24 @@ class MenuSheetItemView constructor(context: Context, attrs: AttributeSet?) :
         }
     }
 
-    fun setTextColor(@ColorInt color: Int) {
+    fun setTextColor(
+        @ColorInt color: Int,
+    ) {
         binding?.itemTextView?.setTextColor(color)
     }
 
-    fun setIconColor(@ColorInt color: Int) = binding?.itemTextView?.let {
+    fun setIconColor(
+        @ColorInt color: Int,
+    ) = binding?.itemTextView?.let {
         TextViewCompat.setCompoundDrawableTintList(
             it,
             ColorStateList.valueOf(color),
         )
     }
 
-    fun setIcon(@DrawableRes res: Int) {
+    fun setIcon(
+        @DrawableRes res: Int,
+    ) {
         binding?.itemTextView?.setCompoundDrawablesRelativeWithIntrinsicBounds(
             res,
             0,
@@ -117,11 +130,11 @@ class MenuSheetItemView constructor(context: Context, attrs: AttributeSet?) :
         )
     }
 
-    fun getIcon(): Drawable? {
-        return binding?.itemTextView?.compoundDrawablesRelative?.getOrNull(0)
-    }
+    fun getIcon(): Drawable? = binding?.itemTextView?.compoundDrawablesRelative?.getOrNull(0)
 
-    fun setEndIcon(@DrawableRes res: Int) {
+    fun setEndIcon(
+        @DrawableRes res: Int,
+    ) {
         binding?.menuEndItem?.isGone = res == 0
         binding?.menuEndItem?.setImageResource(res)
     }

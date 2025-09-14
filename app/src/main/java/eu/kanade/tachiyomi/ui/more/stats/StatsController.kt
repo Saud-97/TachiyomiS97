@@ -31,7 +31,6 @@ import timber.log.Timber
 import kotlin.math.roundToInt
 
 class StatsController : BaseController<StatsControllerBinding>() {
-
     val presenter = StatsPresenter()
 
     private val mangaDistinct = presenter.mangaDistinct
@@ -65,15 +64,21 @@ class StatsController : BaseController<StatsControllerBinding>() {
             statsTotalMangaText.text = mangaDistinct.count().toString()
             statsTotalChaptersText.text = mangaDistinct.sumOf { it.totalChapters }.toString()
             statsChaptersReadText.text = mangaDistinct.sumOf { it.read }.toString()
-            statsMangaMeanScoreText.text = if (scoresList.isEmpty()) {
-                statsMangaMeanScoreText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-                activity?.getString(R.string.none)
-            } else {
-                scoresList.average().roundToTwoDecimal().toString()
-            }
+            statsMangaMeanScoreText.text =
+                if (scoresList.isEmpty()) {
+                    statsMangaMeanScoreText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+                    activity?.getString(R.string.none)
+                } else {
+                    scoresList.average().roundToTwoDecimal().toString()
+                }
             statsTrackedMangaText.text = mangaTracks.count { it.second.isNotEmpty() }.toString()
             statsChaptersDownloadedText.text = mangaDistinct.sumOf { presenter.getDownloadCount(it) }.toString()
-            statsTotalTagsText.text = mangaDistinct.flatMap { it.getTags() }.distinct().count().toString()
+            statsTotalTagsText.text =
+                mangaDistinct
+                    .flatMap { it.getTags() }
+                    .distinct()
+                    .count()
+                    .toString()
             statsMangaLocalText.text = mangaDistinct.count { it.isLocal() }.toString()
             statsGlobalUpdateMangaText.text = presenter.getGlobalUpdateManga().count().toString()
             statsSourcesText.text = presenter.getSources().count().toString()
@@ -83,30 +88,30 @@ class StatsController : BaseController<StatsControllerBinding>() {
         }
     }
 
-    private fun getScoresList(mangaTracks: List<Pair<LibraryManga, MutableList<Track>>>): List<Double> {
-        return mangaTracks.filter { it.second.isNotEmpty() }
+    private fun getScoresList(mangaTracks: List<Pair<LibraryManga, MutableList<Track>>>): List<Double> =
+        mangaTracks
+            .filter { it.second.isNotEmpty() }
             .map {
-                it.second.filter { track -> track.score > 0 }
+                it.second
+                    .filter { track -> track.score > 0 }
                     .mapNotNull { track -> presenter.get10PointScore(track) }
                     .average()
             }.filter { it > 0.0 }
-    }
 
-    private fun Manga.getTags(): List<String> {
-        return getGenres()?.map { it.uppercase() } ?: emptyList()
-    }
+    private fun Manga.getTags(): List<String> = getGenres()?.map { it.uppercase() } ?: emptyList()
 
     private fun handleStatusDistribution() {
         binding.mangaStatsStatusLayout.isVisible = true
         val statusMap = StatsHelper.STATUS_COLOR_MAP
         val pieEntries = ArrayList<PieEntry>()
 
-        val mangaStatusDistributionList = statusMap.mapNotNull { (status, color) ->
-            val libraryCount = mangaDistinct.count { it.status == status }
-            if (status == SManga.UNKNOWN && libraryCount == 0) return@mapNotNull null
-            pieEntries.add(PieEntry(libraryCount.toFloat(), activity!!.mapStatus(status)))
-            StatusDistributionItem(activity!!.mapStatus(status), libraryCount, color)
-        }
+        val mangaStatusDistributionList =
+            statusMap.mapNotNull { (status, color) ->
+                val libraryCount = mangaDistinct.count { it.status == status }
+                if (status == SManga.UNKNOWN && libraryCount == 0) return@mapNotNull null
+                pieEntries.add(PieEntry(libraryCount.toFloat(), activity!!.mapStatus(status)))
+                StatusDistributionItem(activity!!.mapStatus(status), libraryCount, color)
+            }
 
         val pieDataSet = PieDataSet(pieEntries, activity!!.getString(R.string.manga_status_distribution))
         pieDataSet.colors = mangaStatusDistributionList.map { it.color }
@@ -137,21 +142,26 @@ class StatsController : BaseController<StatsControllerBinding>() {
     private fun handleScoreDistribution() {
         binding.mangaStatsScoreLayout.isVisible = true
         val scoreMap = StatsHelper.SCORE_COLOR_MAP
-        val userScoreList = scoresList.groupingBy { it.roundToInt().coerceIn(1..10) }
-            .eachCount().toSortedMap()
+        val userScoreList =
+            scoresList
+                .groupingBy { it.roundToInt().coerceIn(1..10) }
+                .eachCount()
+                .toSortedMap()
 
-        val barEntries = scoreMap.map { (score, _) ->
-            BarEntry(score.toFloat(), userScoreList[score]?.toFloat() ?: 0f)
-        }
+        val barEntries =
+            scoreMap.map { (score, _) ->
+                BarEntry(score.toFloat(), userScoreList[score]?.toFloat() ?: 0f)
+            }
         val barDataSet = BarDataSet(barEntries, activity!!.getString(R.string.manga_score_distribution))
         barDataSet.colors = scoreMap.values.toList()
         showMangaStatsScoreChart(barDataSet)
     }
 
     private fun showMangaStatsScoreChart(barDataSet: BarDataSet) {
-        val valueFormatter = object : ValueFormatter() {
-            override fun getFormattedValue(value: Float) = value.toInt().toString()
-        }
+        val valueFormatter =
+            object : ValueFormatter() {
+                override fun getFormattedValue(value: Float) = value.toInt().toString()
+            }
 
         try {
             with(binding.mangaStatsScoreBarChart) {

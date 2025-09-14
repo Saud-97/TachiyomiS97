@@ -28,8 +28,10 @@ import kotlin.math.min
 /**
  * Implementation of a [BaseViewer] to display pages with a [RecyclerView].
  */
-class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = false) : BaseViewer {
-
+class WebtoonViewer(
+    val activity: ReaderActivity,
+    val hasMargins: Boolean = false,
+) : BaseViewer {
     val downloadManager: DownloadManager by injectLazy()
 
     private val scope = MainScope()
@@ -78,7 +80,11 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
         recycler.adapter = adapter
         recycler.addOnScrollListener(
             object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                override fun onScrolled(
+                    recyclerView: RecyclerView,
+                    dx: Int,
+                    dy: Int,
+                ) {
                     onScrolled()
 
                     if (dy > config.menuThreshold || dy < -config.menuThreshold) {
@@ -166,9 +172,7 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
     /**
      * Returns the view this viewer uses.
      */
-    override fun getView(): View {
-        return frame
-    }
+    override fun getView(): View = frame
 
     /**
      * Destroys this viewer. Called when leaving the reader or swapping viewers.
@@ -182,7 +186,10 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
      * Called from the RecyclerView listener when a [page] is marked as active. It notifies the
      * activity of the change and requests the preload of the next chapter if this is the last page.
      */
-    private fun onPageSelected(page: ReaderPage, allowPreload: Boolean) {
+    private fun onPageSelected(
+        page: ReaderPage,
+        allowPreload: Boolean,
+    ) {
         activity.onPageSelected(page, false)
 
         val pages = page.chapter.pages ?: return
@@ -232,7 +239,10 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
     /**
      * Tells this viewer to move to the given [page].
      */
-    override fun moveToPage(page: ReaderPage, animated: Boolean) {
+    override fun moveToPage(
+        page: ReaderPage,
+        animated: Boolean,
+    ) {
         Timber.d("moveToPage")
         val position = adapter.items.indexOf(page)
         if (position != -1) {
@@ -314,9 +324,7 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
      * Called from the containing activity when a generic motion [event] is received. It should
      * return true if the event was handled, false otherwise.
      */
-    override fun handleGenericMotionEvent(event: MotionEvent): Boolean {
-        return false
-    }
+    override fun handleGenericMotionEvent(event: MotionEvent): Boolean = false
 
     /**
      * Notifies adapter of changes around the current page to trigger a relayout in the recycler.

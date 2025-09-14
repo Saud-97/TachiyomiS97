@@ -25,43 +25,59 @@ import java.io.InputStream
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicReference
 
-class ShizukuInstaller(private val context: Context, val finishedQueue: (ShizukuInstaller) -> Unit) {
-
+class ShizukuInstaller(
+    private val context: Context,
+    val finishedQueue: (ShizukuInstaller) -> Unit,
+) {
     private val extensionManager: ExtensionManager by injectLazy()
 
     private var waitingInstall = AtomicReference<Entry>(null)
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val cancelReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val downloadId = intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1).takeIf { it >= 0 } ?: return
-            cancelQueue(downloadId)
+    private val cancelReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                val downloadId = intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1).takeIf { it >= 0 } ?: return
+                cancelQueue(downloadId)
+            }
         }
-    }
 
-    data class Entry(val downloadId: Long, val pkgName: String, val uri: Uri)
+    data class Entry(
+        val downloadId: Long,
+        val pkgName: String,
+        val uri: Uri,
+    )
+
     private val queue = Collections.synchronizedList(mutableListOf<Entry>())
 
-    private val shizukuDeadListener = Shizuku.OnBinderDeadListener {
-        Timber.d("Shizuku was killed prematurely")
-        finishedQueue(this)
-    }
+    private val shizukuDeadListener =
+        Shizuku.OnBinderDeadListener {
+            Timber.d("Shizuku was killed prematurely")
+            finishedQueue(this)
+        }
 
     fun isInQueue(pkgName: String) = queue.any { it.pkgName == pkgName }
 
-    private val shizukuPermissionListener = object : Shizuku.OnRequestPermissionResultListener {
-        override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
-            if (requestCode == SHIZUKU_PERMISSION_REQUEST_CODE) {
-                if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                    ready = true
-                    checkQueue()
-                } else {
-                    finishedQueue(this@ShizukuInstaller)
+    private val shizukuPermissionListener =
+        object : Shizuku.OnRequestPermissionResultListener {
+            override fun onRequestPermissionResult(
+                requestCode: Int,
+                grantResult: Int,
+            ) {
+                if (requestCode == SHIZUKU_PERMISSION_REQUEST_CODE) {
+                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                        ready = true
+                        checkQueue()
+                    } else {
+                        finishedQueue(this@ShizukuInstaller)
+                    }
+                    Shizuku.removeRequestPermissionResultListener(this)
                 }
-                Shizuku.removeRequestPermissionResultListener(this)
             }
         }
-    }
 
     var ready = false
 
@@ -71,13 +87,14 @@ class ShizukuInstaller(private val context: Context, val finishedQueue: (Shizuku
             finishedQueue(this)
             context.getString(R.string.ext_installer_shizuku_stopped)
         }
-        ready = if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-            true
-        } else {
-            Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
-            Shizuku.requestPermission(SHIZUKU_PERMISSION_REQUEST_CODE)
-            false
-        }
+        ready =
+            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                true
+            } else {
+                Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
+                Shizuku.requestPermission(SHIZUKU_PERMISSION_REQUEST_CODE)
+                false
+            }
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
@@ -88,11 +105,12 @@ class ShizukuInstaller(private val context: Context, val finishedQueue: (Shizuku
             try {
                 val size = context.getUriSize(entry.uri) ?: throw IllegalStateException()
                 context.contentResolver.openInputStream(entry.uri)!!.use {
-                    val createCommand = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        "pm install-create --user current -r -i ${context.packageName} -S $size"
-                    } else {
-                        "pm install-create -r -i ${context.packageName} -S $size"
-                    }
+                    val createCommand =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            "pm install-create --user current -r -i ${context.packageName} -S $size"
+                        } else {
+                            "pm install-create -r -i ${context.packageName} -S $size"
+                        }
                     val createResult = exec(createCommand)
                     sessionId = SESSION_ID_REGEX.find(createResult.out)?.value
                         ?: throw RuntimeException("Failed to create install session")
@@ -161,7 +179,11 @@ class ShizukuInstaller(private val context: Context, val finishedQueue: (Shizuku
      * @param downloadId Download ID as known by [ExtensionManager]
      * @param uri Uri of APK to install
      */
-    fun addToQueue(downloadId: Long, pkgName: String, uri: Uri) {
+    fun addToQueue(
+        downloadId: Long,
+        pkgName: String,
+        uri: Uri,
+    ) {
         queue.add(Entry(downloadId, pkgName, uri))
         checkQueue()
     }
@@ -188,6 +210,7 @@ class ShizukuInstaller(private val context: Context, val finishedQueue: (Shizuku
 
     // Don't cancel if entry is already started installing
     fun cancelEntry(entry: Entry): Boolean = getActiveEntry() != entry
+
     fun getActiveEntry(): Entry? = waitingInstall.get()
 
     fun onDestroy() {
@@ -200,7 +223,10 @@ class ShizukuInstaller(private val context: Context, val finishedQueue: (Shizuku
         waitingInstall.set(null)
     }
 
-    private fun exec(command: String, stdin: InputStream? = null): ShellResult {
+    private fun exec(
+        command: String,
+        stdin: InputStream? = null,
+    ): ShellResult {
         @Suppress("DEPRECATION")
         val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
         if (stdin != null) {
@@ -211,15 +237,17 @@ class ShizukuInstaller(private val context: Context, val finishedQueue: (Shizuku
         return ShellResult(resultCode, output)
     }
 
-    private data class ShellResult(val resultCode: Int, val out: String)
+    private data class ShellResult(
+        val resultCode: Int,
+        val out: String,
+    )
 
     companion object {
         const val shizukuPkgName = "moe.shizuku.privileged.api"
         const val downloadLink = "https://shizuku.rikka.app/download"
         private const val SHIZUKU_PERMISSION_REQUEST_CODE = 14045
         private val SESSION_ID_REGEX = Regex("(?<=\\[).+?(?=])")
-        fun isShizukuRunning(): Boolean {
-            return Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
-        }
+
+        fun isShizukuRunning(): Boolean = Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
     }
 }

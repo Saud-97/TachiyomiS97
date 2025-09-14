@@ -15,8 +15,8 @@ object EstimatedItemHeight {
         childTypeHeightMap: HashMap<Int, HashMap<Int, Int>>,
         childTypeEstimateMap: HashMap<Int, Int>,
         childAvgHeightMap: HashMap<Int, Int>,
-    ): Int {
-        return if (childSizesMap[pos] != null) {
+    ): Int =
+        if (childSizesMap[pos] != null) {
             childSizesMap[pos] ?: 0
         } else {
             val type = childTypeMap.getOrPut(pos) { itemViewType ?: 0 }
@@ -24,10 +24,11 @@ object EstimatedItemHeight {
                 childTypeEstimateMap[type] != null -> childTypeEstimateMap[type] ?: 0
                 childAvgHeightMap[type] == null && !childTypeHeightMap[type]?.values.isNullOrEmpty() -> {
                     val array = (childTypeHeightMap[type]?.values ?: mutableListOf(0)).toIntArray()
-                    childAvgHeightMap[type] = array
-                        .copyOfRange(0, min(array.size, 10))
-                        .average()
-                        .roundToInt()
+                    childAvgHeightMap[type] =
+                        array
+                            .copyOfRange(0, min(array.size, 10))
+                            .average()
+                            .roundToInt()
                     if (array.size >= 10) {
                         childTypeEstimateMap[type] = childAvgHeightMap[type]!!
                     }
@@ -36,7 +37,6 @@ object EstimatedItemHeight {
                 else -> childAvgHeightMap[type] ?: estimatedHeight(type)
             }
         }
-    }
 
     /**
      * Used for estimates of heights of recycler view holders
@@ -45,8 +45,8 @@ object EstimatedItemHeight {
      * (for example: R.layout.chapters_item might not show until scrolling if
      * R.layout.manga_header_item is too tall
      */
-    private fun estimatedHeight(id: Int): Int {
-        return when (id) {
+    private fun estimatedHeight(id: Int): Int =
+        when (id) {
             R.layout.recent_manga_item -> 92.dpToPx
             R.layout.recents_header_item -> 40.dpToPx
             R.layout.recent_chapters_section_item -> 32.dpToPx
@@ -57,5 +57,4 @@ object EstimatedItemHeight {
             R.layout.manga_list_item -> 52.dpToPx
             else -> 0
         }
-    }
 }

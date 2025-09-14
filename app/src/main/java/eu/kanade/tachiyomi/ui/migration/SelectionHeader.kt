@@ -13,20 +13,18 @@ import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
  * Item that contains the selection header.
  */
 class SelectionHeader : AbstractHeaderItem<SelectionHeader.Holder>() {
-
     /**
      * Returns the layout resource of this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.source_header_item
-    }
+    override fun getLayoutRes(): Int = R.layout.source_header_item
 
     /**
      * Creates a new view holder for this item.
      */
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
     /**
      * Binds this item to the given view holder.
@@ -40,18 +38,17 @@ class SelectionHeader : AbstractHeaderItem<SelectionHeader.Holder>() {
         // Intentionally empty
     }
 
-    class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : BaseFlexibleViewHolder(view, adapter) {
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : BaseFlexibleViewHolder(view, adapter) {
         init {
             val binding = SourceHeaderItemBinding.bind(view)
             binding.title.text = view.context.getString(R.string.select_a_source_then_item_to_migrate)
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is SelectionHeader
-    }
+    override fun equals(other: Any?): Boolean = other is SelectionHeader
 
-    override fun hashCode(): Int {
-        return 0
-    }
+    override fun hashCode(): Int = 0
 }

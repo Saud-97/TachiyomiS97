@@ -20,9 +20,7 @@ import uy.kohesive.injekt.injectLazy
 abstract class LoginDialogPreference(
     @StringRes private val usernameLabelRes: Int? = null,
     bundle: Bundle? = null,
-) :
-    DialogController(bundle) {
-
+) : DialogController(bundle) {
     var v: View? = null
         private set
 
@@ -37,29 +35,34 @@ abstract class LoginDialogPreference(
 
     override fun onCreateDialog(savedViewState: Bundle?): Dialog {
         binding = PrefAccountLoginBinding.inflate(activity!!.layoutInflater)
-        val dialog = activity!!.materialAlertDialog().apply {
-            setView(binding.root)
-        }
+        val dialog =
+            activity!!.materialAlertDialog().apply {
+                setView(binding.root)
+            }
         onViewCreated(binding.root)
 
         return dialog.create()
     }
 
     fun onViewCreated(view: View) {
-        v = view.apply {
-            if (usernameLabelRes != null) {
-                binding.usernameInput.hint = view.context.getString(usernameLabelRes)
-            }
+        v =
+            view.apply {
+                if (usernameLabelRes != null) {
+                    binding.usernameInput.hint = view.context.getString(usernameLabelRes)
+                }
 
-            binding.login.setOnClickListener {
-                checkLogin()
-            }
+                binding.login.setOnClickListener {
+                    checkLogin()
+                }
 
-            setCredentialsOnView(this)
-        }
+                setCredentialsOnView(this)
+            }
     }
 
-    override fun onChangeStarted(handler: ControllerChangeHandler, type: ControllerChangeType) {
+    override fun onChangeStarted(
+        handler: ControllerChangeHandler,
+        type: ControllerChangeType,
+    ) {
         super.onChangeStarted(handler, type)
         if (!type.isEnter) {
             onDialogClosed()

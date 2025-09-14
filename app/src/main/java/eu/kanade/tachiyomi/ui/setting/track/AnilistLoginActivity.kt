@@ -5,7 +5,6 @@ import androidx.lifecycle.lifecycleScope
 import eu.kanade.tachiyomi.util.system.launchIO
 
 class AnilistLoginActivity : BaseOAuthLoginActivity() {
-
     override fun handleResult(data: Uri?) {
         val regex = "(?:access_token=)(.*?)(?:&)".toRegex()
         val matchResult = regex.find(data?.fragment.toString())

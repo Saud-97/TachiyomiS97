@@ -11,12 +11,15 @@ open class BaseChapterHolder(
     view: View,
     private val adapter: BaseChapterAdapter<*>,
 ) : BaseFlexibleViewHolder(view, adapter) {
-
     init {
         view.findViewById<View>(R.id.download_button)?.setOnClickListener { downloadOrRemoveMenu(it) }
     }
 
-    internal fun downloadOrRemoveMenu(downloadButton: View, extraChapter: Chapter? = null, extraStatus: Download.State? = null) {
+    internal fun downloadOrRemoveMenu(
+        downloadButton: View,
+        extraChapter: Chapter? = null,
+        extraStatus: Download.State? = null,
+    ) {
         val chapter = adapter.getItem(flexibleAdapterPosition) as? BaseChapterItem<*, *> ?: return
 
         val chapterStatus = extraStatus ?: chapter.status
@@ -39,9 +42,10 @@ open class BaseChapterHolder(
 
                 // Hide download and show delete if the chapter is downloaded
                 if (chapterStatus != Download.State.DOWNLOADED) {
-                    popup.menu.findItem(R.id.action_delete).title = downloadButton.context.getString(
-                        R.string.cancel,
-                    )
+                    popup.menu.findItem(R.id.action_delete).title =
+                        downloadButton.context.getString(
+                            R.string.cancel,
+                        )
                 }
 
                 // Set a listener so we are notified if a menu item is clicked

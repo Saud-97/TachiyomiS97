@@ -30,7 +30,6 @@ class SourcePresenter(
     val extensionManager: ExtensionManager = Injekt.get(),
     private val preferences: PreferencesHelper = Injekt.get(),
 ) {
-
     private var scope = CoroutineScope(Job() + Dispatchers.Default)
     var sources = getEnabledSources()
 
@@ -61,26 +60,28 @@ class SourcePresenter(
             val pinnedSources = mutableListOf<SourceItem>()
             val pinnedCatalogues = preferences.pinnedCatalogues().get()
 
-            val map = TreeMap<String, MutableList<CatalogueSource>> { d1, d2 ->
-                // Catalogues without a lang defined will be placed at the end
-                when {
-                    d1 == "" && d2 != "" -> 1
-                    d2 == "" && d1 != "" -> -1
-                    else -> d1.compareTo(d2)
-                }
-            }
-            val byLang = sources.groupByTo(map) { it.lang }
-            sourceItems = byLang.flatMap {
-                val langItem = LangItem(it.key)
-                it.value.map { source ->
-                    val isPinned = source.id.toString() in pinnedCatalogues
-                    if (source.id.toString() in pinnedCatalogues) {
-                        pinnedSources.add(SourceItem(source, LangItem(PINNED_KEY)))
+            val map =
+                TreeMap<String, MutableList<CatalogueSource>> { d1, d2 ->
+                    // Catalogues without a lang defined will be placed at the end
+                    when {
+                        d1 == "" && d2 != "" -> 1
+                        d2 == "" && d1 != "" -> -1
+                        else -> d1.compareTo(d2)
                     }
-
-                    SourceItem(source, langItem, isPinned)
                 }
-            }
+            val byLang = sources.groupByTo(map) { it.lang }
+            sourceItems =
+                byLang.flatMap {
+                    val langItem = LangItem(it.key)
+                    it.value.map { source ->
+                        val isPinned = source.id.toString() in pinnedCatalogues
+                        if (source.id.toString() in pinnedCatalogues) {
+                            pinnedSources.add(SourceItem(source, LangItem(PINNED_KEY)))
+                        }
+
+                        SourceItem(source, langItem, isPinned)
+                    }
+                }
 
             if (pinnedSources.isNotEmpty()) {
                 sourceItems = pinnedSources + sourceItems
@@ -96,18 +97,21 @@ class SourcePresenter(
 
     private fun loadLastUsedSource() {
         lastUsedJob?.cancel()
-        lastUsedJob = preferences.lastUsedCatalogueSource().asFlow()
-            .drop(1)
-            .onEach {
-                lastUsedItem = getLastUsedSource(it)
-                withUIContext {
-                    controller.setLastUsedSource(lastUsedItem)
-                }
-            }.launchIn(scope)
+        lastUsedJob =
+            preferences
+                .lastUsedCatalogueSource()
+                .asFlow()
+                .drop(1)
+                .onEach {
+                    lastUsedItem = getLastUsedSource(it)
+                    withUIContext {
+                        controller.setLastUsedSource(lastUsedItem)
+                    }
+                }.launchIn(scope)
     }
 
-    private fun getLastUsedSource(value: Long): SourceItem? {
-        return (sourceManager.get(value) as? CatalogueSource)?.let { source ->
+    private fun getLastUsedSource(value: Long): SourceItem? =
+        (sourceManager.get(value) as? CatalogueSource)?.let { source ->
             val pinnedCatalogues = preferences.pinnedCatalogues().get()
             val isPinned = source.id.toString() in pinnedCatalogues
             if (isPinned) {
@@ -116,7 +120,6 @@ class SourcePresenter(
                 SourceItem(source, LangItem(LAST_USED_KEY), isPinned)
             }
         }
-    }
 
     fun updateSources() {
         sources = getEnabledSources()
@@ -137,7 +140,8 @@ class SourcePresenter(
         val languages = preferences.enabledLanguages().get()
         val hiddenCatalogues = preferences.hiddenSources().get()
 
-        return sourceManager.getCatalogueSources()
+        return sourceManager
+            .getCatalogueSources()
             .filter { it.lang in languages || it.id == LocalSource.ID }
             .filterNot { it.id.toString() in hiddenCatalogues }
             .sortedBy { "(${it.lang}) ${it.name}" }

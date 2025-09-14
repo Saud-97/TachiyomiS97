@@ -51,7 +51,6 @@ open class BrowseSourcePresenter(
     val prefs: PreferencesHelper = Injekt.get(),
     private val coverCache: CoverCache = Injekt.get(),
 ) : BaseCoroutinePresenter<BrowseSourceController>() {
-
     /**
      * Selected source.
      */
@@ -146,16 +145,20 @@ open class BrowseSourcePresenter(
      * @param query the query.
      * @param filters the current state of the filters (for search mode).
      */
-    fun restartPager(query: String = this.query, filters: FilterList = this.appliedFilters) {
+    fun restartPager(
+        query: String = this.query,
+        filters: FilterList = this.appliedFilters,
+    ) {
         this.query = query
         this.appliedFilters = filters
 
         // Create a new pager.
-        pager = createPager(
-            query,
-            filters.takeIf { it.isNotEmpty() || query.isBlank() }
-                ?: source.getFilterList(),
-        )
+        pager =
+            createPager(
+                query,
+                filters.takeIf { it.isNotEmpty() || query.isBlank() }
+                    ?: source.getFilterList(),
+            )
 
         val sourceId = source.id
 
@@ -166,27 +169,32 @@ open class BrowseSourcePresenter(
 
         // Prepare the pager.
         pagerJob?.cancel()
-        pagerJob = presenterScope.launchIO {
-            pager.results().onEach { (page, second) ->
-                try {
-                    val mangas = second
-                        .map { networkToLocalManga(it, sourceId) }
-                        .filter { !prefs.hideInLibraryItems().get() || !it.favorite }
-                    if (mangas.isEmpty() && page == 1) {
-                        withUIContext { view?.onAddPageError(NoResultsException()) }
-                        return@onEach
-                    }
-                    initializeMangas(mangas)
-                    val items = mangas.map {
-                        BrowseSourceItem(it, browseAsList, sourceListType, outlineCovers)
-                    }
-                    this@BrowseSourcePresenter.items.addAll(items)
-                    withUIContext { view?.onAddPage(page, items) }
-                } catch (error: Exception) {
-                    Timber.e(error)
-                }
-            }.collect()
-        }
+        pagerJob =
+            presenterScope.launchIO {
+                pager
+                    .results()
+                    .onEach { (page, second) ->
+                        try {
+                            val mangas =
+                                second
+                                    .map { networkToLocalManga(it, sourceId) }
+                                    .filter { !prefs.hideInLibraryItems().get() || !it.favorite }
+                            if (mangas.isEmpty() && page == 1) {
+                                withUIContext { view?.onAddPageError(NoResultsException()) }
+                                return@onEach
+                            }
+                            initializeMangas(mangas)
+                            val items =
+                                mangas.map {
+                                    BrowseSourceItem(it, browseAsList, sourceListType, outlineCovers)
+                                }
+                            this@BrowseSourcePresenter.items.addAll(items)
+                            withUIContext { view?.onAddPage(page, items) }
+                        } catch (error: Exception) {
+                            Timber.e(error)
+                        }
+                    }.collect()
+            }
 
         // Request first page.
         requestNext()
@@ -199,21 +207,20 @@ open class BrowseSourcePresenter(
         if (!hasNextPage()) return
 
         nextPageJob?.cancel()
-        nextPageJob = presenterScope.launchIO {
-            try {
-                pager.requestNextPage()
-            } catch (e: Throwable) {
-                withUIContext { view?.onAddPageError(e) }
+        nextPageJob =
+            presenterScope.launchIO {
+                try {
+                    pager.requestNextPage()
+                } catch (e: Throwable) {
+                    withUIContext { view?.onAddPageError(e) }
+                }
             }
-        }
     }
 
     /**
      * Returns true if the last fetched page has a next page.
      */
-    fun hasNextPage(): Boolean {
-        return pager.hasNextPage
-    }
+    fun hasNextPage(): Boolean = pager.hasNextPage
 
     /**
      * Returns a manga from the database for the given manga from network. It creates a new entry
@@ -222,7 +229,10 @@ open class BrowseSourcePresenter(
      * @param sManga the manga from the source.
      * @return a manga from the database.
      */
-    private fun networkToLocalManga(sManga: SManga, sourceId: Long): Manga {
+    private fun networkToLocalManga(
+        sManga: SManga,
+        sourceId: Long,
+    ): Manga {
         var localManga = db.getManga(sManga.url, sourceId).executeAsBlocking()
         if (localManga == null) {
             val newManga = Manga.create(sManga.url, sManga.title, sourceId)
@@ -248,13 +258,13 @@ open class BrowseSourcePresenter(
      */
     fun initializeMangas(mangas: List<Manga>) {
         presenterScope.launchIO {
-            mangas.asFlow()
+            mangas
+                .asFlow()
                 .filter { it.thumbnail_url == null && !it.initialized }
                 .map { getMangaDetails(it) }
                 .onEach {
                     withUIContext { view?.onMangaInitialized(it) }
-                }
-                .catch { e -> Timber.e(e) }
+                }.catch { e -> Timber.e(e) }
                 .collect()
         }
     }
@@ -295,17 +305,19 @@ open class BrowseSourcePresenter(
         restartPager(filters = filters)
     }
 
-    open fun createPager(query: String, filters: FilterList): Pager {
-        return if (useLatest && query.isBlank() && !filtersChanged) {
+    open fun createPager(
+        query: String,
+        filters: FilterList,
+    ): Pager =
+        if (useLatest && query.isBlank() && !filtersChanged) {
             LatestUpdatesPager(source)
         } else {
             useLatest = false
             BrowseSourcePager(source, query, filters)
         }
-    }
 
-    private fun FilterList.toItems(): List<IFlexible<*>> {
-        return mapNotNull { filter ->
+    private fun FilterList.toItems(): List<IFlexible<*>> =
+        mapNotNull { filter ->
             when (filter) {
                 is Filter.Header -> HeaderItem(filter)
                 is Filter.Separator -> SeparatorItem(filter)
@@ -315,37 +327,36 @@ open class BrowseSourcePresenter(
                 is Filter.Select<*> -> SelectItem(filter)
                 is Filter.Group<*> -> {
                     val group = GroupItem(filter)
-                    val subItems = filter.state.mapNotNull { type ->
-                        when (type) {
-                            is Filter.CheckBox -> CheckboxSectionItem(type)
-                            is Filter.TriState -> TriStateSectionItem(type)
-                            is Filter.Text -> TextSectionItem(type)
-                            is Filter.Select<*> -> SelectSectionItem(type)
-                            else -> null
+                    val subItems =
+                        filter.state.mapNotNull { type ->
+                            when (type) {
+                                is Filter.CheckBox -> CheckboxSectionItem(type)
+                                is Filter.TriState -> TriStateSectionItem(type)
+                                is Filter.Text -> TextSectionItem(type)
+                                is Filter.Select<*> -> SelectSectionItem(type)
+                                else -> null
+                            }
                         }
-                    }
                     subItems.forEach { it.header = group }
                     group.subItems = subItems
                     group
                 }
                 is Filter.Sort -> {
                     val group = SortGroup(filter)
-                    val subItems = filter.values.map {
-                        SortItem(it, group)
-                    }
+                    val subItems =
+                        filter.values.map {
+                            SortItem(it, group)
+                        }
                     group.subItems = subItems
                     group
                 }
             }
         }
-    }
 
     /**
      * Get user categories.
      *
      * @return List of categories, not including the default category
      */
-    fun getCategories(): List<Category> {
-        return db.getCategories().executeAsBlocking()
-    }
+    fun getCategories(): List<Category> = db.getCategories().executeAsBlocking()
 }

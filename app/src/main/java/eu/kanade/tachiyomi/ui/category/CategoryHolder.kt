@@ -24,9 +24,12 @@ import java.util.Locale
  * @param view The view used by category items.
  * @param adapter The adapter containing this holder.
  */
-class CategoryHolder(view: View, val adapter: CategoryAdapter) : BaseFlexibleViewHolder(view, adapter) {
-
+class CategoryHolder(
+    view: View,
+    val adapter: CategoryAdapter,
+) : BaseFlexibleViewHolder(view, adapter) {
     private val binding = CategoriesItemBinding.bind(view)
+
     init {
         binding.editButton.setOnClickListener {
             submitChanges()
@@ -75,7 +78,9 @@ class CategoryHolder(view: View, val adapter: CategoryAdapter) : BaseFlexibleVie
             binding.editText.requestFocus()
             binding.editText.selectAll()
             binding.editButton.setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.ic_check_24dp))
-            binding.editButton.drawable.mutate().setTint(itemView.context.getResourceColor(R.attr.colorSecondary))
+            binding.editButton.drawable
+                .mutate()
+                .setTint(itemView.context.getResourceColor(R.attr.colorSecondary))
             showKeyboard()
             if (!createCategory) {
                 binding.reorder.setImageDrawable(
@@ -130,7 +135,10 @@ class CategoryHolder(view: View, val adapter: CategoryAdapter) : BaseFlexibleVie
         inputMethodManager.hideSoftInputFromWindow(binding.editText.windowToken, 0)
     }
 
-    override fun onActionStateChanged(position: Int, actionState: Int) {
+    override fun onActionStateChanged(
+        position: Int,
+        actionState: Int,
+    ) {
         super.onActionStateChanged(position, actionState)
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             binding.root.isDragged = true

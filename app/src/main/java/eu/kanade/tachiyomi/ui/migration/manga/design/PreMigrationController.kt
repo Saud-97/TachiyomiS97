@@ -32,8 +32,9 @@ import eu.kanade.tachiyomi.util.view.liftAppbarWith
 import eu.kanade.tachiyomi.util.view.withFadeTransaction
 import uy.kohesive.injekt.injectLazy
 
-class PreMigrationController(bundle: Bundle? = null) :
-    BaseController<PreMigrationControllerBinding>(bundle),
+class PreMigrationController(
+    bundle: Bundle? = null,
+) : BaseController<PreMigrationControllerBinding>(bundle),
     FlexibleAdapter.OnItemClickListener,
     SmallToolbarInterface,
     StartMigrationListener {
@@ -51,14 +52,16 @@ class PreMigrationController(bundle: Bundle? = null) :
     override fun getTitle() = view?.context?.getString(R.string.select_sources)
 
     override fun createBinding(inflater: LayoutInflater) = PreMigrationControllerBinding.inflate(inflater)
+
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
         liftAppbarWith(binding.recycler)
 
-        val ourAdapter = adapter ?: MigrationSourceAdapter(
-            getEnabledSources().map { MigrationSourceItem(it, isEnabled(it.id.toString())) },
-            this,
-        )
+        val ourAdapter =
+            adapter ?: MigrationSourceAdapter(
+                getEnabledSources().map { MigrationSourceItem(it, isEnabled(it.id.toString())) },
+                this,
+            )
         adapter = ourAdapter
         binding.recycler.layoutManager = LinearLayoutManager(view.context)
         binding.recycler.setHasFixedSize(true)
@@ -75,8 +78,9 @@ class PreMigrationController(bundle: Bundle? = null) :
             v.post {
                 // offset the binding.recycler by the binding.fab's inset + some inset on top
                 v.updatePaddingRelative(
-                    bottom = insets.getInsets(systemBars()).bottom + binding.fab.marginBottom +
-                        (binding.fab.height),
+                    bottom =
+                        insets.getInsets(systemBars()).bottom + binding.fab.marginBottom +
+                            (binding.fab.height),
                 )
             }
         }
@@ -85,9 +89,10 @@ class PreMigrationController(bundle: Bundle? = null) :
             if (dialog?.isShowing != true) {
                 dialog = MigrationBottomSheetDialog(activity!!, this)
                 dialog?.show()
-                val bottomSheet = dialog?.findViewById<FrameLayout>(
-                    com.google.android.material.R.id.design_bottom_sheet,
-                )
+                val bottomSheet =
+                    dialog?.findViewById<FrameLayout>(
+                        com.google.android.material.R.id.design_bottom_sheet,
+                    )
                 if (bottomSheet != null) {
                     val behavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
                     behavior.expand()
@@ -98,18 +103,23 @@ class PreMigrationController(bundle: Bundle? = null) :
     }
 
     override fun startMigration(extraParam: String?) {
-        val listOfSources = adapter?.items?.filter {
-            it.sourceEnabled
-        }?.joinToString("/") { it.source.id.toString() } ?: ""
+        val listOfSources =
+            adapter
+                ?.items
+                ?.filter {
+                    it.sourceEnabled
+                }?.joinToString("/") { it.source.id.toString() } ?: ""
         prefs.migrationSources().set(listOfSources)
 
         router.replaceTopController(
-            MigrationListController.create(
-                MigrationProcedureConfig(
-                    config.toList(),
-                    extraSearchParams = extraParam,
-                ),
-            ).withFadeTransaction().tag(MigrationListController.TAG),
+            MigrationListController
+                .create(
+                    MigrationProcedureConfig(
+                        config.toList(),
+                        extraSearchParams = extraParam,
+                    ),
+                ).withFadeTransaction()
+                .tag(MigrationListController.TAG),
         )
     }
 
@@ -124,7 +134,10 @@ class PreMigrationController(bundle: Bundle? = null) :
         adapter?.onRestoreInstanceState(savedInstanceState)
     }
 
-    override fun onItemClick(view: View, position: Int): Boolean {
+    override fun onItemClick(
+        view: View,
+        position: Int,
+    ): Boolean {
         adapter?.getItem(position)?.let {
             it.sourceEnabled = !it.sourceEnabled
         }
@@ -140,17 +153,19 @@ class PreMigrationController(bundle: Bundle? = null) :
     private fun getEnabledSources(): List<HttpSource> {
         val languages = prefs.enabledLanguages().get()
         val sourcesSaved = prefs.migrationSources().get().split("/")
-        var sources = sourceManager.getCatalogueSources()
-            .filterIsInstance<HttpSource>()
-            .filter { it.lang in languages }
-            .sortedBy { "(${it.lang}) ${it.name}" }
+        var sources =
+            sourceManager
+                .getCatalogueSources()
+                .filterIsInstance<HttpSource>()
+                .filter { it.lang in languages }
+                .sortedBy { "(${it.lang}) ${it.name}" }
         sources =
             sources.filter { isEnabled(it.id.toString()) }.sortedBy {
-            sourcesSaved.indexOf(
-                it.id
-                    .toString(),
-            )
-        } +
+                sourcesSaved.indexOf(
+                    it.id
+                        .toString(),
+                )
+            } +
             sources.filterNot { isEnabled(it.id.toString()) }
 
         return sources
@@ -166,7 +181,10 @@ class PreMigrationController(bundle: Bundle? = null) :
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.pre_migration, menu)
     }
 
@@ -179,18 +197,20 @@ class PreMigrationController(bundle: Bundle? = null) :
                 adapter?.notifyDataSetChanged()
             }
             R.id.action_match_enabled, R.id.action_match_pinned -> {
-                val enabledSources = if (item.itemId == R.id.action_match_enabled) {
-                    prefs.hiddenSources().get().mapNotNull { it.toLongOrNull() }
-                } else {
-                    prefs.pinnedCatalogues().get().mapNotNull { it.toLongOrNull() }
-                }
+                val enabledSources =
+                    if (item.itemId == R.id.action_match_enabled) {
+                        prefs.hiddenSources().get().mapNotNull { it.toLongOrNull() }
+                    } else {
+                        prefs.pinnedCatalogues().get().mapNotNull { it.toLongOrNull() }
+                    }
                 val items = adapter?.currentItems?.toList() ?: return true
                 items.forEach {
-                    it.sourceEnabled = if (item.itemId == R.id.action_match_enabled) {
-                        it.source.id !in enabledSources
-                    } else {
-                        it.source.id in enabledSources
-                    }
+                    it.sourceEnabled =
+                        if (item.itemId == R.id.action_match_enabled) {
+                            it.source.id !in enabledSources
+                        } else {
+                            it.source.id in enabledSources
+                        }
                 }
                 val sortedItems = items.sortedBy { it.source.name }.sortedBy { !it.sourceEnabled }
                 adapter?.updateDataSet(sortedItems)
@@ -203,7 +223,11 @@ class PreMigrationController(bundle: Bundle? = null) :
     companion object {
         private const val MANGA_IDS_EXTRA = "manga_ids"
 
-        fun navigateToMigration(skipPre: Boolean, router: Router, mangaIds: List<Long>) {
+        fun navigateToMigration(
+            skipPre: Boolean,
+            router: Router,
+            mangaIds: List<Long>,
+        ) {
             router.pushController(
                 if (skipPre) {
                     MigrationListController.create(
@@ -215,12 +239,11 @@ class PreMigrationController(bundle: Bundle? = null) :
             )
         }
 
-        fun create(mangaIds: List<Long>): PreMigrationController {
-            return PreMigrationController(
+        fun create(mangaIds: List<Long>): PreMigrationController =
+            PreMigrationController(
                 Bundle().apply {
                     putLongArray(MANGA_IDS_EXTRA, mangaIds.toLongArray())
                 },
             )
-        }
     }
 }

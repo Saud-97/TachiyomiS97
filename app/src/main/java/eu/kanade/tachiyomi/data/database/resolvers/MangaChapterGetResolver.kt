@@ -7,7 +7,6 @@ import eu.kanade.tachiyomi.data.database.mappers.MangaGetResolver
 import eu.kanade.tachiyomi.data.database.models.MangaChapter
 
 class MangaChapterGetResolver : DefaultGetResolver<MangaChapter>() {
-
     companion object {
         val INSTANCE = MangaChapterGetResolver()
     }

@@ -24,7 +24,6 @@ class StatsDetailsAdapter(
     var stat: Stats,
     statList: MutableList<StatsData>,
 ) : RecyclerView.Adapter<StatsDetailsAdapter.StatsDetailsHolder>() {
-
     var listener: OnItemClickedListener? = null
 
     var list = statList.filterEmpty()
@@ -36,25 +35,28 @@ class StatsDetailsAdapter(
             list = filtered
         }
 
-    private fun Iterable<StatsData>.filterEmpty(): MutableList<StatsData> {
-        return filter {
+    private fun Iterable<StatsData>.filterEmpty(): MutableList<StatsData> =
+        filter {
             when (stat) {
                 Stats.SCORE, Stats.LENGTH -> it.count > 0
                 else -> true
             }
         }.toMutableList()
-    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatsDetailsHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): StatsDetailsHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.list_stats_details, parent, false)
         return StatsDetailsHolder(view)
     }
 
-    override fun getItemId(position: Int): Long {
-        return list[position].id ?: list[position].label?.hashCode()?.toLong() ?: 0L
-    }
+    override fun getItemId(position: Int): Long = list[position].id ?: list[position].label?.hashCode()?.toLong() ?: 0L
 
-    override fun onBindViewHolder(holder: StatsDetailsHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: StatsDetailsHolder,
+        position: Int,
+    ) {
         when (stat) {
             Stats.SCORE -> handleScoreLayout(holder, position)
             Stats.TAG, Stats.SOURCE -> handleRankedLayout(holder, position)
@@ -66,11 +68,12 @@ class StatsDetailsAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount(): Int = list.size
 
-    private fun handleLayout(holder: StatsDetailsHolder, position: Int) {
+    private fun handleLayout(
+        holder: StatsDetailsHolder,
+        position: Int,
+    ) {
         val item = list[position]
         with(holder.binding) {
             statsRankLayout.isVisible = false
@@ -81,14 +84,15 @@ class StatsDetailsAdapter(
             statsLabelText.setTextColor(
                 item.color ?: context.getResourceColor(R.attr.colorOnBackground),
             )
-            val label = item.label?.let {
-                if (stat == Stats.LENGTH) {
-                    val max = item.id?.toInt() ?: 0
-                    root.resources.getQuantityString(R.plurals.chapters_plural, max, it)
-                } else {
-                    it
-                }
-            } ?: ""
+            val label =
+                item.label?.let {
+                    if (stat == Stats.LENGTH) {
+                        val max = item.id?.toInt() ?: 0
+                        root.resources.getQuantityString(R.plurals.chapters_plural, max, it)
+                    } else {
+                        it
+                    }
+                } ?: ""
             statsLabelText.text = label.uppercase()
             if (item.iconRes != null) {
                 logoContainer.isVisible = true
@@ -112,7 +116,10 @@ class StatsDetailsAdapter(
         }
     }
 
-    private fun handleScoreLayout(holder: StatsDetailsHolder, position: Int) {
+    private fun handleScoreLayout(
+        holder: StatsDetailsHolder,
+        position: Int,
+    ) {
         val item = list[position]
         with(holder.binding) {
             statsRankLayout.isVisible = false
@@ -136,7 +143,10 @@ class StatsDetailsAdapter(
         }
     }
 
-    private fun handleRankedLayout(holder: StatsDetailsHolder, position: Int) {
+    private fun handleRankedLayout(
+        holder: StatsDetailsHolder,
+        position: Int,
+    ) {
         val item = list[position]
         with(holder.binding) {
             statsRankLayout.isVisible = true
@@ -170,7 +180,10 @@ class StatsDetailsAdapter(
         }
     }
 
-    private fun handleDurationLayout(holder: StatsDetailsHolder, position: Int) {
+    private fun handleDurationLayout(
+        holder: StatsDetailsHolder,
+        position: Int,
+    ) {
         val item = list[position]
         with(holder.binding) {
             statsRankLayout.isVisible = true
@@ -191,9 +204,7 @@ class StatsDetailsAdapter(
         }
     }
 
-    private fun getCountText(item: StatsData): SpannableStringBuilder {
-        return SpannableStringBuilder().bold { append(item.count.toString()) }
-    }
+    private fun getCountText(item: StatsData): SpannableStringBuilder = SpannableStringBuilder().bold { append(item.count.toString()) }
 
     private fun getCountPercentageText(item: StatsData): String {
         val sumCount = list.sumOf { it.count.toDouble() }.coerceAtLeast(1.0)
@@ -201,11 +212,10 @@ class StatsDetailsAdapter(
         return "($percentage%)"
     }
 
-    private fun getProgressText(item: StatsData): SpannableStringBuilder {
-        return SpannableStringBuilder().bold { append(item.chaptersRead.toString()) }.apply {
+    private fun getProgressText(item: StatsData): SpannableStringBuilder =
+        SpannableStringBuilder().bold { append(item.chaptersRead.toString()) }.apply {
             if (item.totalChapters != 0) append(" / ${item.totalChapters}")
         }
-    }
 
     private fun getProgressPercentageString(item: StatsData): String {
         if (item.chaptersRead == 0) return "(0%)"
@@ -215,11 +225,12 @@ class StatsDetailsAdapter(
 
     fun filter(text: String) {
         val oldCount = list.size
-        list = if (text.isEmpty()) {
-            mainList
-        } else {
-            mainList.filter { it.label?.contains(text, true) == true }.toMutableList()
-        }
+        list =
+            if (text.isEmpty()) {
+                mainList
+            } else {
+                mainList.filter { it.label?.contains(text, true) == true }.toMutableList()
+            }
         val newCount = list.size
         if (oldCount > newCount) {
             notifyItemRangeRemoved(newCount, oldCount - newCount)
@@ -229,15 +240,18 @@ class StatsDetailsAdapter(
         notifyItemRangeChanged(0, newCount)
     }
 
-    class StatsDetailsHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class StatsDetailsHolder(
+        view: View,
+    ) : RecyclerView.ViewHolder(view) {
         val binding = ListStatsDetailsBinding.bind(view)
     }
 
     fun interface OnItemClickedListener {
-        fun onItemClicked(id: Long?, label: String?)
+        fun onItemClicked(
+            id: Long?,
+            label: String?,
+        )
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return R.layout.list_stats_details
-    }
+    override fun getItemViewType(position: Int): Int = R.layout.list_stats_details
 }

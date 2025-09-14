@@ -26,15 +26,17 @@ import java.util.regex.Pattern
  *
  * @param context context of application
  */
-internal class DownloadNotifier(private val context: Context) {
-
+internal class DownloadNotifier(
+    private val context: Context,
+) {
     private val preferences: PreferencesHelper by injectLazy()
 
     /**
      * Notification builder.
      */
     private val notification by lazy {
-        NotificationCompat.Builder(context, Notifications.CHANNEL_DOWNLOADER)
+        NotificationCompat
+            .Builder(context, Notifications.CHANNEL_DOWNLOADER)
             .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
     }
 
@@ -90,11 +92,12 @@ internal class DownloadNotifier(private val context: Context) {
                 val title = download.manga.title.chop(15)
                 val quotedTitle = Pattern.quote(title)
                 val name = download.chapter.preferredChapterName(context, download.manga, preferences)
-                val chapter = name.replaceFirst(
-                    "$quotedTitle[\\s]*[-]*[\\s]*"
-                        .toRegex(RegexOption.IGNORE_CASE),
-                    "",
-                )
+                val chapter =
+                    name.replaceFirst(
+                        "$quotedTitle[\\s]*[-]*[\\s]*"
+                            .toRegex(RegexOption.IGNORE_CASE),
+                        "",
+                    )
                 setContentTitle("$title - $chapter".chop(30))
                 setContentText(context.getString(R.string.downloading))
             } else {
@@ -134,7 +137,8 @@ internal class DownloadNotifier(private val context: Context) {
             }
 
             val downloadingProgressText =
-                context.localeContext.getString(R.string.downloading_progress)
+                context.localeContext
+                    .getString(R.string.downloading_progress)
                     .format(download.downloadedImages, download.pages!!.size)
 
             if (preferences.hideNotificationContent()) {
@@ -143,10 +147,11 @@ internal class DownloadNotifier(private val context: Context) {
                 val title = download.manga.title.chop(15)
                 val quotedTitle = Pattern.quote(title)
                 val name = download.chapter.preferredChapterName(context, download.manga, preferences)
-                val chapter = name.replaceFirst(
-                    "$quotedTitle[\\s]*[-]*[\\s]*".toRegex(RegexOption.IGNORE_CASE),
-                    "",
-                )
+                val chapter =
+                    name.replaceFirst(
+                        "$quotedTitle[\\s]*[-]*[\\s]*".toRegex(RegexOption.IGNORE_CASE),
+                        "",
+                    )
                 setContentTitle("$title - $chapter".chop(30))
                 setContentText(downloadingProgressText)
             }
@@ -221,22 +226,24 @@ internal class DownloadNotifier(private val context: Context) {
      */
     fun massDownloadWarning() {
         val context = context.localeContext
-        val notification = context.notificationBuilder(Notifications.CHANNEL_DOWNLOADER) {
-            setContentTitle(context.getString(R.string.warning))
-            setSmallIcon(R.drawable.ic_warning_white_24dp)
-            setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(context.getString(R.string.download_queue_size_warning)),
-            )
-            setContentIntent(
-                NotificationHandler.openUrl(
-                    context,
-                    LibraryUpdateNotifier.HELP_WARNING_URL,
-                ),
-            )
-            setTimeoutAfter(30000)
-        }
-            .build()
+        val notification =
+            context
+                .notificationBuilder(Notifications.CHANNEL_DOWNLOADER) {
+                    setContentTitle(context.getString(R.string.warning))
+                    setSmallIcon(R.drawable.ic_warning_white_24dp)
+                    setStyle(
+                        NotificationCompat
+                            .BigTextStyle()
+                            .bigText(context.getString(R.string.download_queue_size_warning)),
+                    )
+                    setContentIntent(
+                        NotificationHandler.openUrl(
+                            context,
+                            LibraryUpdateNotifier.HELP_WARNING_URL,
+                        ),
+                    )
+                    setTimeoutAfter(30000)
+                }.build()
 
         context.notificationManager.notify(
             Notifications.ID_DOWNLOAD_SIZE_WARNING,

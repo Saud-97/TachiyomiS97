@@ -16,8 +16,9 @@ import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.view.hide
 import eu.kanade.tachiyomi.util.view.previousController
 
-class FilteredLibraryController(bundle: Bundle? = null) : LibraryController(bundle) {
-
+class FilteredLibraryController(
+    bundle: Bundle? = null,
+) : LibraryController(bundle) {
     private var queryText: String? = null
     var filterStatus = emptyArray<Int>()
         private set
@@ -42,9 +43,7 @@ class FilteredLibraryController(bundle: Bundle? = null) : LibraryController(bund
 
     private var customTitle: String? = null
 
-    override fun getTitle(): String? {
-        return customTitle ?: super.getTitle()
-    }
+    override fun getTitle(): String? = customTitle ?: super.getTitle()
 
     constructor(
         title: String,
@@ -80,19 +79,27 @@ class FilteredLibraryController(bundle: Bundle? = null) : LibraryController(bund
 
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
-        binding.filterBottomSheet.root.sheetBehavior?.hide()
+        binding.filterBottomSheet.root.sheetBehavior
+            ?.hide()
         binding.swipeRefresh.isEnabled = false
         queryText?.let { search(it) }
     }
 
     override fun showFloatingBar() = false
 
-    override fun showCategories(show: Boolean, closeSearch: Boolean, category: Int) {
+    override fun showCategories(
+        show: Boolean,
+        closeSearch: Boolean,
+        category: Int,
+    ) {
         super.showCategories(show, closeSearch, category)
         binding.swipeRefresh.isEnabled = false
     }
 
-    override fun onActionStateChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+    override fun onActionStateChanged(
+        viewHolder: RecyclerView.ViewHolder?,
+        actionState: Int,
+    ) {
         super.onActionStateChanged(viewHolder, actionState)
         binding.swipeRefresh.isEnabled = false
     }
@@ -102,13 +109,18 @@ class FilteredLibraryController(bundle: Bundle? = null) : LibraryController(bund
         binding.swipeRefresh.isEnabled = false
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.filtered_library, menu)
         val groupItem = menu.findItem(R.id.action_group_by)
         val context = binding.root.context
         val iconRes = LibraryGroup.groupTypeDrawableRes(presenter.groupType)
-        val icon = context.contextCompatDrawable(iconRes)
-            ?.apply { setTint(context.getResourceColor(R.attr.actionBarTintColor)) }
+        val icon =
+            context
+                .contextCompatDrawable(iconRes)
+                ?.apply { setTint(context.getResourceColor(R.attr.actionBarTintColor)) }
         groupItem?.icon = icon
     }
 
@@ -121,17 +133,24 @@ class FilteredLibraryController(bundle: Bundle? = null) : LibraryController(bund
         return true
     }
 
-    override fun onNextLibraryUpdate(mangaMap: List<LibraryItem>, freshStart: Boolean) {
+    override fun onNextLibraryUpdate(
+        mangaMap: List<LibraryItem>,
+        freshStart: Boolean,
+    ) {
         super.onNextLibraryUpdate(mangaMap, freshStart)
         activity?.invalidateOptionsMenu()
     }
 
-    override fun onChangeStarted(handler: ControllerChangeHandler, type: ControllerChangeType) {
+    override fun onChangeStarted(
+        handler: ControllerChangeHandler,
+        type: ControllerChangeType,
+    ) {
         super.onChangeStarted(handler, type)
         if (type == ControllerChangeType.POP_ENTER) {
             updateStatsPage()
         }
-        binding.filterBottomSheet.root.sheetBehavior?.hide()
+        binding.filterBottomSheet.root.sheetBehavior
+            ?.hide()
     }
 
     override fun deleteMangasFromLibrary() {
@@ -144,9 +163,12 @@ class FilteredLibraryController(bundle: Bundle? = null) : LibraryController(bund
     }
 
     override fun showSheet() { }
+
     override fun toggleSheet() {
         closeTip()
     }
+
     override fun toggleCategoryVisibility(position: Int) {}
+
     override fun manageCategory(position: Int) {}
 }

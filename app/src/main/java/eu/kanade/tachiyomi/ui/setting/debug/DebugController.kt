@@ -15,85 +15,87 @@ import eu.kanade.tachiyomi.util.view.withFadeTransaction
 import java.text.DateFormat
 
 class DebugController : SettingsController() {
-
     override fun getTitle() = resources?.getString(R.string.pref_debug_info)
 
     private val dateFormat: DateFormat by lazy {
         preferences.dateFormat()
     }
 
-    override fun setupPreferenceScreen(screen: PreferenceScreen) = screen.apply {
-        preference {
-            title = WorkerInfoController.title
-            onClick {
-                router.pushController(WorkerInfoController().withFadeTransaction())
-            }
-        }
-        preference {
-            title = BackupSchemaController.title
-            onClick {
-                router.pushController(BackupSchemaController().withFadeTransaction())
-            }
-        }
-        preferenceCategory {
-            title = "App Info"
+    override fun setupPreferenceScreen(screen: PreferenceScreen) =
+        screen.apply {
             preference {
-                key = "pref_version"
-                title = "Version"
-                summary = if (BuildConfig.DEBUG) {
-                    "r" + BuildConfig.COMMIT_COUNT
-                } else {
-                    BuildConfig.VERSION_NAME
+                title = WorkerInfoController.title
+                onClick {
+                    router.pushController(WorkerInfoController().withFadeTransaction())
                 }
             }
             preference {
-                key = "pref_build_time"
-                title = "Build Time"
-                summary = AboutController.getFormattedBuildTime(dateFormat)
+                title = BackupSchemaController.title
+                onClick {
+                    router.pushController(BackupSchemaController().withFadeTransaction())
+                }
             }
-            preference {
-                key = "pref_webview_version"
-                title = "WebView version"
-                summary = getWebViewVersion()
+            preferenceCategory {
+                title = "App Info"
+                preference {
+                    key = "pref_version"
+                    title = "Version"
+                    summary =
+                        if (BuildConfig.DEBUG) {
+                            "r" + BuildConfig.COMMIT_COUNT
+                        } else {
+                            BuildConfig.VERSION_NAME
+                        }
+                }
+                preference {
+                    key = "pref_build_time"
+                    title = "Build Time"
+                    summary = AboutController.getFormattedBuildTime(dateFormat)
+                }
+                preference {
+                    key = "pref_webview_version"
+                    title = "WebView version"
+                    summary = getWebViewVersion()
+                }
             }
-        }
 
-        preferenceCategory {
-            title = "Device info"
-            preference {
-                title = "Model"
-                summary = "${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})"
-            }
-            if (DeviceUtil.oneUiVersion != null) {
+            preferenceCategory {
+                title = "Device info"
                 preference {
-                    title = "OneUI version"
-                    summary = "${DeviceUtil.oneUiVersion}"
+                    title = "Model"
+                    summary = "${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})"
                 }
-            } else if (DeviceUtil.miuiMajorVersion != null) {
+                if (DeviceUtil.oneUiVersion != null) {
+                    preference {
+                        title = "OneUI version"
+                        summary = "${DeviceUtil.oneUiVersion}"
+                    }
+                } else if (DeviceUtil.miuiMajorVersion != null) {
+                    preference {
+                        title = "MIUI version"
+                        summary = "${DeviceUtil.miuiMajorVersion}"
+                    }
+                }
+                val androidVersion =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        Build.VERSION.RELEASE_OR_PREVIEW_DISPLAY
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        Build.VERSION.RELEASE_OR_CODENAME
+                    } else {
+                        Build.VERSION.RELEASE
+                    }
                 preference {
-                    title = "MIUI version"
-                    summary = "${DeviceUtil.miuiMajorVersion}"
+                    title = "Android version"
+                    summary = "$androidVersion (${Build.DISPLAY})"
                 }
-            }
-            val androidVersion = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                Build.VERSION.RELEASE_OR_PREVIEW_DISPLAY
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                Build.VERSION.RELEASE_OR_CODENAME
-            } else {
-                Build.VERSION.RELEASE
-            }
-            preference {
-                title = "Android version"
-                summary = "$androidVersion (${Build.DISPLAY})"
             }
         }
-    }
 
     private fun getWebViewVersion(): String {
         val activity = activity ?: return "Unknown"
         val webView =
             WebViewCompat.getCurrentWebViewPackage(activity) ?: return "how did you get here?"
-        val label = webView.applicationInfo.loadLabel(activity.packageManager)
+        val label = webView.applicationInfo!!.loadLabel(activity.packageManager)
         val version = webView.versionName
         return "$label $version"
     }

@@ -20,8 +20,10 @@ import eu.kanade.tachiyomi.util.system.tryToSetForeground
 import eu.kanade.tachiyomi.util.system.withIOContext
 import kotlinx.coroutines.CancellationException
 
-class BackupRestoreJob(val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-
+class BackupRestoreJob(
+    val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     private val notifier = BackupNotifier(context.localeContext)
     private val restorer = BackupRestorer(context, notifier)
 
@@ -62,13 +64,18 @@ class BackupRestoreJob(val context: Context, workerParams: WorkerParameters) : C
     companion object {
         private const val TAG = "BackupRestorer"
 
-        fun start(context: Context, uri: Uri) {
-            val request = OneTimeWorkRequestBuilder<BackupRestoreJob>()
-                .addTag(TAG)
-                .setInputData(workDataOf(BackupConst.EXTRA_URI to uri.toString()))
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
-            WorkManager.getInstance(context)
+        fun start(
+            context: Context,
+            uri: Uri,
+        ) {
+            val request =
+                OneTimeWorkRequestBuilder<BackupRestoreJob>()
+                    .addTag(TAG)
+                    .setInputData(workDataOf(BackupConst.EXTRA_URI to uri.toString()))
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
+            WorkManager
+                .getInstance(context)
                 .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, request)
         }
 

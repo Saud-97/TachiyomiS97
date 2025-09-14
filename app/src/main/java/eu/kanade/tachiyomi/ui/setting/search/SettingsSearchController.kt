@@ -26,7 +26,6 @@ class SettingsSearchController :
     BaseController<SettingsSearchControllerBinding>(),
     SearchControllerInterface,
     SettingsSearchAdapter.OnTitleClickListener {
-
     /**
      * Adapter containing search results grouped by lang.
      */
@@ -48,7 +47,10 @@ class SettingsSearchController :
      * @param menu menu containing options.
      * @param inflater used to load the menu xml.
      */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         // Inflate menu.
         inflater.inflate(R.menu.settings_main, menu)
 
@@ -103,12 +105,18 @@ class SettingsSearchController :
         super.onDestroyView(view)
     }
 
-    override fun onSaveViewState(view: View, outState: Bundle) {
+    override fun onSaveViewState(
+        view: View,
+        outState: Bundle,
+    ) {
         super.onSaveViewState(view, outState)
         adapter?.onSaveInstanceState(outState)
     }
 
-    override fun onRestoreViewState(view: View, savedViewState: Bundle) {
+    override fun onRestoreViewState(
+        view: View,
+        savedViewState: Bundle,
+    ) {
         super.onRestoreViewState(view, savedViewState)
         adapter?.onRestoreInstanceState(savedViewState)
     }
@@ -119,7 +127,8 @@ class SettingsSearchController :
      */
     fun getResultSet(query: String? = null): List<SettingsSearchItem> {
         if (!query.isNullOrBlank()) {
-            return SettingsSearchHelper.getFilteredResults(query)
+            return SettingsSearchHelper
+                .getFilteredResults(query)
                 .map { SettingsSearchItem(it, null, query) }
         }
 

@@ -7,8 +7,9 @@ import eu.kanade.tachiyomi.data.database.models.LibraryManga
 import eu.kanade.tachiyomi.data.database.tables.MangaTable
 import eu.kanade.tachiyomi.util.chapter.ChapterUtil
 
-class LibraryMangaGetResolver : DefaultGetResolver<LibraryManga>(), BaseMangaGetResolver {
-
+class LibraryMangaGetResolver :
+    DefaultGetResolver<LibraryManga>(),
+    BaseMangaGetResolver {
     companion object {
         val INSTANCE = LibraryMangaGetResolver()
     }
@@ -17,11 +18,15 @@ class LibraryMangaGetResolver : DefaultGetResolver<LibraryManga>(), BaseMangaGet
         val manga = LibraryManga()
 
         mapBaseFromCursor(manga, cursor)
-        manga.unread = cursor.getString(cursor.getColumnIndex(MangaTable.COL_UNREAD))
-            .filterChaptersByScanlators(manga)
+        manga.unread =
+            cursor
+                .getString(cursor.getColumnIndex(MangaTable.COL_UNREAD))
+                .filterChaptersByScanlators(manga)
         manga.category = cursor.getInt(cursor.getColumnIndex(MangaTable.COL_CATEGORY))
-        manga.read = cursor.getString(cursor.getColumnIndex(MangaTable.COL_HAS_READ))
-            .filterChaptersByScanlators(manga)
+        manga.read =
+            cursor
+                .getString(cursor.getColumnIndex(MangaTable.COL_HAS_READ))
+                .filterChaptersByScanlators(manga)
         manga.bookmarkCount = cursor.getInt(cursor.getColumnIndex(MangaTable.COL_BOOKMARK_COUNT))
 
         return manga

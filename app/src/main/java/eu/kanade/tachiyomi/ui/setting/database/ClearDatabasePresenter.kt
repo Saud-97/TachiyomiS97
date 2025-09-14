@@ -9,7 +9,6 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 class ClearDatabasePresenter : BaseCoroutinePresenter<ClearDatabaseController>() {
-
     private val db = Injekt.get<DatabaseHelper>()
 
     private val sourceManager = Injekt.get<SourceManager>()
@@ -29,7 +28,10 @@ class ClearDatabasePresenter : BaseCoroutinePresenter<ClearDatabaseController>()
         getDatabaseSources()
     }
 
-    fun clearDatabaseForSourceIds(sources: List<Long>, keepReadManga: Boolean) {
+    fun clearDatabaseForSourceIds(
+        sources: List<Long>,
+        keepReadManga: Boolean,
+    ) {
         if (keepReadManga) {
             db.deleteMangasNotInLibraryAndNotReadBySourceIds(sources).executeAsBlocking()
         } else {
@@ -47,23 +49,25 @@ class ClearDatabasePresenter : BaseCoroutinePresenter<ClearDatabaseController>()
     private fun getDatabaseSources() {
         presenterScope.launchUI {
             hasStubSources = false
-            val sources = db.getSourceIdsWithNonLibraryManga().executeAsBlocking()
-                .map {
-                    val sourceObj = sourceManager.getOrStub(it.source)
-                    hasStubSources = sourceObj is SourceManager.StubSource || hasStubSources
-                    ClearDatabaseSourceItem(sourceObj, it.count)
-                }
-                .sortedWith(
-                    compareBy(
-                        {
-                            when (sortBy) {
-                                SortSources.ALPHA -> it.source.name
-                                SortSources.MOST_ENTRIES -> Int.MAX_VALUE - it.mangaCount
-                            }
-                        },
-                        { it.source.name },
-                    ),
-                )
+            val sources =
+                db
+                    .getSourceIdsWithNonLibraryManga()
+                    .executeAsBlocking()
+                    .map {
+                        val sourceObj = sourceManager.getOrStub(it.source)
+                        hasStubSources = sourceObj is SourceManager.StubSource || hasStubSources
+                        ClearDatabaseSourceItem(sourceObj, it.count)
+                    }.sortedWith(
+                        compareBy(
+                            {
+                                when (sortBy) {
+                                    SortSources.ALPHA -> it.source.name
+                                    SortSources.MOST_ENTRIES -> Int.MAX_VALUE - it.mangaCount
+                                }
+                            },
+                            { it.source.name },
+                        ),
+                    )
             withUIContext {
                 view?.setItems(sources)
             }

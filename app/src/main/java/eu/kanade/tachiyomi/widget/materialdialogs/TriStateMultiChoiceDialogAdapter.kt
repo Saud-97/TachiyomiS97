@@ -9,7 +9,9 @@ import eu.kanade.tachiyomi.databinding.ListitemTristatechoiceBinding
 import eu.kanade.tachiyomi.widget.TriStateCheckBox
 
 private object CheckPayload
+
 private object InverseCheckPayload
+
 private object UncheckPayload
 
 internal typealias TriStateMultiChoiceListener = (
@@ -28,14 +30,14 @@ internal class TriStateMultiChoiceDialogAdapter(
     private val skipChecked: Boolean = false,
     internal var listener: TriStateMultiChoiceListener?,
 ) : RecyclerView.Adapter<TriStateMultiChoiceViewHolder>() {
-
     private val states = TriStateCheckBox.State.entries
     private val defaultOrdinal
-        get() = if (skipChecked) {
-            TriStateCheckBox.State.IGNORE.ordinal
-        } else {
-            TriStateCheckBox.State.CHECKED.ordinal
-        }
+        get() =
+            if (skipChecked) {
+                TriStateCheckBox.State.IGNORE.ordinal
+            } else {
+                TriStateCheckBox.State.CHECKED.ordinal
+            }
 
     private var currentSelection: IntArray = initialSelection
         set(value) {
@@ -63,16 +65,18 @@ internal class TriStateMultiChoiceDialogAdapter(
 
     internal fun itemClicked(index: Int) {
         val newSelection = this.currentSelection.toMutableList()
-        newSelection[index] = when (currentSelection[index]) {
-            TriStateCheckBox.State.CHECKED.ordinal -> TriStateCheckBox.State.IGNORE.ordinal
-            TriStateCheckBox.State.IGNORE.ordinal -> TriStateCheckBox.State.UNCHECKED.ordinal
-            // UNCHECKED
-            else -> defaultOrdinal
-        }
+        newSelection[index] =
+            when (currentSelection[index]) {
+                TriStateCheckBox.State.CHECKED.ordinal -> TriStateCheckBox.State.IGNORE.ordinal
+                TriStateCheckBox.State.IGNORE.ordinal -> TriStateCheckBox.State.UNCHECKED.ordinal
+                // UNCHECKED
+                else -> defaultOrdinal
+            }
         currentSelection = newSelection.toIntArray()
-        val selectedItems = this.items.filterIndexed { i, _ ->
-            currentSelection[i] != 0
-        }
+        val selectedItems =
+            this.items.filterIndexed { i, _ ->
+                currentSelection[i] != 0
+            }
         listener?.invoke(this, currentSelection, selectedItems, index, newSelection[index])
     }
 
@@ -80,8 +84,10 @@ internal class TriStateMultiChoiceDialogAdapter(
         parent: ViewGroup,
         viewType: Int,
     ): TriStateMultiChoiceViewHolder {
-        val listItemView: View = ListitemTristatechoiceBinding
-            .inflate(LayoutInflater.from(dialog.context), parent, false).root
+        val listItemView: View =
+            ListitemTristatechoiceBinding
+                .inflate(LayoutInflater.from(dialog.context), parent, false)
+                .root
         return TriStateMultiChoiceViewHolder(
             itemView = listItemView,
             adapter = this,

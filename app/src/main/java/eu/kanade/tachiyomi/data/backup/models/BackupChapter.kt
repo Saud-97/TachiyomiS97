@@ -21,12 +21,11 @@ data class BackupChapter(
     // chapterNumber is called number is 1.x
     @ProtoNumber(9) var chapterNumber: Float = 0F,
     @ProtoNumber(10) var sourceOrder: Int = 0,
-
     // J2K specific values
     @ProtoNumber(800) var pagesLeft: Int = 0,
 ) {
-    fun toChapterImpl(): ChapterImpl {
-        return ChapterImpl().apply {
+    fun toChapterImpl(): ChapterImpl =
+        ChapterImpl().apply {
             url = this@BackupChapter.url
             name = this@BackupChapter.name
             chapter_number = this@BackupChapter.chapterNumber
@@ -39,11 +38,10 @@ data class BackupChapter(
             source_order = this@BackupChapter.sourceOrder
             pages_left = this@BackupChapter.pagesLeft
         }
-    }
 
     companion object {
-        fun copyFrom(chapter: Chapter): BackupChapter {
-            return BackupChapter(
+        fun copyFrom(chapter: Chapter): BackupChapter =
+            BackupChapter(
                 url = chapter.url,
                 name = chapter.name,
                 chapterNumber = chapter.chapter_number,
@@ -56,6 +54,5 @@ data class BackupChapter(
                 sourceOrder = chapter.source_order,
                 pagesLeft = chapter.pages_left,
             )
-        }
     }
 }

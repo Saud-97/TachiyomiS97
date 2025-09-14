@@ -4,7 +4,6 @@ package eu.kanade.tachiyomi.data.preference
  * This class stores the keys for the preferences in the application.
  */
 object PreferenceKeys {
-
     const val nightMode = "night_mode"
     const val lightTheme = "light_theme"
     const val darkTheme = "dark_theme"

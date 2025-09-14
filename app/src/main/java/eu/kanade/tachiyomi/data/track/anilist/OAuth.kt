@@ -9,6 +9,5 @@ data class OAuth(
     val expires: Long,
     val expires_in: Long,
 ) {
-
     fun isExpired() = System.currentTimeMillis() > expires
 }

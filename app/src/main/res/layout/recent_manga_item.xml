@@ -11,7 +11,7 @@
         android:id="@+id/end_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/material_green_800"
+        android:background="@color/download"
         android:layout_gravity="top"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

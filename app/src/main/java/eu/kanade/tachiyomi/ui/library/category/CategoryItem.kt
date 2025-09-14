@@ -7,8 +7,10 @@ import com.mikepenz.fastadapter.items.AbstractItem
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Category
 
-class CategoryItem(val category: Category, val itemCount: Int? = null) : AbstractItem<FastAdapter.ViewHolder<CategoryItem>>() {
-
+class CategoryItem(
+    val category: Category,
+    val itemCount: Int? = null,
+) : AbstractItem<FastAdapter.ViewHolder<CategoryItem>>() {
     /** defines the type defining this item. must be unique. preferably an id */
     override val type: Int = R.id.category_text
 
@@ -17,17 +19,24 @@ class CategoryItem(val category: Category, val itemCount: Int? = null) : Abstrac
 
     override var identifier = category.id?.toLong() ?: -1L
 
-    override fun getViewHolder(v: View): FastAdapter.ViewHolder<CategoryItem> {
-        return ViewHolder(v)
-    }
+    override fun getViewHolder(v: View): FastAdapter.ViewHolder<CategoryItem> = ViewHolder(v)
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<CategoryItem>(view) {
+    class ViewHolder(
+        view: View,
+    ) : FastAdapter.ViewHolder<CategoryItem>(view) {
         val categoryTitle: TextView = view.findViewById(R.id.category_text)
 
-        override fun bindView(item: CategoryItem, payloads: List<Any>) {
-            val catText = item.category.name + if (item.itemCount != null) {
-                " (${item.itemCount})"
-            } else { "" }
+        override fun bindView(
+            item: CategoryItem,
+            payloads: List<Any>,
+        ) {
+            val catText =
+                item.category.name +
+                    if (item.itemCount != null) {
+                        " (${item.itemCount})"
+                    } else {
+                        ""
+                    }
             categoryTitle.text = catText
         }
 

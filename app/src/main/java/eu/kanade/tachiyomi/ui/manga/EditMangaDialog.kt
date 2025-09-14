@@ -42,7 +42,6 @@ import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 
 class EditMangaDialog : DialogController {
-
     private val manga: Manga
 
     private var customCoverUri: Uri? = null
@@ -67,17 +66,21 @@ class EditMangaDialog : DialogController {
 
     @Suppress("unused")
     constructor(bundle: Bundle) : super(bundle) {
-        manga = Injekt.get<DatabaseHelper>().getManga(bundle.getLong(KEY_MANGA))
-            .executeAsBlocking()!!
+        manga =
+            Injekt
+                .get<DatabaseHelper>()
+                .getManga(bundle.getLong(KEY_MANGA))
+                .executeAsBlocking()!!
     }
 
     override fun onCreateDialog(savedViewState: Bundle?): Dialog {
         binding = EditMangaDialogBinding.inflate(activity!!.layoutInflater)
-        val dialog = activity!!.materialAlertDialog().apply {
-            setView(binding.root)
-            setNegativeButton(android.R.string.cancel, null)
-            setPositiveButton(R.string.save) { _, _ -> onPositiveButtonClick() }
-        }
+        val dialog =
+            activity!!.materialAlertDialog().apply {
+                setView(binding.root)
+                setNegativeButton(android.R.string.cancel, null)
+                setPositiveButton(R.string.save) { _, _ -> onPositiveButtonClick() }
+            }
         onViewCreated()
         val updateScrollIndicators = {
             binding.scrollIndicatorDown.isVisible = binding.scrollView.canScrollVertically(1)
@@ -110,14 +113,15 @@ class EditMangaDialog : DialogController {
 
             languages.add("")
             languages.addAll(
-                extensionManager.availableExtensionsFlow.value.groupBy { it.lang }.keys
+                extensionManager.availableExtensionsFlow.value
+                    .groupBy { it.lang }
+                    .keys
                     .sortedWith(
                         compareBy(
                             { it !in activeLangs },
                             { LocaleHelper.getSourceDisplayName(it, binding.root.context) },
                         ),
-                    )
-                    .filter { it != "all" && it != "other" },
+                    ).filter { it != "all" && it != "other" },
             )
             binding.mangaLang.setEntries(
                 languages.map {
@@ -125,7 +129,8 @@ class EditMangaDialog : DialogController {
                 },
             )
             binding.mangaLang.setSelection(
-                languages.indexOf(LocalSource.getMangaLang(manga, binding.root.context))
+                languages
+                    .indexOf(LocalSource.getMangaLang(manga, binding.root.context))
                     .takeIf { it > -1 } ?: 0,
             )
         } else {
@@ -181,13 +186,14 @@ class EditMangaDialog : DialogController {
             infoController.changeCover()
         }
         binding.resetTags.setOnClickListener { resetTags() }
-        binding.resetTags.text = resources?.getString(
-            if (manga.originalGenre.isNullOrBlank() || isLocal) {
-                R.string.clear_tags
-            } else {
-                R.string.reset_tags
-            },
-        )
+        binding.resetTags.text =
+            resources?.getString(
+                if (manga.originalGenre.isNullOrBlank() || isLocal) {
+                    R.string.clear_tags
+                } else {
+                    R.string.reset_tags
+                },
+            )
         binding.addTagChip.setOnClickListener {
             binding.addTagChip.isVisible = false
             binding.addTagEditText.isVisible = true
@@ -228,8 +234,11 @@ class EditMangaDialog : DialogController {
         if ((textCanBeBlank || !binding.addTagEditText.text.isNullOrBlank()) &&
             binding.addTagEditText.isVisible
         ) {
-            val newTags = binding.addTagEditText.text.toString().split(",")
-                .mapNotNull { tag -> tag.trim().takeUnless { it.isBlank() } }
+            val newTags =
+                binding.addTagEditText.text
+                    .toString()
+                    .split(",")
+                    .mapNotNull { tag -> tag.trim().takeUnless { it.isBlank() } }
             val tags: List<String> = binding.mangaGenresTags.tags.toList() + newTags
             binding.addTagEditText.setText("")
             setGenreTags(tags)
@@ -272,42 +281,48 @@ class EditMangaDialog : DialogController {
             val addTagEditText = binding.addTagEditText
             removeAllViews()
             val dark = context.isInNightMode()
-            val amoled = infoController.presenter.preferences.themeDarkAmoled().get()
+            val amoled =
+                infoController.presenter.preferences
+                    .themeDarkAmoled()
+                    .get()
             val baseTagColor = context.getResourceColor(R.attr.background)
             val bgArray = FloatArray(3)
             val accentArray = FloatArray(3)
 
             ColorUtils.colorToHSL(baseTagColor, bgArray)
             ColorUtils.colorToHSL(context.getResourceColor(R.attr.colorSecondary), accentArray)
-            val downloadedColor = ColorUtils.setAlphaComponent(
+            val downloadedColor =
+                ColorUtils.setAlphaComponent(
+                    ColorUtils.HSLToColor(
+                        floatArrayOf(
+                            bgArray[0],
+                            bgArray[1],
+                            (
+                                when {
+                                    amoled && dark -> 0.1f
+                                    dark -> 0.225f
+                                    else -> 0.85f
+                                }
+                            ),
+                        ),
+                    ),
+                    199,
+                )
+            val textColor =
                 ColorUtils.HSLToColor(
                     floatArrayOf(
-                        bgArray[0],
-                        bgArray[1],
-                        (
-                            when {
-                                amoled && dark -> 0.1f
-                                dark -> 0.225f
-                                else -> 0.85f
-                            }
-                            ),
+                        accentArray[0],
+                        accentArray[1],
+                        if (dark) 0.945f else 0.175f,
                     ),
-                ),
-                199,
-            )
-            val textColor = ColorUtils.HSLToColor(
-                floatArrayOf(
-                    accentArray[0],
-                    accentArray[1],
-                    if (dark) 0.945f else 0.175f,
-                ),
-            )
+                )
             genres.map { genreText ->
-                val chip = LayoutInflater.from(binding.root.context).inflate(
-                    R.layout.genre_chip,
-                    this,
-                    false,
-                ) as Chip
+                val chip =
+                    LayoutInflater.from(binding.root.context).inflate(
+                        R.layout.genre_chip,
+                        this,
+                        false,
+                    ) as Chip
                 val id = View.generateViewId()
                 chip.id = id
                 chip.chipBackgroundColor = ColorStateList.valueOf(downloadedColor)
@@ -319,9 +334,10 @@ class EditMangaDialog : DialogController {
                     val tags: List<String> = tags.toList() - (view as Chip).text.toString()
                     binding.seriesType.setSelection(
                         manga.seriesType(
-                            customTags = tags.joinToString(
-                                ", ",
-                            ),
+                            customTags =
+                                tags.joinToString(
+                                    ", ",
+                                ),
                         ) - 1,
                     )
                 }
@@ -333,12 +349,13 @@ class EditMangaDialog : DialogController {
     }
 
     private val ChipGroup.tags: Array<String>
-        get() = children
-            .toList()
-            .filterIsInstance<Chip>()
-            .filter { it.isCloseIconVisible }
-            .map { it.text.toString() }
-            .toTypedArray()
+        get() =
+            children
+                .toList()
+                .filterIsInstance<Chip>()
+                .filter { it.isCloseIconVisible }
+                .map { it.text.toString() }
+                .toTypedArray()
 
     private fun resetTags() {
         if (manga.genre.isNullOrBlank() || manga.isLocal()) {

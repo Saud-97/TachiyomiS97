@@ -31,7 +31,6 @@ class MigrationController :
     FlexibleAdapter.OnItemClickListener,
     SourceAdapter.OnAllClickListener,
     BaseMigrationInterface {
-
     private var adapter: FlexibleAdapter<IFlexible<*>>? = null
 
     private var title: String? = null
@@ -58,22 +57,22 @@ class MigrationController :
         super.onDestroyView(view)
     }
 
-    override fun getTitle(): String? {
-        return title
-    }
+    override fun getTitle(): String? = title
 
     override fun canStillGoBack(): Boolean = adapter is MangaAdapter
 
-    override fun handleBack(): Boolean {
-        return if (adapter is MangaAdapter) {
+    override fun handleBack(): Boolean =
+        if (adapter is MangaAdapter) {
             presenter.deselectSource()
             true
         } else {
             super.handleBack()
         }
-    }
 
-    override fun onItemClick(view: View?, position: Int): Boolean {
+    override fun onItemClick(
+        view: View?,
+        position: Int,
+    ): Boolean {
         val item = adapter?.getItem(position) ?: return false
 
         if (item is MangaItem) {
@@ -94,7 +93,11 @@ class MigrationController :
         launchUI {
             val manga = Injekt.get<DatabaseHelper>().getFavoriteMangas().executeAsBlocking()
             val sourceMangas =
-                manga.asSequence().filter { it.source == item.source.id }.map { it.id!! }.toList()
+                manga
+                    .asSequence()
+                    .filter { it.source == item.source.id }
+                    .map { it.id!! }
+                    .toList()
             withContext(Dispatchers.Main) {
                 PreMigrationController.navigateToMigration(
                     Injekt.get<PreferencesHelper>().skipPreMigration().get(),
@@ -105,24 +108,29 @@ class MigrationController :
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.migration_main, menu)
         menu.findItem(R.id.action_sources_settings).isVisible = false
-        val id = when (PreferenceValues.MigrationSourceOrder.fromPreference(presenter.preferences)) {
-            PreferenceValues.MigrationSourceOrder.Alphabetically -> R.id.action_sort_alpha
-            PreferenceValues.MigrationSourceOrder.MostEntries -> R.id.action_sort_largest
-            PreferenceValues.MigrationSourceOrder.Obsolete -> R.id.action_sort_obsolete
-        }
+        val id =
+            when (PreferenceValues.MigrationSourceOrder.fromPreference(presenter.preferences)) {
+                PreferenceValues.MigrationSourceOrder.Alphabetically -> R.id.action_sort_alpha
+                PreferenceValues.MigrationSourceOrder.MostEntries -> R.id.action_sort_largest
+                PreferenceValues.MigrationSourceOrder.Obsolete -> R.id.action_sort_obsolete
+            }
         menu.findItem(id).isChecked = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val sorting = when (item.itemId) {
-            R.id.action_sort_alpha -> PreferenceValues.MigrationSourceOrder.Alphabetically
-            R.id.action_sort_largest -> PreferenceValues.MigrationSourceOrder.MostEntries
-            R.id.action_sort_obsolete -> PreferenceValues.MigrationSourceOrder.Obsolete
-            else -> null
-        }
+        val sorting =
+            when (item.itemId) {
+                R.id.action_sort_alpha -> PreferenceValues.MigrationSourceOrder.Alphabetically
+                R.id.action_sort_largest -> PreferenceValues.MigrationSourceOrder.MostEntries
+                R.id.action_sort_obsolete -> PreferenceValues.MigrationSourceOrder.Obsolete
+                else -> null
+            }
         if (sorting != null) {
             presenter.preferences.migrationSourceOrder().set(sorting.value)
             presenter.refreshMigrations()
@@ -136,7 +144,10 @@ class MigrationController :
         return super.onOptionsItemSelected(item)
     }
 
-    override fun setMigrationManga(title: String, manga: List<MangaItem>?) {
+    override fun setMigrationManga(
+        title: String,
+        manga: List<MangaItem>?,
+    ) {
         this.title = title
         if (adapter !is MangaAdapter) {
             adapter = MangaAdapter(this, presenter.preferences.outlineOnCovers().get())

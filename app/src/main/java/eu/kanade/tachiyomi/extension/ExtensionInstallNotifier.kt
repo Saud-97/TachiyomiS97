@@ -9,8 +9,9 @@ import eu.kanade.tachiyomi.data.notification.Notifications
 import eu.kanade.tachiyomi.util.system.notificationBuilder
 import eu.kanade.tachiyomi.util.system.notificationManager
 
-class ExtensionInstallNotifier(private val context: Context) {
-
+class ExtensionInstallNotifier(
+    private val context: Context,
+) {
     /**
      * Bitmap of the app for notifications.
      */
@@ -50,7 +51,10 @@ class ExtensionInstallNotifier(private val context: Context) {
      * @param current the current progress.
      * @param total the total progress.
      */
-    fun showProgressNotification(progress: Int, max: Int) {
+    fun showProgressNotification(
+        progress: Int,
+        max: Int,
+    ) {
         context.notificationManager.notify(
             Notifications.ID_EXTENSION_PROGRESS,
             progressNotificationBuilder
@@ -61,7 +65,10 @@ class ExtensionInstallNotifier(private val context: Context) {
         )
     }
 
-    fun showUpdatedNotification(extensions: List<ExtensionManager.ExtensionInfo>, hideContent: Boolean) {
+    fun showUpdatedNotification(
+        extensions: List<ExtensionManager.ExtensionInfo>,
+        hideContent: Boolean,
+    ) {
         context.notificationManager.notify(
             Notifications.ID_UPDATED_EXTS,
             progressNotificationBuilder
@@ -72,17 +79,16 @@ class ExtensionInstallNotifier(private val context: Context) {
                         extensions.size,
                         extensions.size,
                     ),
-                )
-                .setSmallIcon(R.drawable.ic_extension_updated_24dp)
+                ).setSmallIcon(R.drawable.ic_extension_updated_24dp)
                 .setOngoing(false)
                 .setContentIntent(NotificationReceiver.openExtensionsPendingActivity(context))
                 .clearActions()
-                .setProgress(0, 0, false).apply {
+                .setProgress(0, 0, false)
+                .apply {
                     if (!hideContent) {
                         setContentText(extensions.joinToString(", ") { it.name })
                     }
-                }
-                .build(),
+                }.build(),
         )
     }
 }

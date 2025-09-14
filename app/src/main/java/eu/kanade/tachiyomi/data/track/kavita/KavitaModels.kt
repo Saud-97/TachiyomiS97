@@ -22,10 +22,11 @@ data class SeriesDto(
     val libraryId: Int,
     val libraryName: String? = "",
 ) {
-    fun toTrack(): TrackSearch = TrackSearch.create(TrackManager.KAVITA).also {
-        it.title = name
-        it.summary = ""
-    }
+    fun toTrack(): TrackSearch =
+        TrackSearch.create(TrackManager.KAVITA).also {
+            it.title = name
+            it.summary = ""
+        }
 }
 
 @Serializable
@@ -63,11 +64,12 @@ data class AuthenticationDto(
 )
 
 class OAuth(
-    val authentications: List<SourceAuth> = listOf(
-        SourceAuth(1),
-        SourceAuth(2),
-        SourceAuth(3),
-    ),
+    val authentications: List<SourceAuth> =
+        listOf(
+            SourceAuth(1),
+            SourceAuth(2),
+            SourceAuth(3),
+        ),
 ) {
     fun getToken(apiUrl: String): String? {
         for (authentication in authentications) {

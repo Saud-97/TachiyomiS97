@@ -9,13 +9,10 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 
 class InfoRepoMessage : AbstractFlexibleItem<InfoRepoMessage.Holder>() {
-
     /**
      * Returns the layout resource for this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.info_repo_message
-    }
+    override fun getLayoutRes(): Int = R.layout.info_repo_message
 
     /**
      * Returns a new view holder for this item.
@@ -26,9 +23,7 @@ class InfoRepoMessage : AbstractFlexibleItem<InfoRepoMessage.Holder>() {
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): Holder {
-        return Holder(view, adapter)
-    }
+    ): Holder = Holder(view, adapter)
 
     /**
      * Binds the given view holder with this item.
@@ -56,10 +51,10 @@ class InfoRepoMessage : AbstractFlexibleItem<InfoRepoMessage.Holder>() {
         return other is InfoRepoMessage
     }
 
-    override fun hashCode(): Int {
-        return "Info repo message".hashCode()
-    }
+    override fun hashCode(): Int = "Info repo message".hashCode()
 
-    class Holder(val view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) :
-        BaseFlexibleViewHolder(view, adapter, true)
+    class Holder(
+        val view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : BaseFlexibleViewHolder(view, adapter, true)
 }

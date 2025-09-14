@@ -23,7 +23,6 @@ class DownloadPageLoader(
     private val downloadManager: DownloadManager,
     private val downloadProvider: DownloadProvider,
 ) : PageLoader() {
-
     // Needed to open input streams
     private val context: Application by injectLazy()
 
@@ -57,7 +56,7 @@ class DownloadPageLoader(
         return pages.map { page ->
             ReaderPage(page.index, page.url, page.imageUrl, stream = {
                 context.contentResolver.openInputStream(page.uri ?: Uri.EMPTY)!!
-            },).apply {
+            }).apply {
                 status = Page.State.READY
             }
         }

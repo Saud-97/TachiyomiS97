@@ -14,7 +14,6 @@ import eu.kanade.tachiyomi.ui.reader.settings.ReaderBackgroundColor
 import uy.kohesive.injekt.injectLazy
 
 object ThemeUtil {
-
     /** Migration method */
     fun convertNewThemes(context: Context) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -46,20 +45,23 @@ object ThemeUtil {
         return context.isInNightMode() && preferences.themeDarkAmoled().get()
     }
 
-    fun readerBackgroundColor(theme: Int): Int {
-        return when (ReaderBackgroundColor.fromPreference(theme)) {
+    fun readerBackgroundColor(theme: Int): Int =
+        when (ReaderBackgroundColor.fromPreference(theme)) {
             ReaderBackgroundColor.GRAY -> Color.rgb(32, 33, 37)
             ReaderBackgroundColor.BLACK -> Color.BLACK
             else -> Color.WHITE
         }
-    }
 }
 
 fun AppCompatActivity.setThemeByPref(preferences: PreferencesHelper) {
     setTheme(getPrefTheme(preferences).styleRes)
 }
 
-fun AppCompatActivity.getThemeWithExtras(theme: Resources.Theme, preferences: PreferencesHelper, oldTheme: Resources.Theme?): Resources.Theme {
+fun AppCompatActivity.getThemeWithExtras(
+    theme: Resources.Theme,
+    preferences: PreferencesHelper,
+    oldTheme: Resources.Theme?,
+): Resources.Theme {
     val useAmoled =
         (isInNightMode() || preferences.nightMode().get() == AppCompatDelegate.MODE_NIGHT_YES) &&
             preferences.themeDarkAmoled().get()
@@ -87,7 +89,7 @@ fun Context.getPrefTheme(preferences: PreferencesHelper): Themes {
             } else {
                 preferences.lightTheme()
             }
-            ).get()
+        ).get()
     } catch (e: Exception) {
         ThemeUtil.convertNewThemes(preferences.context)
         getPrefTheme(preferences)

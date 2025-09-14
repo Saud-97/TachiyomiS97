@@ -9,16 +9,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 /**
  * A general pager for source requests (latest updates, popular, search)
  */
-abstract class Pager(var currentPage: Int = 1) {
-
+abstract class Pager(
+    var currentPage: Int = 1,
+) {
     var hasNextPage = true
         private set
 
     protected val results = MutableSharedFlow<Pair<Int, List<SManga>>>()
 
-    fun results(): SharedFlow<Pair<Int, List<SManga>>> {
-        return results.asSharedFlow()
-    }
+    fun results(): SharedFlow<Pair<Int, List<SManga>>> = results.asSharedFlow()
 
     abstract suspend fun requestNextPage()
 

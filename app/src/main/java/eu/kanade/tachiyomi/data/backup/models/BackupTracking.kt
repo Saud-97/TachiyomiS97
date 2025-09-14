@@ -29,15 +29,15 @@ data class BackupTracking(
     @ProtoNumber(11) var finishedReadingDate: Long = 0,
     @ProtoNumber(100) var mediaId: Long = 0,
 ) {
-
-    fun getTrackingImpl(): TrackImpl {
-        return TrackImpl().apply {
+    fun getTrackingImpl(): TrackImpl =
+        TrackImpl().apply {
             sync_id = this@BackupTracking.syncId
-            media_id = if (this@BackupTracking.mediaIdInt != 0) {
-                this@BackupTracking.mediaIdInt.toLong()
-            } else {
-                this@BackupTracking.mediaId
-            }
+            media_id =
+                if (this@BackupTracking.mediaIdInt != 0) {
+                    this@BackupTracking.mediaIdInt.toLong()
+                } else {
+                    this@BackupTracking.mediaId
+                }
             library_id = this@BackupTracking.libraryId
             title = this@BackupTracking.title
             last_chapter_read = this@BackupTracking.lastChapterRead
@@ -48,11 +48,10 @@ data class BackupTracking(
             finished_reading_date = this@BackupTracking.finishedReadingDate
             tracking_url = this@BackupTracking.trackingUrl
         }
-    }
 
     companion object {
-        fun copyFrom(track: Track): BackupTracking {
-            return BackupTracking(
+        fun copyFrom(track: Track): BackupTracking =
+            BackupTracking(
                 syncId = track.sync_id,
                 mediaId = track.media_id,
                 // forced not null so its compatible with 1.x backup system
@@ -66,6 +65,5 @@ data class BackupTracking(
                 finishedReadingDate = track.finished_reading_date,
                 trackingUrl = track.tracking_url,
             )
-        }
     }
 }

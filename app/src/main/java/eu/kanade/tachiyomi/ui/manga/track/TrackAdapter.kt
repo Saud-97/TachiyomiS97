@@ -7,8 +7,9 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.track.TrackService
 import eu.kanade.tachiyomi.util.view.inflate
 
-class TrackAdapter(controller: OnClickListener) : RecyclerView.Adapter<TrackHolder>() {
-
+class TrackAdapter(
+    controller: OnClickListener,
+) : RecyclerView.Adapter<TrackHolder>() {
     var items = emptyList<TrackItem>()
         set(value) {
             if (field !== value) {
@@ -19,36 +20,50 @@ class TrackAdapter(controller: OnClickListener) : RecyclerView.Adapter<TrackHold
 
     val rowClickListener: OnClickListener = controller
 
-    fun getItem(index: Int): TrackItem? {
-        return items.getOrNull(index)
-    }
+    fun getItem(index: Int): TrackItem? = items.getOrNull(index)
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    override fun getItemCount(): Int = items.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): TrackHolder {
         val view = parent.inflate(R.layout.track_item)
         return TrackHolder(view, this)
     }
 
-    override fun onBindViewHolder(holder: TrackHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: TrackHolder,
+        position: Int,
+    ) {
         holder.bind(items[position])
     }
 
-    fun indexOf(item: TrackService?): Int {
-        return items.indexOfFirst { item?.id == it.service.id }
-    }
+    fun indexOf(item: TrackService?): Int = items.indexOfFirst { item?.id == it.service.id }
 
     interface OnClickListener {
         fun onLogoClick(position: Int)
+
         fun onTitleClick(position: Int)
+
         fun onTitleLongClick(position: Int)
+
         fun onStatusClick(position: Int)
+
         fun onChaptersClick(position: Int)
+
         fun onScoreClick(position: Int)
+
         fun onRemoveClick(position: Int)
-        fun onStartDateClick(view: View, position: Int)
-        fun onFinishDateClick(view: View, position: Int)
+
+        fun onStartDateClick(
+            view: View,
+            position: Int,
+        )
+
+        fun onFinishDateClick(
+            view: View,
+            position: Int,
+        )
     }
 }

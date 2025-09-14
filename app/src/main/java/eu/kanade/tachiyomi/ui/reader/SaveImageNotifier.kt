@@ -18,8 +18,9 @@ import java.io.File
 /**
  * Class used to show BigPictureStyle notifications
  */
-class SaveImageNotifier(private val context: Context) {
-
+class SaveImageNotifier(
+    private val context: Context,
+) {
     /**
      * Notification builder.
      */
@@ -38,23 +39,30 @@ class SaveImageNotifier(private val context: Context) {
      * @param file image file containing downloaded page image.
      */
     fun onComplete(file: File) {
-        val request = ImageRequest.Builder(context).memoryCachePolicy(CachePolicy.DISABLED).diskCachePolicy(CachePolicy.DISABLED)
-            .data(file)
-            .size(720, 1280)
-            .target(
-                onSuccess = {
-                    val bitmap = (it as BitmapDrawable).bitmap
-                    if (bitmap != null) {
-                        showCompleteNotification(file, bitmap)
-                    } else {
-                        onError(null)
-                    }
-                },
-            ).build()
+        val request =
+            ImageRequest
+                .Builder(context)
+                .memoryCachePolicy(CachePolicy.DISABLED)
+                .diskCachePolicy(CachePolicy.DISABLED)
+                .data(file)
+                .size(720, 1280)
+                .target(
+                    onSuccess = {
+                        val bitmap = (it as BitmapDrawable).bitmap
+                        if (bitmap != null) {
+                            showCompleteNotification(file, bitmap)
+                        } else {
+                            onError(null)
+                        }
+                    },
+                ).build()
         Coil.imageLoader(context).enqueue(request)
     }
 
-    private fun showCompleteNotification(file: File, image: Bitmap) {
+    private fun showCompleteNotification(
+        file: File,
+        image: Bitmap,
+    ) {
         with(notificationBuilder) {
             setContentTitle(context.getString(R.string.picture_saved))
             setSmallIcon(R.drawable.ic_photo_24dp)

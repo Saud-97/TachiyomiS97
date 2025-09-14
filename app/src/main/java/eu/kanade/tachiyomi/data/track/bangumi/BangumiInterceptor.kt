@@ -7,8 +7,9 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import uy.kohesive.injekt.injectLazy
 
-class BangumiInterceptor(val bangumi: Bangumi) : Interceptor {
-
+class BangumiInterceptor(
+    val bangumi: Bangumi,
+) : Interceptor {
     private val json: Json by injectLazy()
 
     /**
@@ -30,42 +31,50 @@ class BangumiInterceptor(val bangumi: Bangumi) : Interceptor {
             }
         }
 
-        val authRequest = if (originalRequest.method == "GET") {
-            originalRequest.newBuilder()
-                .header("User-Agent", "Tachiyomi")
-                .url(
-                    originalRequest.url.newBuilder()
-                        .addQueryParameter("access_token", currAuth.access_token).build(),
-                )
-                .build()
-        } else {
-            originalRequest.newBuilder()
-                .post(addToken(currAuth.access_token, originalRequest.body as FormBody))
-                .header("User-Agent", "Tachiyomi")
-                .build()
-        }
+        val authRequest =
+            if (originalRequest.method == "GET") {
+                originalRequest
+                    .newBuilder()
+                    .header("User-Agent", "Tachiyomi")
+                    .url(
+                        originalRequest.url
+                            .newBuilder()
+                            .addQueryParameter("access_token", currAuth.access_token)
+                            .build(),
+                    ).build()
+            } else {
+                originalRequest
+                    .newBuilder()
+                    .post(addToken(currAuth.access_token, originalRequest.body as FormBody))
+                    .header("User-Agent", "Tachiyomi")
+                    .build()
+            }
 
         return chain.proceed(authRequest)
     }
 
     fun newAuth(oauth: OAuth?) {
-        this.oauth = if (oauth == null) {
-            null
-        } else {
-            OAuth(
-                oauth.access_token,
-                oauth.token_type,
-                System.currentTimeMillis() / 1000,
-                oauth.expires_in,
-                oauth.refresh_token,
-                this.oauth?.user_id,
-            )
-        }
+        this.oauth =
+            if (oauth == null) {
+                null
+            } else {
+                OAuth(
+                    oauth.access_token,
+                    oauth.token_type,
+                    System.currentTimeMillis() / 1000,
+                    oauth.expires_in,
+                    oauth.refresh_token,
+                    this.oauth?.user_id,
+                )
+            }
 
         bangumi.saveToken(oauth)
     }
 
-    private fun addToken(token: String, oidFormBody: FormBody): FormBody {
+    private fun addToken(
+        token: String,
+        oidFormBody: FormBody,
+    ): FormBody {
         val newFormBody = FormBody.Builder()
         for (i in 0 until oidFormBody.size) {
             newFormBody.add(oidFormBody.name(i), oidFormBody.value(i))

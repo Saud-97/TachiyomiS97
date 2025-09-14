@@ -56,9 +56,10 @@ import java.io.File
 import java.lang.ref.WeakReference
 
 @OptIn(DelicateCoroutinesApi::class)
-class AppDownloadInstallJob(private val context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
+class AppDownloadInstallJob(
+    private val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     private val notifier = AppUpdateNotifier(context.localeContext)
     private val network: NetworkHelper by injectLazy()
     private var runningCall: Call? = null
@@ -73,6 +74,7 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
             ForegroundInfo(id, notification)
         }
     }
+
     override suspend fun doWork(): Result {
         val idleRun = inputData.getBoolean(IDLE_RUN, false)
         val url: String
@@ -89,9 +91,10 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
                 return Result.retry()
             }
 
-            val result = withIOContext {
-                AppUpdateChecker().checkForUpdate(context, true, doExtrasAfterNewUpdate = false)
-            }
+            val result =
+                withIOContext {
+                    AppUpdateChecker().checkForUpdate(context, true, doExtrasAfterNewUpdate = false)
+                }
             if (result is AppUpdateResult.NewUpdate) {
                 AppUpdateNotifier(context.localeContext).cancel()
                 AppUpdateNotifier.releasePageUrl = result.release.releaseLink
@@ -122,24 +125,32 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
      *
      * @param url url location of file
      */
-    private suspend fun downloadApk(url: String, notifyOnInstall: Boolean) = coroutineScope {
-        val progressListener = object : ProgressListener {
-            // Progress of the download
-            var savedProgress = 0
+    private suspend fun downloadApk(
+        url: String,
+        notifyOnInstall: Boolean,
+    ) = coroutineScope {
+        val progressListener =
+            object : ProgressListener {
+                // Progress of the download
+                var savedProgress = 0
 
-            // Keep track of the last notification sent to avoid posting too many.
-            var lastTick = 0L
+                // Keep track of the last notification sent to avoid posting too many.
+                var lastTick = 0L
 
-            override fun update(bytesRead: Long, contentLength: Long, done: Boolean) {
-                val progress = (100 * (bytesRead.toFloat() / contentLength)).toInt()
-                val currentTime = System.currentTimeMillis()
-                if (progress > savedProgress && currentTime - 200 > lastTick) {
-                    savedProgress = progress
-                    lastTick = currentTime
-                    notifier.onProgressChange(progress)
+                override fun update(
+                    bytesRead: Long,
+                    contentLength: Long,
+                    done: Boolean,
+                ) {
+                    val progress = (100 * (bytesRead.toFloat() / contentLength)).toInt()
+                    val currentTime = System.currentTimeMillis()
+                    if (progress > savedProgress && currentTime - 200 > lastTick) {
+                        savedProgress = progress
+                        lastTick = currentTime
+                        notifier.onProgressChange(progress)
+                    }
                 }
             }
-        }
 
         try {
             // Download the new update.
@@ -167,7 +178,8 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
             }
         } catch (error: Exception) {
             Timber.e(error)
-            if (error is CancellationException || isStopped ||
+            if (error is CancellationException ||
+                isStopped ||
                 (error is StreamResetException && error.errorCode == ErrorCode.CANCEL)
             ) {
                 notifier.cancel()
@@ -178,14 +190,18 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
     }
 
     @RequiresApi(31)
-    private suspend fun startInstalling(file: File, notifyOnInstall: Boolean) {
+    private suspend fun startInstalling(
+        file: File,
+        notifyOnInstall: Boolean,
+    ) {
         try {
             val packageInstaller = context.packageManager.packageInstaller
             val data = file.inputStream()
 
-            val params = PackageInstaller.SessionParams(
-                PackageInstaller.SessionParams.MODE_FULL_INSTALL,
-            )
+            val params =
+                PackageInstaller.SessionParams(
+                    PackageInstaller.SessionParams.MODE_FULL_INSTALL,
+                )
             params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
             val sessionId = packageInstaller.createSession(params)
             val session = packageInstaller.openSession(sessionId)
@@ -198,12 +214,19 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
                 }
             }
 
-            val newIntent = Intent(context, AppUpdateBroadcast::class.java)
-                .setAction(PACKAGE_INSTALLED_ACTION)
-                .putExtra(EXTRA_NOTIFY_ON_INSTALL, notifyOnInstall)
-                .putExtra(EXTRA_FILE_URI, file.getUriCompat(context).toString())
+            val newIntent =
+                Intent(context, AppUpdateBroadcast::class.java)
+                    .setAction(PACKAGE_INSTALLED_ACTION)
+                    .putExtra(EXTRA_NOTIFY_ON_INSTALL, notifyOnInstall)
+                    .putExtra(EXTRA_FILE_URI, file.getUriCompat(context).toString())
 
-            val pendingIntent = PendingIntent.getBroadcast(context, -10053, newIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+            val pendingIntent =
+                PendingIntent.getBroadcast(
+                    context,
+                    -10053,
+                    newIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
+                )
             val statusReceiver = pendingIntent.intentSender
             session.commit(statusReceiver)
             notifier.onInstalling()
@@ -211,8 +234,10 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
                 data.close()
                 GlobalScope.launchUI {
                     delay(5000)
-                    val hasNotification = context.notificationManager
-                        .activeNotifications.any { it.id == Notifications.ID_UPDATER }
+                    val hasNotification =
+                        context.notificationManager
+                            .activeNotifications
+                            .any { it.id == Notifications.ID_UPDATER }
                     // If the package manager crashes for whatever reason (china phone)
                     // set a timeout and let the user manually install
                     if (packageInstaller.getSessionInfo(sessionId) == null && !hasNotification) {
@@ -252,34 +277,41 @@ class AppDownloadInstallJob(private val context: Context, workerParams: WorkerPa
 
         private var instance: WeakReference<AppDownloadInstallJob>? = null
 
-        fun start(context: Context, url: String?, notifyOnInstall: Boolean, waitUntilIdle: Boolean = false) {
+        fun start(
+            context: Context,
+            url: String?,
+            notifyOnInstall: Boolean,
+            waitUntilIdle: Boolean = false,
+        ) {
             val data = Data.Builder()
             data.putString(EXTRA_DOWNLOAD_URL, url)
             data.putBoolean(EXTRA_NOTIFY_ON_INSTALL, notifyOnInstall)
-            val request = OneTimeWorkRequestBuilder<AppDownloadInstallJob>()
-                .addTag(TAG)
-                .apply {
-                    if (waitUntilIdle) {
-                        data.putBoolean(IDLE_RUN, true)
-                        val shouldAutoUpdate = Injekt.get<PreferencesHelper>().appShouldAutoUpdate()
-                        val constraints = Constraints.Builder()
-                            .setRequiredNetworkType(
-                                if (shouldAutoUpdate == ALWAYS) {
-                                    NetworkType.CONNECTED
-                                } else {
-                                    NetworkType.UNMETERED
-                                },
-                            )
-                            .setRequiresDeviceIdle(true)
-                            .build()
-                        setConstraints(constraints)
-                    } else {
-                        setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    }
-                    setInputData(data.build())
-                }
-                .build()
-            WorkManager.getInstance(context)
+            val request =
+                OneTimeWorkRequestBuilder<AppDownloadInstallJob>()
+                    .addTag(TAG)
+                    .apply {
+                        if (waitUntilIdle) {
+                            data.putBoolean(IDLE_RUN, true)
+                            val shouldAutoUpdate = Injekt.get<PreferencesHelper>().appShouldAutoUpdate()
+                            val constraints =
+                                Constraints
+                                    .Builder()
+                                    .setRequiredNetworkType(
+                                        if (shouldAutoUpdate == ALWAYS) {
+                                            NetworkType.CONNECTED
+                                        } else {
+                                            NetworkType.UNMETERED
+                                        },
+                                    ).setRequiresDeviceIdle(true)
+                                    .build()
+                            setConstraints(constraints)
+                        } else {
+                            setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        }
+                        setInputData(data.build())
+                    }.build()
+            WorkManager
+                .getInstance(context)
                 .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, request)
         }
 

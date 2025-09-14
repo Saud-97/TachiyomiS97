@@ -16,14 +16,18 @@ import eu.kanade.tachiyomi.util.system.rootWindowInsetsCompat
 import eu.kanade.tachiyomi.util.view.expand
 import kotlin.math.max
 
-abstract class TabbedBottomSheetDialog(private val activity: Activity) :
-    E2EBottomSheetDialog<TabbedBottomSheetBinding>(activity) {
-
+abstract class TabbedBottomSheetDialog(
+    private val activity: Activity,
+) : E2EBottomSheetDialog<TabbedBottomSheetBinding>(activity) {
     override fun createBinding(inflater: LayoutInflater) = TabbedBottomSheetBinding.inflate(inflater)
 
     open var offset = -1
+
     init {
-        val height = activity.window.decorView.rootWindowInsetsCompat!!.getInsets(systemBars()).top
+        val height =
+            activity.window.decorView.rootWindowInsetsCompat!!
+                .getInsets(systemBars())
+                .top
         binding.pager.maxHeight = activity.window.decorView.height - height - 125.dpToPx
 
         val adapter = TabbedSheetAdapter()
@@ -69,49 +73,53 @@ abstract class TabbedBottomSheetDialog(private val activity: Activity) :
     abstract fun getTabTitles(): List<Int>
 
     private inner class TabbedSheetAdapter : ViewPagerAdapter() {
+        override fun createView(
+            container: ViewGroup,
+            position: Int,
+        ): View = getTabViews()[position]
 
-        override fun createView(container: ViewGroup, position: Int): View {
-            return getTabViews()[position]
-        }
+        override fun getCount(): Int = getTabViews().size
 
-        override fun getCount(): Int {
-            return getTabViews().size
-        }
-
-        override fun getPageTitle(position: Int): CharSequence {
-            return activity.resources!!.getString(getTabTitles()[position])
-        }
+        override fun getPageTitle(position: Int): CharSequence = activity.resources!!.getString(getTabTitles()[position])
     }
 }
 
-class MeasuredViewPager @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ViewPager(context, attrs) {
+class MeasuredViewPager
+    @JvmOverloads
+    constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+    ) : ViewPager(context, attrs) {
+        var maxHeight = 0
+            set(value) {
+                field = value
+                requestLayout()
+            }
 
-    var maxHeight = 0
-        set(value) {
-            field = value
-            requestLayout()
+        override fun onMeasure(
+            widthMeasureSpec: Int,
+            heightMeasureSpec: Int,
+        ) {
+            var heightSpec = heightMeasureSpec
+            super.onMeasure(widthMeasureSpec, heightSpec)
+            var height = 0
+            val childWidthSpec =
+                MeasureSpec.makeMeasureSpec(
+                    max(0, MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight),
+                    MeasureSpec.getMode(widthMeasureSpec),
+                )
+            for (i in 0 until childCount) {
+                val child = getChildAt(i)
+                child.measure(childWidthSpec, MeasureSpec.UNSPECIFIED)
+                val h = child.measuredHeight
+                if (h > height) height = h
+            }
+            if (height != 0) {
+                heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+            }
+            if (maxHeight < height + (rootWindowInsetsCompat?.getInsets(systemBars())?.bottom ?: 0)) {
+                heightSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST)
+            }
+            super.onMeasure(widthMeasureSpec, heightSpec)
         }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var heightSpec = heightMeasureSpec
-        super.onMeasure(widthMeasureSpec, heightSpec)
-        var height = 0
-        val childWidthSpec = MeasureSpec.makeMeasureSpec(
-            max(0, MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight),
-            MeasureSpec.getMode(widthMeasureSpec),
-        )
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            child.measure(childWidthSpec, MeasureSpec.UNSPECIFIED)
-            val h = child.measuredHeight
-            if (h > height) height = h
-        }
-        if (height != 0) {
-            heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
-        }
-        if (maxHeight < height + (rootWindowInsetsCompat?.getInsets(systemBars())?.bottom ?: 0)) {
-            heightSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST)
-        }
-        super.onMeasure(widthMeasureSpec, heightSpec)
     }
-}

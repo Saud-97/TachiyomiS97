@@ -17,11 +17,13 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.IOException
 
-class CrashLogUtil(private val context: Context) {
-
-    private val notificationBuilder = context.notificationBuilder(Notifications.CHANNEL_CRASH_LOGS) {
-        setSmallIcon(R.drawable.ic_tachij2k_notification)
-    }
+class CrashLogUtil(
+    private val context: Context,
+) {
+    private val notificationBuilder =
+        context.notificationBuilder(Notifications.CHANNEL_CRASH_LOGS) {
+            setSmallIcon(R.drawable.ic_tachij2k_notification)
+        }
 
     fun dumpLogs() {
         try {
@@ -35,18 +37,17 @@ class CrashLogUtil(private val context: Context) {
         }
     }
 
-    fun getDebugInfo(): String {
-        return """
-            App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.FLAVOR}, ${BuildConfig.COMMIT_SHA}, ${BuildConfig.VERSION_CODE}, ${BuildConfig.BUILD_TIME})
-            Android version: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
-            Android build ID: ${Build.DISPLAY}
-            Device brand: ${Build.BRAND}
-            Device manufacturer: ${Build.MANUFACTURER}
-            Device name: ${Build.DEVICE}
-            Device model: ${Build.MODEL}
-            Device product name: ${Build.PRODUCT}
+    fun getDebugInfo(): String =
+        """
+        App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.FLAVOR}, ${BuildConfig.COMMIT_SHA}, ${BuildConfig.VERSION_CODE}, ${BuildConfig.BUILD_TIME})
+        Android version: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
+        Android build ID: ${Build.DISPLAY}
+        Device brand: ${Build.BRAND}
+        Device manufacturer: ${Build.MANUFACTURER}
+        Device name: ${Build.DEVICE}
+        Device model: ${Build.MODEL}
+        Device product name: ${Build.PRODUCT}
         """.trimIndent()
-    }
 
     private fun getExtensionsInfo(): String {
         val extensionManager: ExtensionManager = Injekt.get()

@@ -8,7 +8,6 @@ import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import uy.kohesive.injekt.injectLazy
 
 open class MangaImpl : Manga {
-
     override var id: Long? = null
 
     override var source: Long = -1
@@ -18,40 +17,52 @@ open class MangaImpl : Manga {
     private val customMangaManager: CustomMangaManager by injectLazy()
 
     override var title: String
-        get() = if (favorite) {
-            val customTitle = customMangaManager.getManga(this)?.title
-            if (customTitle.isNullOrBlank()) ogTitle else customTitle
-        } else {
-            ogTitle
-        }
+        get() =
+            if (favorite) {
+                val customTitle = customMangaManager.getManga(this)?.title
+                if (customTitle.isNullOrBlank()) ogTitle else customTitle
+            } else {
+                ogTitle
+            }
         set(value) {
             ogTitle = value
         }
 
     override var author: String?
         get() = if (favorite) customMangaManager.getManga(this)?.author ?: ogAuthor else ogAuthor
-        set(value) { ogAuthor = value }
+        set(value) {
+            ogAuthor = value
+        }
 
     override var artist: String?
         get() = if (favorite) customMangaManager.getManga(this)?.artist ?: ogArtist else ogArtist
-        set(value) { ogArtist = value }
+        set(value) {
+            ogArtist = value
+        }
 
     override var description: String?
         get() = if (favorite) customMangaManager.getManga(this)?.description ?: ogDesc else ogDesc
-        set(value) { ogDesc = value }
+        set(value) {
+            ogDesc = value
+        }
 
     override var genre: String?
         get() = if (favorite) customMangaManager.getManga(this)?.genre ?: ogGenre else ogGenre
-        set(value) { ogGenre = value }
+        set(value) {
+            ogGenre = value
+        }
 
     override var status: Int
-        get() = if (favorite) {
-            customMangaManager.getManga(this)?.status.takeIf { it != -1 }
-                ?: ogStatus
-        } else {
-            ogStatus
+        get() =
+            if (favorite) {
+                customMangaManager.getManga(this)?.status.takeIf { it != -1 }
+                    ?: ogStatus
+            } else {
+                ogStatus
+            }
+        set(value) {
+            ogStatus = value
         }
-        set(value) { ogStatus = value }
 
     override var thumbnail_url: String? = null
 
@@ -87,8 +98,10 @@ open class MangaImpl : Manga {
         private set
 
     override fun copyFrom(other: SManga) {
-        if (other is MangaImpl && other::ogTitle.isInitialized &&
-            other.title.isNotBlank() && other.ogTitle != ogTitle
+        if (other is MangaImpl &&
+            other::ogTitle.isInitialized &&
+            other.title.isNotBlank() &&
+            other.ogTitle != ogTitle
         ) {
             val oldTitle = ogTitle
             title = other.ogTitle
@@ -108,11 +121,10 @@ open class MangaImpl : Manga {
         return url == manga.url && source == manga.source
     }
 
-    override fun hashCode(): Int {
-        return if (::url.isInitialized) {
+    override fun hashCode(): Int =
+        if (::url.isInitialized) {
             url.hashCode()
         } else {
             (id ?: 0L).hashCode()
         }
-    }
 }

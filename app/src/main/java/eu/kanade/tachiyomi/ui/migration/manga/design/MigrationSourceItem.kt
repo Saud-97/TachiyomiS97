@@ -11,12 +11,16 @@ import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.parcelize.Parcelize
 
-class MigrationSourceItem(val source: HttpSource, var sourceEnabled: Boolean) : AbstractFlexibleItem<MigrationSourceHolder>() {
+class MigrationSourceItem(
+    val source: HttpSource,
+    var sourceEnabled: Boolean,
+) : AbstractFlexibleItem<MigrationSourceHolder>() {
     override fun getLayoutRes() = R.layout.migration_source_item
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): MigrationSourceHolder {
-        return MigrationSourceHolder(view, adapter as MigrationSourceAdapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): MigrationSourceHolder = MigrationSourceHolder(view, adapter as MigrationSourceAdapter)
 
     /**
      * Binds the given view holder with this item.
@@ -38,9 +42,7 @@ class MigrationSourceItem(val source: HttpSource, var sourceEnabled: Boolean) : 
     /**
      * Returns true if this item is draggable.
      */
-    override fun isDraggable(): Boolean {
-        return true
-    }
+    override fun isDraggable(): Boolean = true
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -50,19 +52,21 @@ class MigrationSourceItem(val source: HttpSource, var sourceEnabled: Boolean) : 
         return false
     }
 
-    override fun hashCode(): Int {
-        return source.id.hashCode()
-    }
+    override fun hashCode(): Int = source.id.hashCode()
 
     @Parcelize
-    data class ParcelableSI(val sourceId: Long, val sourceEnabled: Boolean) : Parcelable
+    data class ParcelableSI(
+        val sourceId: Long,
+        val sourceEnabled: Boolean,
+    ) : Parcelable
 
-    fun asParcelable(): ParcelableSI {
-        return ParcelableSI(source.id, sourceEnabled)
-    }
+    fun asParcelable(): ParcelableSI = ParcelableSI(source.id, sourceEnabled)
 
     companion object {
-        fun fromParcelable(sourceManager: SourceManager, si: ParcelableSI): MigrationSourceItem? {
+        fun fromParcelable(
+            sourceManager: SourceManager,
+            si: ParcelableSI,
+        ): MigrationSourceItem? {
             val source = sourceManager.get(si.sourceId) as? HttpSource ?: return null
 
             return MigrationSourceItem(

@@ -13,25 +13,28 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.util.view.setAnimVectorCompat
 
-class GroupItem(val filter: Filter.Group<*>) : AbstractExpandableHeaderItem<GroupItem.Holder, ISectionable<*, *>>() {
-
+class GroupItem(
+    val filter: Filter.Group<*>,
+) : AbstractExpandableHeaderItem<GroupItem.Holder, ISectionable<*, *>>() {
     init {
         isExpanded = false
     }
 
-    override fun getLayoutRes(): Int {
-        return R.layout.navigation_view_group
-    }
+    override fun getLayoutRes(): Int = R.layout.navigation_view_group
 
-    override fun getItemViewType(): Int {
-        return 101
-    }
+    override fun getItemViewType(): Int = 101
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: Holder, position: Int, payloads: MutableList<Any?>?) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: Holder,
+        position: Int,
+        payloads: MutableList<Any?>?,
+    ) {
         holder.title.text = filter.name
 
         holder.icon.setAnimVectorCompat(
@@ -51,17 +54,15 @@ class GroupItem(val filter: Filter.Group<*>) : AbstractExpandableHeaderItem<Grou
         return filter == (other as GroupItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 
-    open class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : ExpandableViewHolder(view, adapter, true) {
-
+    open class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : ExpandableViewHolder(view, adapter, true) {
         val title: TextView = itemView.findViewById(R.id.title)
         val icon: ImageView = itemView.findViewById(R.id.expand_icon)
 
-        override fun shouldNotifyParentOnClick(): Boolean {
-            return true
-        }
+        override fun shouldNotifyParentOnClick(): Boolean = true
     }
 }

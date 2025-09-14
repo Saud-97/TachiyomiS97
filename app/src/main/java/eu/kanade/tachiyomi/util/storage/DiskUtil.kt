@@ -11,10 +11,7 @@ import eu.kanade.tachiyomi.util.lang.Hash
 import java.io.File
 
 object DiskUtil {
-
-    fun hashKeyForDisk(key: String): String {
-        return Hash.md5(key)
-    }
+    fun hashKeyForDisk(key: String): String = Hash.md5(key)
 
     fun getDirectorySize(f: File): Long {
         var size: Long = 0
@@ -31,31 +28,32 @@ object DiskUtil {
     /**
      * Gets the available space for the disk that a file path points to, in bytes.
      */
-    fun getAvailableStorageSpace(f: UniFile): Long {
-        return try {
+    fun getAvailableStorageSpace(f: UniFile): Long =
+        try {
             val stat = StatFs(f.uri.path)
             stat.availableBlocksLong * stat.blockSizeLong
         } catch (_: Exception) {
             -1L
         }
-    }
 
     /**
      * Returns the root folders of all the available external storages.
      */
     fun getExternalStorages(context: Context): Collection<File> {
         val directories = mutableSetOf<File>()
-        directories += ContextCompat.getExternalFilesDirs(context, null)
-            .filterNotNull()
-            .mapNotNull {
-                val file = File(it.absolutePath.substringBefore("/Android/"))
-                val state = EnvironmentCompat.getStorageState(file)
-                if (state == Environment.MEDIA_MOUNTED || state == Environment.MEDIA_MOUNTED_READ_ONLY) {
-                    file
-                } else {
-                    null
+        directories +=
+            ContextCompat
+                .getExternalFilesDirs(context, null)
+                .filterNotNull()
+                .mapNotNull {
+                    val file = File(it.absolutePath.substringBefore("/Android/"))
+                    val state = EnvironmentCompat.getStorageState(file)
+                    if (state == Environment.MEDIA_MOUNTED || state == Environment.MEDIA_MOUNTED_READ_ONLY) {
+                        file
+                    } else {
+                        null
+                    }
                 }
-            }
 
         return directories
     }
@@ -63,7 +61,10 @@ object DiskUtil {
     /**
      * Don't display downloaded chapters in gallery apps creating `.nomedia`.
      */
-    fun createNoMediaFile(dir: UniFile?, context: Context?) {
+    fun createNoMediaFile(
+        dir: UniFile?,
+        context: Context?,
+    ) {
         if (dir != null && dir.exists()) {
             val nomedia = dir.findFile(".nomedia")
             if (nomedia == null) {
@@ -76,14 +77,20 @@ object DiskUtil {
     /**
      * Scans the given file so that it can be shown in gallery apps, for example.
      */
-    fun scanMedia(context: Context, file: File) {
+    fun scanMedia(
+        context: Context,
+        file: File,
+    ) {
         scanMedia(context, file.path)
     }
 
     /**
      * Scans the given file so that it can be shown in gallery apps, for example.
      */
-    fun scanMedia(context: Context, filePath: String?) {
+    fun scanMedia(
+        context: Context,
+        filePath: String?,
+    ) {
         MediaScannerConnection.scanFile(context, arrayOf(filePath), null, null)
     }
 

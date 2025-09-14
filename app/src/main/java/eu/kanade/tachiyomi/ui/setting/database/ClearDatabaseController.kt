@@ -36,19 +36,14 @@ class ClearDatabaseController :
     BaseCoroutineController<ClearDatabaseControllerBinding, ClearDatabasePresenter>(),
     FlexibleAdapter.OnItemClickListener,
     FlexibleAdapter.OnUpdateListener {
-
     private var adapter: FlexibleAdapter<ClearDatabaseSourceItem>? = null
     private var menu: Menu? = null
 
-    override fun createBinding(inflater: LayoutInflater): ClearDatabaseControllerBinding {
-        return ClearDatabaseControllerBinding.inflate(inflater)
-    }
+    override fun createBinding(inflater: LayoutInflater): ClearDatabaseControllerBinding = ClearDatabaseControllerBinding.inflate(inflater)
 
     override val presenter = ClearDatabasePresenter()
 
-    override fun getTitle(): String? {
-        return activity?.getString(R.string.clear_database)
-    }
+    override fun getTitle(): String? = activity?.getString(R.string.clear_database)
 
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
@@ -70,11 +65,12 @@ class ClearDatabaseController :
                     }
                 }
                 binding.recycler.updatePadding(
-                    bottom = if (adapter?.selectedItemCount ?: 0 > 0) {
-                        binding.fab.height + binding.fab.marginBottom
-                    } else {
-                        insets.getInsets(systemBars()).bottom
-                    },
+                    bottom =
+                        if (adapter?.selectedItemCount ?: 0 > 0) {
+                            binding.fab.height + binding.fab.marginBottom
+                        } else {
+                            insets.getInsets(systemBars()).bottom
+                        },
                 )
                 binding.fastScroller.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     bottomMargin = insets.getInsets(systemBars()).bottom
@@ -91,22 +87,31 @@ class ClearDatabaseController :
                     if (binding.fastScroller.isFastScrolling) return
                     val activityBinding = activityBinding ?: return
                     val bigToolbarHeight = fullAppBarHeight ?: return
-                    val value = max(
-                        0,
-                        bigToolbarHeight + activityBinding.appBar.y.roundToInt(),
-                    ) + activityBinding.appBar.paddingTop
+                    val value =
+                        max(
+                            0,
+                            bigToolbarHeight + activityBinding.appBar.y.roundToInt(),
+                        ) + activityBinding.appBar.paddingTop
                     if (value != binding.fastScroller.marginTop) {
                         binding.fastScroller.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                             topMargin = value
                         }
                     }
                 }
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                override fun onScrolled(
+                    recyclerView: RecyclerView,
+                    dx: Int,
+                    dy: Int,
+                ) {
                     super.onScrolled(recyclerView, dx, dy)
                     updateFastScrollMargins()
                 }
 
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                override fun onScrollStateChanged(
+                    recyclerView: RecyclerView,
+                    newState: Int,
+                ) {
                     super.onScrollStateChanged(recyclerView, newState)
                     updateFastScrollMargins()
                 }
@@ -117,15 +122,14 @@ class ClearDatabaseController :
             if (adapter!!.selectedItemCount > 0) {
                 val item = arrayOf(activity!!.getString(R.string.clear_db_exclude_read))
                 val selected = booleanArrayOf(true)
-                activity!!.materialAlertDialog()
+                activity!!
+                    .materialAlertDialog()
                     .setCustomTitleAndMessage(0, activity!!.getString(R.string.clear_database_confirmation))
                     .setMultiChoiceItems(item, selected) { _, which, checked ->
                         selected[which] = checked
-                    }
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                    }.setPositiveButton(android.R.string.ok) { _, _ ->
                         clearDatabaseForSelectedSources(selected.last())
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
+                    }.setNegativeButton(android.R.string.cancel, null)
                     .show()
             }
         }
@@ -136,13 +140,17 @@ class ClearDatabaseController :
         super.onDestroyView(view)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.clear_database, menu)
         this.menu = menu
-        val id = when (presenter.sortBy) {
-            ClearDatabasePresenter.SortSources.ALPHA -> R.id.action_sort_alpha
-            ClearDatabasePresenter.SortSources.MOST_ENTRIES -> R.id.action_sort_largest
-        }
+        val id =
+            when (presenter.sortBy) {
+                ClearDatabasePresenter.SortSources.ALPHA -> R.id.action_sort_alpha
+                ClearDatabasePresenter.SortSources.MOST_ENTRIES -> R.id.action_sort_largest
+            }
         menu.findItem(id).isChecked = true
         menu.forEach { menuItem -> menuItem.isVisible = (adapter?.itemCount ?: 0) > 0 }
         setUninstalledMenuItem()
@@ -150,7 +158,8 @@ class ClearDatabaseController :
 
     private fun setUninstalledMenuItem() {
         menu?.findItem(R.id.action_select_uninstalled)?.isVisible =
-            presenter.hasStubSources && adapter?.itemCount ?: 0 > 0
+            presenter.hasStubSources &&
+            adapter?.itemCount ?: 0 > 0
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -163,19 +172,21 @@ class ClearDatabaseController :
                 }
             }
             R.id.action_sort_alpha, R.id.action_sort_largest -> {
-                val sortBy = when (item.itemId) {
-                    R.id.action_sort_alpha -> ClearDatabasePresenter.SortSources.ALPHA
-                    R.id.action_sort_largest -> ClearDatabasePresenter.SortSources.MOST_ENTRIES
-                    else -> return false
-                }
+                val sortBy =
+                    when (item.itemId) {
+                        R.id.action_sort_alpha -> ClearDatabasePresenter.SortSources.ALPHA
+                        R.id.action_sort_largest -> ClearDatabasePresenter.SortSources.MOST_ENTRIES
+                        else -> return false
+                    }
                 presenter.reorder(sortBy)
                 item.isChecked = true
                 adapter.clearSelection()
             }
             R.id.action_select_uninstalled -> {
                 val currentSelection = adapter.selectedPositionsAsSet
-                val uninstalledSelection = (0 until adapter.itemCount)
-                    .filter { adapter.getItem(it)?.isStub == true }
+                val uninstalledSelection =
+                    (0 until adapter.itemCount)
+                        .filter { adapter.getItem(it)?.isStub == true }
                 currentSelection.clear()
                 currentSelection.addAll(uninstalledSelection)
             }
@@ -198,7 +209,10 @@ class ClearDatabaseController :
         setUninstalledMenuItem()
     }
 
-    override fun onItemClick(view: View?, position: Int): Boolean {
+    override fun onItemClick(
+        view: View?,
+        position: Int,
+    ): Boolean {
         val adapter = adapter ?: return false
         adapter.toggleSelection(position)
         adapter.notifyItemChanged(position, Payload.SELECTION)
@@ -225,11 +239,14 @@ class ClearDatabaseController :
         } else {
             binding.fab.hide()
         }
-        val bottomPadding = if (adapter.selectedItemCount > 0) {
-            binding.fab.height + binding.fab.marginBottom
-        } else {
-            binding.root.rootWindowInsetsCompat?.getInsets(systemBars())?.bottom ?: 0
-        }
+        val bottomPadding =
+            if (adapter.selectedItemCount > 0) {
+                binding.fab.height + binding.fab.marginBottom
+            } else {
+                binding.root.rootWindowInsetsCompat
+                    ?.getInsets(systemBars())
+                    ?.bottom ?: 0
+            }
         if (bottomPadding != binding.recycler.paddingBottom) {
             binding.recycler.updatePadding(bottom = bottomPadding)
         }
@@ -238,9 +255,10 @@ class ClearDatabaseController :
     @SuppressLint("NotifyDataSetChanged")
     private fun clearDatabaseForSelectedSources(keepReadManga: Boolean) {
         val adapter = adapter ?: return
-        val selectedSourceIds = adapter.selectedPositions.mapNotNull { position ->
-            adapter.getItem(position)?.source?.id
-        }
+        val selectedSourceIds =
+            adapter.selectedPositions.mapNotNull { position ->
+                adapter.getItem(position)?.source?.id
+            }
         presenter.clearDatabaseForSourceIds(selectedSourceIds, keepReadManga)
         binding.fab.isVisible = false
         adapter.clearSelection()

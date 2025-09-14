@@ -30,13 +30,15 @@ import kotlin.math.floor
  * Replaces the given string to have at most [count] characters using [replacement] at its end.
  * If [replacement] is longer than [count] an exception will be thrown when `length > count`.
  */
-fun String.chop(count: Int, replacement: String = "…"): String {
-    return if (length > count) {
+fun String.chop(
+    count: Int,
+    replacement: String = "…",
+): String =
+    if (length > count) {
         take(count - replacement.length) + replacement
     } else {
         this
     }
-}
 
 fun String.chopByWords(count: Int): String {
     return if (length > count) {
@@ -58,14 +60,13 @@ fun String.chopByWords(count: Int): String {
     }
 }
 
-fun String.removeArticles(): String {
-    return when {
+fun String.removeArticles(): String =
+    when {
         startsWith("a ", true) -> substring(2)
         startsWith("an ", true) -> substring(3)
         startsWith("the ", true) -> substring(4)
         else -> this
     }
-}
 
 val String.sqLite: String
     get() = replace("'", "''")
@@ -79,7 +80,10 @@ fun String.trimOrNull(): String? {
  * Replaces the given string to have at most [count] characters using [replacement] near the center.
  * If [replacement] is longer than [count] an exception will be thrown when `length > count`.
  */
-fun String.truncateCenter(count: Int, replacement: String = "..."): String {
+fun String.truncateCenter(
+    count: Int,
+    replacement: String = "...",
+): String {
     if (length <= count) {
         return this
     }
@@ -90,11 +94,12 @@ fun String.truncateCenter(count: Int, replacement: String = "..."): String {
 }
 
 fun String.capitalizeWords(): String {
-    val firstReplace = split(" ").joinToString(" ") {
-        it.replaceFirstChar { text ->
-            text.titlecase(Locale.getDefault())
+    val firstReplace =
+        split(" ").joinToString(" ") {
+            it.replaceFirstChar { text ->
+                text.titlecase(Locale.getDefault())
+            }
         }
-    }
     return firstReplace.split("-").joinToString("-") {
         it.replaceFirstChar { text ->
             text.titlecase(Locale.getDefault())
@@ -110,13 +115,18 @@ fun String.compareToCaseInsensitiveNaturalOrder(other: String): Int {
     return comparator.compare(this, other)
 }
 
-fun CharSequence.tintText(@ColorInt color: Int): Spanned {
+fun CharSequence.tintText(
+    @ColorInt color: Int,
+): Spanned {
     val s = SpannableString(this)
     s.setSpan(ForegroundColorSpan(color), 0, this.length, 0)
     return s
 }
 
-fun String.highlightText(highlight: String, @ColorInt color: Int): Spanned {
+fun String.highlightText(
+    highlight: String,
+    @ColorInt color: Int,
+): Spanned {
     val wordToSpan: Spannable = SpannableString(this)
     if (highlight.isBlank()) return wordToSpan
     indexesOf(highlight).forEach {
@@ -125,8 +135,11 @@ fun String.highlightText(highlight: String, @ColorInt color: Int): Spanned {
     return wordToSpan
 }
 
-fun String.asButton(context: Context, disabled: Boolean = false): SpannedString {
-    return buildSpannedString {
+fun String.asButton(
+    context: Context,
+    disabled: Boolean = false,
+): SpannedString =
+    buildSpannedString {
         val buttonSpan: SpannableStringBuilder.() -> Unit = {
             inSpans(
                 TextAppearanceSpan(context, R.style.TextAppearance_Tachiyomi_Button),
@@ -138,9 +151,11 @@ fun String.asButton(context: Context, disabled: Boolean = false): SpannedString 
             buttonSpan()
         }
     }
-}
 
-fun String.indexesOf(substr: String, ignoreCase: Boolean = true): List<Int> {
+fun String.indexesOf(
+    substr: String,
+    ignoreCase: Boolean = true,
+): List<Int> {
     val list = mutableListOf<Int>()
     if (substr.isBlank()) return list
 
@@ -154,16 +169,21 @@ fun String.indexesOf(substr: String, ignoreCase: Boolean = true): List<Int> {
     }
 }
 
-fun String.withColor(@ColorInt colorInt: Int) =
-    buildSpannedString { color(colorInt) { append(this@withColor) } }
+fun String.withColor(
+    @ColorInt colorInt: Int,
+) = buildSpannedString { color(colorInt) { append(this@withColor) } }
 
-fun String.withSubtitle(context: Context, @StringRes subtitleRes: Int) =
-    withSubtitle(context, context.getString(subtitleRes))
+fun String.withSubtitle(
+    context: Context,
+    @StringRes subtitleRes: Int,
+) = withSubtitle(context, context.getString(subtitleRes))
 
-fun String.withSubtitle(subtitle: Spanned): Spanned =
-    SpannableStringBuilder(this + "\n").append(subtitle)
+fun String.withSubtitle(subtitle: Spanned): Spanned = SpannableStringBuilder(this + "\n").append(subtitle)
 
-fun String.withSubtitle(context: Context, subtitle: String): Spanned {
+fun String.withSubtitle(
+    context: Context,
+    subtitle: String,
+): Spanned {
     val spannable = SpannableStringBuilder(this + "\n" + subtitle)
     spannable.setSpan(
         ForegroundColorSpan(context.getResourceColor(android.R.attr.textColorSecondary)),
@@ -174,7 +194,10 @@ fun String.withSubtitle(context: Context, subtitle: String): Spanned {
     return spannable
 }
 
-fun String.addBetaTag(context: Context, useSuperScript: Boolean = true): Spanned {
+fun String.addBetaTag(
+    context: Context,
+    useSuperScript: Boolean = true,
+): Spanned {
     val betaText = context.getString(R.string.beta)
     val colorS = context.getResourceColor(R.attr.colorSecondary)
     return buildSpannedString {
@@ -188,8 +211,8 @@ fun String.addBetaTag(context: Context, useSuperScript: Boolean = true): Spanned
 
 fun String.toNormalized(): String = replace("[`’]".toRegex(), "'")
 
-fun String.getUrlWithoutDomain(): String {
-    return try {
+fun String.getUrlWithoutDomain(): String =
+    try {
         val uri = URI(this.replace(" ", "%20"))
         var out = uri.path
         if (uri.query != null) {
@@ -202,11 +225,8 @@ fun String.getUrlWithoutDomain(): String {
     } catch (e: URISyntaxException) {
         this
     }
-}
 
 /**
  * HTML-decode the string
  */
-fun String.htmlDecode(): String {
-    return this.parseAsHtml().toString()
-}
+fun String.htmlDecode(): String = this.parseAsHtml().toString()

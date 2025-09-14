@@ -32,7 +32,6 @@ class MigrationProcessHolder(
     private val view: View,
     private val adapter: MigrationProcessAdapter,
 ) : BaseFlexibleViewHolder(view, adapter) {
-
     private val db: DatabaseHelper by injectLazy()
     private val sourceManager: SourceManager by injectLazy()
     private var item: MigrationProcessItem? = null
@@ -95,14 +94,18 @@ class MigrationProcessHolder(
                     }
                 }*/
 
-                val searchResult = item.manga.searchResult.get()?.let {
-                    db.getManga(it).executeAsBlocking()
-                }
-                val resultSource = searchResult?.source?.let {
-                    sourceManager.get(it)
-                }
+                val searchResult =
+                    item.manga.searchResult.get()?.let {
+                        db.getManga(it).executeAsBlocking()
+                    }
+                val resultSource =
+                    searchResult?.source?.let {
+                        sourceManager.get(it)
+                    }
                 withContext(Dispatchers.Main) {
-                    if (item.manga.mangaId != this@MigrationProcessHolder.item?.manga?.mangaId || item.manga.migrationStatus == MigrationStatus.RUNNUNG) {
+                    if (item.manga.mangaId != this@MigrationProcessHolder.item?.manga?.mangaId ||
+                        item.manga.migrationStatus == MigrationStatus.RUNNUNG
+                    ) {
                         return@withContext
                     }
                     if (searchResult != null && resultSource != null) {
@@ -141,23 +144,30 @@ class MigrationProcessHolder(
         root.setOnClickListener(null)
     }
 
-    private fun MangaGridItemBinding.attachManga(manga: Manga, source: Source) {
+    private fun MangaGridItemBinding.attachManga(
+        manga: Manga,
+        source: Source,
+    ) {
         (root.layoutParams as ConstraintLayout.LayoutParams).verticalBias = 1f
         progress.isVisible = false
 
-        val request = ImageRequest.Builder(view.context).data(manga)
-            .target(CoverViewTarget(coverThumbnail, progress))
-            .setParameter(MangaCoverFetcher.useCustomCover, false)
-            .build()
+        val request =
+            ImageRequest
+                .Builder(view.context)
+                .data(manga)
+                .target(CoverViewTarget(coverThumbnail, progress))
+                .setParameter(MangaCoverFetcher.useCustomCover, false)
+                .build()
         Coil.imageLoader(view.context).enqueue(request)
 
         compactTitle.isVisible = true
         gradient.isVisible = true
-        compactTitle.text = if (manga.title.isBlank()) {
-            view.context.getString(R.string.unknown)
-        } else {
-            manga.title
-        }
+        compactTitle.text =
+            if (manga.title.isBlank()) {
+                view.context.getString(R.string.unknown)
+            } else {
+                manga.title
+            }
 
         gradient.isVisible = true
         title.text = source.toString()
@@ -167,15 +177,17 @@ class MigrationProcessHolder(
         val latestChapter = mangaChapters.maxOfOrNull { it.chapter_number } ?: -1f
 
         if (latestChapter > 0f) {
-            subtitle.text = root.context.getString(
-                R.string.latest_,
-                DecimalFormat("#.#").format(latestChapter),
-            )
+            subtitle.text =
+                root.context.getString(
+                    R.string.latest_,
+                    DecimalFormat("#.#").format(latestChapter),
+                )
         } else {
-            subtitle.text = root.context.getString(
-                R.string.latest_,
-                root.context.getString(R.string.unknown),
-            )
+            subtitle.text =
+                root.context.getString(
+                    R.string.latest_,
+                    root.context.getString(R.string.unknown),
+                )
         }
     }
 

@@ -15,8 +15,9 @@ import java.util.concurrent.Executors
 /**
  * Loader used to load a chapter from a .rar or .cbr file.
  */
-class RarPageLoader(file: File) : PageLoader() {
-
+class RarPageLoader(
+    file: File,
+) : PageLoader() {
     /**
      * The rar archive to load pages from.
      */
@@ -40,8 +41,9 @@ class RarPageLoader(file: File) : PageLoader() {
      * Returns an RxJava Single containing the pages found on this rar archive ordered with a natural
      * comparator.
      */
-    override suspend fun getPages(): List<ReaderPage> {
-        return archive.fileHeaders.asSequence()
+    override suspend fun getPages(): List<ReaderPage> =
+        archive.fileHeaders
+            .asSequence()
             .filter { !it.isDirectory && ImageUtil.isImage(it.fileName) { archive.getInputStream(it) } }
             .sortedWith { f1, f2 -> f1.fileName.compareToCaseInsensitiveNaturalOrder(f2.fileName) }
             .mapIndexed { i, header ->
@@ -49,9 +51,7 @@ class RarPageLoader(file: File) : PageLoader() {
                     stream = { getStream(header) }
                     status = Page.State.READY
                 }
-            }
-            .toList()
-    }
+            }.toList()
 
     /**
      * No additional action required to load the page

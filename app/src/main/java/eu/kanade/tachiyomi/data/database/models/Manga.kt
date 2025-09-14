@@ -14,7 +14,6 @@ import uy.kohesive.injekt.api.get
 import java.util.Locale
 
 interface Manga : SManga {
-
     var id: Long?
 
     var source: Long
@@ -34,9 +33,13 @@ interface Manga : SManga {
     var filtered_scanlators: String?
 
     fun isBlank() = id == Long.MIN_VALUE
+
     fun isHidden() = status == -1
 
-    fun setChapterOrder(sorting: Int, order: Int) {
+    fun setChapterOrder(
+        sorting: Int,
+        order: Int,
+    ) {
         setChapterFlags(sorting, CHAPTER_SORTING_MASK)
         setChapterFlags(order, CHAPTER_SORT_MASK)
         setChapterFlags(CHAPTER_SORT_LOCAL, CHAPTER_SORT_LOCAL_MASK)
@@ -45,13 +48,20 @@ interface Manga : SManga {
     fun setSortToGlobal() = setChapterFlags(CHAPTER_SORT_FILTER_GLOBAL, CHAPTER_SORT_LOCAL_MASK)
 
     fun setFilterToGlobal() = setChapterFlags(CHAPTER_SORT_FILTER_GLOBAL, CHAPTER_FILTER_LOCAL_MASK)
+
     fun setFilterToLocal() = setChapterFlags(CHAPTER_FILTER_LOCAL, CHAPTER_FILTER_LOCAL_MASK)
 
-    private fun setChapterFlags(flag: Int, mask: Int) {
+    private fun setChapterFlags(
+        flag: Int,
+        mask: Int,
+    ) {
         chapter_flags = chapter_flags and mask.inv() or (flag and mask)
     }
 
-    private fun setViewerFlags(flag: Int, mask: Int) {
+    private fun setViewerFlags(
+        flag: Int,
+        mask: Int,
+    ) {
         viewer_flags = viewer_flags and mask.inv() or (flag and mask)
     }
 
@@ -70,11 +80,9 @@ interface Manga : SManga {
     fun sortDescending(preferences: PreferencesHelper): Boolean =
         if (usesLocalSort) sortDescending else preferences.chaptersDescAsDefault().get()
 
-    fun chapterOrder(preferences: PreferencesHelper): Int =
-        if (usesLocalSort) sorting else preferences.sortChapterOrder().get()
+    fun chapterOrder(preferences: PreferencesHelper): Int = if (usesLocalSort) sorting else preferences.sortChapterOrder().get()
 
-    fun readFilter(preferences: PreferencesHelper): Int =
-        if (usesLocalFilter) readFilter else preferences.filterChapterByRead().get()
+    fun readFilter(preferences: PreferencesHelper): Int = if (usesLocalFilter) readFilter else preferences.filterChapterByRead().get()
 
     fun downloadedFilter(preferences: PreferencesHelper): Int =
         if (usesLocalFilter) downloadedFilter else preferences.filterChapterByDownloaded().get()
@@ -87,32 +95,39 @@ interface Manga : SManga {
 
     fun showChapterTitle(defaultShow: Boolean): Boolean = chapter_flags and CHAPTER_DISPLAY_MASK == CHAPTER_DISPLAY_NUMBER
 
-    fun seriesType(context: Context, sourceManager: SourceManager? = null): String {
-        return context.getString(
-            when (seriesType(sourceManager = sourceManager)) {
-                TYPE_WEBTOON -> R.string.webtoon
-                TYPE_MANHWA -> R.string.manhwa
-                TYPE_MANHUA -> R.string.manhua
-                TYPE_COMIC -> R.string.comic
-                else -> R.string.manga
-            },
-        ).lowercase(Locale.getDefault())
-    }
+    fun seriesType(
+        context: Context,
+        sourceManager: SourceManager? = null,
+    ): String =
+        context
+            .getString(
+                when (seriesType(sourceManager = sourceManager)) {
+                    TYPE_WEBTOON -> R.string.webtoon
+                    TYPE_MANHWA -> R.string.manhwa
+                    TYPE_MANHUA -> R.string.manhua
+                    TYPE_COMIC -> R.string.comic
+                    else -> R.string.manga
+                },
+            ).lowercase(Locale.getDefault())
 
-    fun getGenres(): List<String>? {
-        return genre?.split(",")
+    fun getGenres(): List<String>? =
+        genre
+            ?.split(",")
             ?.mapNotNull { tag -> tag.trim().takeUnless { it.isBlank() } }
-    }
 
-    fun getOriginalGenres(): List<String>? {
-        return (originalGenre ?: genre)?.split(",")
+    fun getOriginalGenres(): List<String>? =
+        (originalGenre ?: genre)
+            ?.split(",")
             ?.mapNotNull { tag -> tag.trim().takeUnless { it.isBlank() } }
-    }
 
     /**
      * The type of comic the manga is (ie. manga, manhwa, manhua)
      */
-    fun seriesType(useOriginalTags: Boolean = false, customTags: String? = null, sourceManager: SourceManager? = null): Int {
+    fun seriesType(
+        useOriginalTags: Boolean = false,
+        customTags: String? = null,
+        sourceManager: SourceManager? = null,
+    ): Int {
         val sourceName by lazy { (sourceManager ?: Injekt.get()).getOrStub(source).name }
         val tags = customTags ?: if (useOriginalTags) originalGenre else genre
         val currentTags = tags?.split(",")?.map { it.trim().lowercase(Locale.US) } ?: emptyList()
@@ -127,10 +142,11 @@ interface Manga : SManga {
                 sourceName.contains("webtoon", true) &&
                     currentTags.none { tag -> isManhuaTag(tag) } &&
                     currentTags.none { tag -> isManhwaTag(tag) }
-                )
+            )
         ) {
             TYPE_WEBTOON
-        } else if (currentTags.any { tag -> isManhuaTag(tag) } || sourceName.contains(
+        } else if (currentTags.any { tag -> isManhuaTag(tag) } ||
+            sourceName.contains(
                 "manhua",
                 true,
             )
@@ -151,23 +167,28 @@ interface Manga : SManga {
         val sourceName = Injekt.get<SourceManager>().getOrStub(source).name
         val currentTags = genre?.split(",")?.map { it.trim().lowercase(Locale.US) } ?: emptyList()
         return if (currentTags.any
-            { tag ->
-                isManhwaTag(tag) || tag.contains("webtoon")
-            } || (
+                { tag ->
+                    isManhwaTag(tag) || tag.contains("webtoon")
+                } ||
+            (
                 isWebtoonSource(sourceName) &&
                     currentTags.none { tag -> isManhuaTag(tag) } &&
                     currentTags.none { tag -> isComicTag(tag) }
-                )
+            )
         ) {
             ReadingModeType.WEBTOON.flagValue
         } else if (currentTags.any
-            { tag ->
-                tag == "chinese" || tag == "manhua" ||
-                    tag.startsWith("english") || tag == "comic"
-            } || (
-                isComicSource(sourceName) && !sourceName.contains("tapas", true) &&
+                { tag ->
+                    tag == "chinese" ||
+                        tag == "manhua" ||
+                        tag.startsWith("english") ||
+                        tag == "comic"
+                } ||
+            (
+                isComicSource(sourceName) &&
+                    !sourceName.contains("tapas", true) &&
                     currentTags.none { tag -> isMangaTag(tag) }
-                ) ||
+            ) ||
             (sourceName.contains("manhua", true) && currentTags.none { tag -> isMangaTag(tag) })
         ) {
             ReadingModeType.LEFT_TO_RIGHT.flagValue
@@ -178,17 +199,17 @@ interface Manga : SManga {
 
     fun isSeriesTag(tag: String): Boolean {
         val tagLower = tag.lowercase(Locale.ROOT)
-        return isMangaTag(tagLower) || isManhuaTag(tagLower) ||
-            isManhwaTag(tagLower) || isComicTag(tagLower) || isWebtoonTag(tagLower)
+        return isMangaTag(tagLower) ||
+            isManhuaTag(tagLower) ||
+            isManhwaTag(tagLower) ||
+            isComicTag(tagLower) ||
+            isWebtoonTag(tagLower)
     }
 
-    fun isMangaTag(tag: String): Boolean {
-        return tag in listOf("manga", "манга", "jp") || tag.startsWith("japanese")
-    }
+    fun isMangaTag(tag: String): Boolean = tag in listOf("manga", "манга", "jp") || tag.startsWith("japanese")
 
-    fun isManhuaTag(tag: String): Boolean {
-        return tag in listOf("manhua", "маньхуа", "cn", "hk", "zh-Hans", "zh-Hant") || tag.startsWith("chinese")
-    }
+    fun isManhuaTag(tag: String): Boolean =
+        tag in listOf("manhua", "маньхуа", "cn", "hk", "zh-Hans", "zh-Hant") || tag.startsWith("chinese")
 
     fun isLongStrip(): Boolean {
         val currentTags =
@@ -196,26 +217,19 @@ interface Manga : SManga {
         return currentTags.any { it == "long strip" }
     }
 
-    fun isManhwaTag(tag: String): Boolean {
-        return tag in listOf("long strip", "manhwa", "манхва", "kr") || tag.startsWith("korean")
-    }
+    fun isManhwaTag(tag: String): Boolean = tag in listOf("long strip", "manhwa", "манхва", "kr") || tag.startsWith("korean")
 
-    fun isComicTag(tag: String): Boolean {
-        return tag in listOf("comic", "комикс", "en", "gb") || tag.startsWith("english")
-    }
+    fun isComicTag(tag: String): Boolean = tag in listOf("comic", "комикс", "en", "gb") || tag.startsWith("english")
 
-    fun isWebtoonTag(tag: String): Boolean {
-        return tag.startsWith("webtoon")
-    }
+    fun isWebtoonTag(tag: String): Boolean = tag.startsWith("webtoon")
 
-    fun isWebtoonSource(sourceName: String): Boolean {
-        return sourceName.contains("webtoon", true) ||
+    fun isWebtoonSource(sourceName: String): Boolean =
+        sourceName.contains("webtoon", true) ||
             sourceName.contains("manhwa", true) ||
             sourceName.contains("toonily", true)
-    }
 
-    fun isComicSource(sourceName: String): Boolean {
-        return sourceName.contains("gunnerkrigg", true) ||
+    fun isComicSource(sourceName: String): Boolean =
+        sourceName.contains("gunnerkrigg", true) ||
             sourceName.contains("dilbert", true) ||
             sourceName.contains("cyanide", true) ||
             sourceName.contains("xkcd", true) ||
@@ -223,25 +237,23 @@ interface Manga : SManga {
             sourceName.contains("ComicExtra", true) ||
             sourceName.contains("Read Comics Online", true) ||
             sourceName.contains("ReadComicOnline", true)
-    }
 
     fun isOneShotOrCompleted(db: DatabaseHelper): Boolean {
         val tags by lazy { genre?.split(",")?.map { it.trim().lowercase(Locale.US) } }
         val chapters by lazy { db.getChapters(this).executeAsBlocking() }
         val firstChapterName by lazy { chapters.firstOrNull()?.name?.lowercase() ?: "" }
-        return status == SManga.COMPLETED || tags?.contains("oneshot") == true ||
+        return status == SManga.COMPLETED ||
+            tags?.contains("oneshot") == true ||
             (
                 chapters.size == 1 &&
                     (
                         Regex("one.?shot").containsMatchIn(firstChapterName) ||
                             firstChapterName.contains("oneshot")
-                        )
-                )
+                    )
+            )
     }
 
-    fun key(): String {
-        return "manga-id-$id"
-    }
+    fun key(): String = "manga-id-$id"
 
     // Used to display the chapter's title one way or another
     var displayMode: Int
@@ -286,7 +298,6 @@ interface Manga : SManga {
         }
 
     companion object {
-
         // Generic filter that does not filter anything
         const val SHOW_ALL = 0x00000000
 
@@ -329,14 +340,20 @@ interface Manga : SManga {
 
         private val vibrantCoverColorMap: HashMap<Long, Int?> = hashMapOf()
 
-        fun create(source: Long): Manga = MangaImpl().apply {
-            this.source = source
-        }
+        fun create(source: Long): Manga =
+            MangaImpl().apply {
+                this.source = source
+            }
 
-        fun create(pathUrl: String, title: String, source: Long = 0): Manga = MangaImpl().apply {
-            url = pathUrl
-            this.title = title
-            this.source = source
-        }
+        fun create(
+            pathUrl: String,
+            title: String,
+            source: Long = 0,
+        ): Manga =
+            MangaImpl().apply {
+                url = pathUrl
+                this.title = title
+                this.source = source
+            }
     }
 }

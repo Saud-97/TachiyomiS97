@@ -24,9 +24,10 @@ import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.system.toast
 import kotlin.math.max
 
-class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
-    FrameLayout(context, attrs) {
-
+class MaterialSpinnerView constructor(
+    context: Context,
+    attrs: AttributeSet?,
+) : FrameLayout(context, attrs) {
     private var entries = emptyList<String>()
     var selectedPosition = 0
         private set
@@ -43,11 +44,12 @@ class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
             binding.titleView.text = value
         }
 
-    private val blendedAccent = ColorUtils.blendARGB(
-        context.getResourceColor(R.attr.colorSecondary),
-        context.getResourceColor(R.attr.colorOnBackground),
-        0.5f,
-    )
+    private val blendedAccent =
+        ColorUtils.blendARGB(
+            context.getResourceColor(R.attr.colorSecondary),
+            context.getResourceColor(R.attr.colorOnBackground),
+            0.5f,
+        )
 
     private val slightAccent by lazy {
         ColorUtils.blendARGB(
@@ -69,11 +71,12 @@ class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
             }
         }
 
-    private val binding = MaterialSpinnerViewBinding.inflate(
-        LayoutInflater.from(context),
-        this,
-        false,
-    )
+    private val binding =
+        MaterialSpinnerViewBinding.inflate(
+            LayoutInflater.from(context),
+            this,
+            false,
+        )
 
     init {
         addView(binding.root)
@@ -129,7 +132,9 @@ class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
         binding.detailView.text = entries.getOrNull(selection).orEmpty()
     }
 
-    fun setDisabledState(@StringRes messageRes: Int = 0) {
+    fun setDisabledState(
+        @StringRes messageRes: Int = 0,
+    ) {
         alpha = 0.5f
         popup = null
         setOnTouchListener(null)
@@ -140,7 +145,11 @@ class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
         }
     }
 
-    fun bindToPreference(pref: Preference<Int>, offset: Int = 0, block: ((Int) -> Unit)? = null) {
+    fun bindToPreference(
+        pref: Preference<Int>,
+        offset: Int = 0,
+        block: ((Int) -> Unit)? = null,
+    ) {
         setSelection(pref.get() - offset)
         this.pref = pref
         prefOffset = offset
@@ -273,7 +282,8 @@ class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
         popup ?: return
         val originalPosition = originalPosition ?: return
         if (originalPosition != selectedPosition &&
-            originalPosition >= 0 && originalPosition < popup?.menu?.size() ?: 0
+            originalPosition >= 0 &&
+            originalPosition < popup?.menu?.size() ?: 0
         ) {
             popup?.menu?.getItem(originalPosition)?.let { menuItem ->
                 menuItem.icon = tintedOG()
@@ -282,15 +292,13 @@ class MaterialSpinnerView constructor(context: Context, attrs: AttributeSet?) :
         }
     }
 
-    private fun tintedOG(): Drawable? {
-        return originalIcon ?: ContextCompat.getDrawable(context, R.drawable.ic_browse_outline_24dp)?.mutate()?.apply {
+    private fun tintedOG(): Drawable? =
+        originalIcon ?: ContextCompat.getDrawable(context, R.drawable.ic_browse_outline_24dp)?.mutate()?.apply {
             setTint(slightAccent)
         }
-    }
 
-    private fun tintedCheck(): Drawable? {
-        return ContextCompat.getDrawable(context, R.drawable.ic_check_24dp)?.mutate()?.apply {
+    private fun tintedCheck(): Drawable? =
+        ContextCompat.getDrawable(context, R.drawable.ic_check_24dp)?.mutate()?.apply {
             setTint(blendedAccent)
         }
-    }
 }

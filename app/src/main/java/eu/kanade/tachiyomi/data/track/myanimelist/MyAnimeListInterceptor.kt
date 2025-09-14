@@ -8,8 +8,10 @@ import okhttp3.internal.closeQuietly
 import uy.kohesive.injekt.injectLazy
 import java.io.IOException
 
-class MyAnimeListInterceptor(private val myanimelist: MyAnimeList, private var token: String?) : Interceptor {
-
+class MyAnimeListInterceptor(
+    private val myanimelist: MyAnimeList,
+    private var token: String?,
+) : Interceptor {
     private val json: Json by injectLazy()
 
     private var oauth: OAuth? = null
@@ -27,18 +29,19 @@ class MyAnimeListInterceptor(private val myanimelist: MyAnimeList, private var t
         if (oauth != null &&
             (oauth!!.isExpired() || oauth!!.created_at == System.currentTimeMillis())
         ) {
-            val newOauth = with(json) {
-                runCatching {
-                    val oauthResponse = chain.proceed(MyAnimeListApi.refreshTokenRequest(oauth!!))
+            val newOauth =
+                with(json) {
+                    runCatching {
+                        val oauthResponse = chain.proceed(MyAnimeListApi.refreshTokenRequest(oauth!!))
 
-                    if (oauthResponse.isSuccessful) {
-                        oauthResponse.parseAs<OAuth>()
-                    } else {
-                        oauthResponse.closeQuietly()
-                        null
+                        if (oauthResponse.isSuccessful) {
+                            oauthResponse.parseAs<OAuth>()
+                        } else {
+                            oauthResponse.closeQuietly()
+                            null
+                        }
                     }
                 }
-            }
 
             if (newOauth.getOrNull() == null) {
                 throw IOException("Failed to refresh the access token")
@@ -51,9 +54,11 @@ class MyAnimeListInterceptor(private val myanimelist: MyAnimeList, private var t
         }
 
         // Add the authorization header to the original request
-        val authRequest = originalRequest.newBuilder()
-            .addHeader("Authorization", "Bearer ${oauth!!.access_token}")
-            .build()
+        val authRequest =
+            originalRequest
+                .newBuilder()
+                .addHeader("Authorization", "Bearer ${oauth!!.access_token}")
+                .build()
 
         return chain.proceed(authRequest)
     }

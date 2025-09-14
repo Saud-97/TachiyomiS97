@@ -153,7 +153,6 @@ import kotlin.math.roundToLong
 
 @SuppressLint("ResourceType")
 open class MainActivity : BaseActivity<MainActivityBinding>() {
-
     protected lateinit var router: Router
 
     protected val searchDrawable by lazy { contextCompatDrawable(R.drawable.ic_search_24dp) }
@@ -203,7 +202,10 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             }
         }
 
-    fun setUndoSnackBar(snackBar: Snackbar?, extraViewToCheck: View? = null) {
+    fun setUndoSnackBar(
+        snackBar: Snackbar?,
+        extraViewToCheck: View? = null,
+    ) {
         this.snackBar = snackBar
         canDismissSnackBar = false
         launchUI {
@@ -230,13 +232,16 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         reEnableBackPressedCallBack()
     }
 
-    fun bigToolbarHeight(includeSearchToolbar: Boolean, includeTabs: Boolean, includeLargeToolbar: Boolean): Int {
-        return if (!includeLargeToolbar || !binding.appBar.useLargeToolbar) {
+    fun bigToolbarHeight(
+        includeSearchToolbar: Boolean,
+        includeTabs: Boolean,
+        includeLargeToolbar: Boolean,
+    ): Int =
+        if (!includeLargeToolbar || !binding.appBar.useLargeToolbar) {
             toolbarHeight + if (includeTabs) 48.dpToPx else 0
         } else {
             binding.appBar.getEstimatedLayout(includeSearchToolbar, includeTabs, includeLargeToolbar)
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set up shared element transition and disable overlay so views don't show above system bars
@@ -264,80 +269,102 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         window.sharedElementsUseOverlay = false
 
         super.onCreate(savedInstanceState)
-        backPressedCallback = object : OnBackPressedCallback(enabled = true) {
-            var startTime: Long = 0
-            var lastX: Float = 0f
-            var lastY: Float = 0f
-            var controllerHandlesBackPress = false
-            override fun handleOnBackPressed() {
-                if (controllerHandlesBackPress &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                    lastX != 0f && lastY != 0f
-                ) {
-                    val motionEvent = MotionEvent.obtain(
-                        startTime,
-                        SystemClock.uptimeMillis(),
-                        MotionEvent.ACTION_UP,
-                        lastX,
-                        lastY,
-                        0,
-                    )
-                    velocityTracker.addMovement(motionEvent)
-                    motionEvent.recycle()
-                    velocityTracker.computeCurrentVelocity(1, 5f)
-                    backVelocity =
-                        max(0.5f, abs(velocityTracker.getAxisVelocity(MotionEvent.AXIS_X)) * 0.5f)
-                }
-                lastX = 0f
-                lastY = 0f
-                backCallback()
-            }
+        backPressedCallback =
+            object : OnBackPressedCallback(enabled = true) {
+                var startTime: Long = 0
+                var lastX: Float = 0f
+                var lastY: Float = 0f
+                var controllerHandlesBackPress = false
 
-            override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                controllerHandlesBackPress = false
-                val controller by lazy { router.backstack.lastOrNull()?.controller }
-                if (!(
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                        ViewCompat.getRootWindowInsets(window.decorView)
-                        ?.isVisible(WindowInsetsCompat.Type.ime()) == true
-                    ) &&
-                    actionMode == null &&
-                    !(
-                        binding.searchToolbar.hasExpandedActionView() && binding.cardFrame.isVisible &&
-                            controller !is SearchControllerInterface
+                override fun handleOnBackPressed() {
+                    if (controllerHandlesBackPress &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                        lastX != 0f &&
+                        lastY != 0f
+                    ) {
+                        val motionEvent =
+                            MotionEvent.obtain(
+                                startTime,
+                                SystemClock.uptimeMillis(),
+                                MotionEvent.ACTION_UP,
+                                lastX,
+                                lastY,
+                                0,
+                            )
+                        velocityTracker.addMovement(motionEvent)
+                        motionEvent.recycle()
+                        velocityTracker.computeCurrentVelocity(1, 5f)
+                        backVelocity =
+                            max(0.5f, abs(velocityTracker.getAxisVelocity(MotionEvent.AXIS_X)) * 0.5f)
+                    }
+                    lastX = 0f
+                    lastY = 0f
+                    backCallback()
+                }
+
+                override fun handleOnBackStarted(backEvent: BackEventCompat) {
+                    controllerHandlesBackPress = false
+                    val controller by lazy { router.backstack.lastOrNull()?.controller }
+                    if (!(
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                ViewCompat
+                                    .getRootWindowInsets(window.decorView)
+                                    ?.isVisible(WindowInsetsCompat.Type.ime()) == true
+                        ) &&
+                        actionMode == null &&
+                        !(
+                            binding.searchToolbar.hasExpandedActionView() &&
+                                binding.cardFrame.isVisible &&
+                                controller !is SearchControllerInterface
                         )
-                ) {
-                    controllerHandlesBackPress = true
+                    ) {
+                        controllerHandlesBackPress = true
+                    }
+                    if (controllerHandlesBackPress) {
+                        startTime = SystemClock.uptimeMillis()
+                        velocityTracker.clear()
+                        val motionEvent =
+                            MotionEvent.obtain(
+                                startTime,
+                                startTime,
+                                MotionEvent.ACTION_DOWN,
+                                backEvent.touchX,
+                                backEvent.touchY,
+                                0,
+                            )
+                        velocityTracker.addMovement(motionEvent)
+                        motionEvent.recycle()
+                        (controller as? BackHandlerControllerInterface)?.handleOnBackStarted(backEvent)
+                    }
                 }
-                if (controllerHandlesBackPress) {
-                    startTime = SystemClock.uptimeMillis()
-                    velocityTracker.clear()
-                    val motionEvent = MotionEvent.obtain(startTime, startTime, MotionEvent.ACTION_DOWN, backEvent.touchX, backEvent.touchY, 0)
-                    velocityTracker.addMovement(motionEvent)
-                    motionEvent.recycle()
-                    (controller as? BackHandlerControllerInterface)?.handleOnBackStarted(backEvent)
-                }
-            }
 
-            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-                if (controllerHandlesBackPress) {
-                    val motionEvent = MotionEvent.obtain(startTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_MOVE, backEvent.touchX, backEvent.touchY, 0)
-                    lastX = backEvent.touchX
-                    lastY = backEvent.touchY
-                    velocityTracker.addMovement(motionEvent)
-                    motionEvent.recycle()
-                    val controller = router.backstack.lastOrNull()?.controller as? BackHandlerControllerInterface
-                    controller?.handleOnBackProgressed(backEvent)
+                override fun handleOnBackProgressed(backEvent: BackEventCompat) {
+                    if (controllerHandlesBackPress) {
+                        val motionEvent =
+                            MotionEvent.obtain(
+                                startTime,
+                                SystemClock.uptimeMillis(),
+                                MotionEvent.ACTION_MOVE,
+                                backEvent.touchX,
+                                backEvent.touchY,
+                                0,
+                            )
+                        lastX = backEvent.touchX
+                        lastY = backEvent.touchY
+                        velocityTracker.addMovement(motionEvent)
+                        motionEvent.recycle()
+                        val controller = router.backstack.lastOrNull()?.controller as? BackHandlerControllerInterface
+                        controller?.handleOnBackProgressed(backEvent)
+                    }
                 }
-            }
 
-            override fun handleOnBackCancelled() {
-                if (controllerHandlesBackPress) {
-                    val controller = router.backstack.lastOrNull()?.controller as? BackHandlerControllerInterface
-                    controller?.handleOnBackCancelled()
+                override fun handleOnBackCancelled() {
+                    if (controllerHandlesBackPress) {
+                        val controller = router.backstack.lastOrNull()?.controller as? BackHandlerControllerInterface
+                        controller?.handleOnBackCancelled()
+                    }
                 }
             }
-        }
         onBackPressedDispatcher.addCallback(backPressedCallback!!)
         // Do not let the launcher create a new activity http://stackoverflow.com/questions/16283079
         if (!isTaskRoot && this !is SearchActivity) {
@@ -463,9 +490,9 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             val currentController = router.backstack.lastOrNull()?.controller
             if (!continueSwitchingTabs && currentController is BottomNavBarInterface) {
                 if (!currentController.canChangeTabs {
-                    continueSwitchingTabs = true
-                    this@MainActivity.nav.selectedItemId = id
-                }
+                        continueSwitchingTabs = true
+                        this@MainActivity.nav.selectedItemId = id
+                    }
                 ) {
                     return@setOnItemSelectedListener false
                 }
@@ -505,12 +532,14 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         binding.searchToolbar.setNavigationOnClickListener {
             val rootSearchController = router.backstack.lastOrNull()?.controller
             if ((
-                rootSearchController is RootSearchInterface ||
-                    (currentToolbar != binding.searchToolbar && binding.appBar.useLargeToolbar)
+                    rootSearchController is RootSearchInterface ||
+                        (currentToolbar != binding.searchToolbar && binding.appBar.useLargeToolbar)
                 ) &&
                 rootSearchController !is SmallToolbarInterface
             ) {
-                binding.searchToolbar.menu.findItem(R.id.action_search)?.expandActionView()
+                binding.searchToolbar.menu
+                    .findItem(R.id.action_search)
+                    ?.expandActionView()
             } else {
                 onBackPressedDispatcher.onBackPressed()
             }
@@ -521,7 +550,8 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
                 override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                     val controller = router.backstack.lastOrNull()?.controller
                     binding.appBar.compactSearchMode =
-                        binding.appBar.useLargeToolbar && resources.configuration.screenHeightDp < 600
+                        binding.appBar.useLargeToolbar &&
+                        resources.configuration.screenHeightDp < 600
                     if (binding.appBar.compactSearchMode) {
                         setFloatingToolbar(true)
                         controller?.mainRecyclerView?.requestApplyInsets()
@@ -555,11 +585,17 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         binding.appBar.alpha = 1f
 
         binding.searchToolbar.setOnClickListener {
-            binding.searchToolbar.menu.findItem(R.id.action_search)?.expandActionView()
+            binding.searchToolbar.menu
+                .findItem(R.id.action_search)
+                ?.expandActionView()
         }
 
         binding.searchToolbar.setOnMenuItemClickListener {
-            if (router.backstack.lastOrNull()?.controller?.onOptionsItemSelected(it) == true) {
+            if (router.backstack
+                    .lastOrNull()
+                    ?.controller
+                    ?.onOptionsItemSelected(it) == true
+            ) {
                 return@setOnMenuItemClickListener true
             } else {
                 return@setOnMenuItemClickListener onOptionsItemSelected(it)
@@ -658,34 +694,42 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         }
         getExtensionUpdates(true)
 
-        preferences.extensionUpdatesCount()
+        preferences
+            .extensionUpdatesCount()
             .asImmediateFlowIn(lifecycleScope) {
                 setExtensionsBadge()
             }
-        preferences.incognitoMode()
+        preferences
+            .incognitoMode()
             .asImmediateFlowIn(lifecycleScope) {
                 binding.toolbar.setIncognitoMode(it)
                 binding.searchToolbar.setIncognitoMode(it)
                 SecureActivityDelegate.setSecure(this)
             }
-        preferences.sideNavIconAlignment()
+        preferences
+            .sideNavIconAlignment()
             .asImmediateFlowIn(lifecycleScope) {
-                binding.sideNav?.menuGravity = when (it) {
-                    1 -> Gravity.CENTER
-                    2 -> Gravity.BOTTOM
-                    else -> Gravity.TOP
-                }
+                binding.sideNav?.menuGravity =
+                    when (it) {
+                        1 -> Gravity.CENTER
+                        2 -> Gravity.BOTTOM
+                        else -> Gravity.TOP
+                    }
             }
         setFloatingToolbar(canShowFloatingToolbar(router.backstack.lastOrNull()?.controller), changeBG = false)
 
         lifecycleScope.launchUI {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                WindowInfoTracker.getOrCreate(this@MainActivity).windowLayoutInfo(this@MainActivity)
+                WindowInfoTracker
+                    .getOrCreate(this@MainActivity)
+                    .windowLayoutInfo(this@MainActivity)
                     .collect { newLayoutInfo ->
                         hingeGapSize = 0
                         for (displayFeature: DisplayFeature in newLayoutInfo.displayFeatures) {
-                            if (displayFeature is FoldingFeature && displayFeature.occlusionType == FoldingFeature.OcclusionType.FULL &&
-                                displayFeature.isSeparating && displayFeature.orientation == FoldingFeature.Orientation.VERTICAL
+                            if (displayFeature is FoldingFeature &&
+                                displayFeature.occlusionType == FoldingFeature.OcclusionType.FULL &&
+                                displayFeature.isSeparating &&
+                                displayFeature.orientation == FoldingFeature.Orientation.VERTICAL
                             ) {
                                 hingeGapSize = displayFeature.bounds.width()
                             }
@@ -702,10 +746,14 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         val returnToStart = preferences.backReturnsToStart().get() && this !is SearchActivity
         backPressedCallback?.isEnabled = actionMode != null ||
             (binding.searchToolbar.hasExpandedActionView() && binding.cardFrame.isVisible) ||
-            router.canStillGoBack() || (returnToStart && startingTab() != nav.selectedItemId)
+            router.canStillGoBack() ||
+            (returnToStart && startingTab() != nav.selectedItemId)
     }
 
-    override fun onTitleChanged(title: CharSequence?, color: Int) {
+    override fun onTitleChanged(
+        title: CharSequence?,
+        color: Int,
+    ) {
         super.onTitleChanged(title, color)
         binding.searchToolbar.title = searchTitle
         val onExpandedController = if (this::router.isInitialized) router.backstack.lastOrNull()?.controller !is SmallToolbarInterface else false
@@ -725,26 +773,36 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             binding.searchToolbar.title = title
         }
 
-    open fun setFloatingToolbar(show: Boolean, solidBG: Boolean = false, changeBG: Boolean = true, showSearchAnyway: Boolean = false) {
+    open fun setFloatingToolbar(
+        show: Boolean,
+        solidBG: Boolean = false,
+        changeBG: Boolean = true,
+        showSearchAnyway: Boolean = false,
+    ) {
         val controller = if (this::router.isInitialized) router.backstack.lastOrNull()?.controller else null
         val useLargeTB = binding.appBar.useLargeToolbar
         val onSearchController = canShowFloatingToolbar(controller)
         val onSmallerController = controller is SmallToolbarInterface || !useLargeTB
-        currentToolbar = if (show && ((showSearchAnyway && onSearchController) || onSmallerController)) {
-            binding.searchToolbar
-        } else {
-            binding.toolbar
-        }
+        currentToolbar =
+            if (show && ((showSearchAnyway && onSearchController) || onSmallerController)) {
+                binding.searchToolbar
+            } else {
+                binding.toolbar
+            }
         binding.toolbar.isVisible = !(onSmallerController && onSearchController)
         setSearchTBLongClick()
         val showSearchBar = (show || showSearchAnyway) && onSearchController
         val isAppBarVisible = binding.appBar.isVisible
-        val needsAnim = if (showSearchBar) {
-            !binding.cardFrame.isVisible || binding.cardFrame.alpha < 1f
-        } else {
-            binding.cardFrame.isVisible || binding.cardFrame.alpha > 0f
-        }
-        if (this::router.isInitialized && needsAnim && binding.appBar.useLargeToolbar && !onSmallerController &&
+        val needsAnim =
+            if (showSearchBar) {
+                !binding.cardFrame.isVisible || binding.cardFrame.alpha < 1f
+            } else {
+                binding.cardFrame.isVisible || binding.cardFrame.alpha > 0f
+            }
+        if (this::router.isInitialized &&
+            needsAnim &&
+            binding.appBar.useLargeToolbar &&
+            !onSmallerController &&
             (showSearchAnyway || isAppBarVisible)
         ) {
             binding.appBar.background = null
@@ -789,7 +847,9 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
 
     private fun setSearchTBLongClick() {
         binding.searchToolbar.setOnLongClickListener {
-            binding.searchToolbar.menu.findItem(R.id.action_search)?.expandActionView()
+            binding.searchToolbar.menu
+                .findItem(R.id.action_search)
+                ?.expandActionView()
             val visibleController = router.backstack.lastOrNull()?.controller as? BaseController<*>
             val longClickQuery = visibleController?.onSearchActionViewLongClickQuery()
             if (longClickQuery != null) {
@@ -808,36 +868,38 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
 
     private fun setNavBarColor(insets: WindowInsetsCompat?) {
         if (insets == null) return
-        window.navigationBarColor = when {
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1 -> {
-                // basically if in landscape on a phone, solid black bar
-                // otherwise translucent dark theme or black if light theme
-                when {
-                    insets.hasSideNavBar() -> Color.BLACK
-                    isInNightMode() -> ColorUtils.setAlphaComponent(
+        window.navigationBarColor =
+            when {
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1 -> {
+                    // basically if in landscape on a phone, solid black bar
+                    // otherwise translucent dark theme or black if light theme
+                    when {
+                        insets.hasSideNavBar() -> Color.BLACK
+                        isInNightMode() ->
+                            ColorUtils.setAlphaComponent(
+                                getResourceColor(R.attr.colorPrimaryVariant),
+                                179,
+                            )
+                        else -> Color.argb(179, 0, 0, 0)
+                    }
+                }
+                // if the android q+ device has gesture nav, transparent nav bar
+                // this is here in case some crazy with a notch uses landscape
+                insets.isBottomTappable() -> {
+                    getColor(android.R.color.transparent)
+                }
+                // if in landscape with 2/3 button mode, fully opaque nav bar
+                insets.hasSideNavBar() -> {
+                    getResourceColor(R.attr.colorPrimaryVariant)
+                }
+                // if in portrait with 2/3 button mode, translucent nav bar
+                else -> {
+                    ColorUtils.setAlphaComponent(
                         getResourceColor(R.attr.colorPrimaryVariant),
                         179,
                     )
-                    else -> Color.argb(179, 0, 0, 0)
                 }
             }
-            // if the android q+ device has gesture nav, transparent nav bar
-            // this is here in case some crazy with a notch uses landscape
-            insets.isBottomTappable() -> {
-                getColor(android.R.color.transparent)
-            }
-            // if in landscape with 2/3 button mode, fully opaque nav bar
-            insets.hasSideNavBar() -> {
-                getResourceColor(R.attr.colorPrimaryVariant)
-            }
-            // if in portrait with 2/3 button mode, translucent nav bar
-            else -> {
-                ColorUtils.setAlphaComponent(
-                    getResourceColor(R.attr.colorPrimaryVariant),
-                    179,
-                )
-            }
-        }
     }
 
     override fun startSupportActionMode(callback: ActionMode.Callback): ActionMode? {
@@ -851,11 +913,12 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         actionMode = null
         reEnableBackPressedCallBack()
         launchUI {
-            val scale = Settings.Global.getFloat(
-                contentResolver,
-                Settings.Global.ANIMATOR_DURATION_SCALE,
-                1.0f,
-            )
+            val scale =
+                Settings.Global.getFloat(
+                    contentResolver,
+                    Settings.Global.ANIMATOR_DURATION_SCALE,
+                    1.0f,
+                )
             val duration = resources.getInteger(android.R.integer.config_mediumAnimTime) * scale
             delay(duration.toLong())
             delay(100)
@@ -870,12 +933,13 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     }
 
     fun setStatusBarColorTransparent(show: Boolean) {
-        window?.statusBarColor = if (show) {
-            ColorUtils.setAlphaComponent(window?.statusBarColor ?: Color.TRANSPARENT, 0)
-        } else {
-            val color = getResourceColor(android.R.attr.statusBarColor)
-            ColorUtils.setAlphaComponent(window?.statusBarColor ?: color, Color.alpha(color))
-        }
+        window?.statusBarColor =
+            if (show) {
+                ColorUtils.setAlphaComponent(window?.statusBarColor ?: Color.TRANSPARENT, 0)
+            } else {
+                val color = getResourceColor(android.R.attr.statusBarColor)
+                ColorUtils.setAlphaComponent(window?.statusBarColor ?: color, Color.alpha(color))
+            }
     }
 
     private fun setExtensionsBadge() {
@@ -899,23 +963,27 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     }
 
     private fun showDLQueueTutorial() {
-        if (router.backstackSize == 1 && this !is SearchActivity &&
-            downloadManager.hasQueue() && !preferences.shownDownloadQueueTutorial().get()
+        if (router.backstackSize == 1 &&
+            this !is SearchActivity &&
+            downloadManager.hasQueue() &&
+            !preferences.shownDownloadQueueTutorial().get()
         ) {
             if (!isBindingInitialized) return
             val recentsItem = nav.getItemView(R.id.nav_recents) ?: return
             preferences.shownDownloadQueueTutorial().set(true)
             TapTargetView.showFor(
                 this,
-                TapTarget.forView(
-                    recentsItem,
-                    getString(R.string.manage_whats_downloading),
-                    getString(R.string.visit_recents_for_download_queue),
-                ).outerCircleColorInt(getResourceColor(R.attr.colorSecondary)).outerCircleAlpha(0.95f)
+                TapTarget
+                    .forView(
+                        recentsItem,
+                        getString(R.string.manage_whats_downloading),
+                        getString(R.string.visit_recents_for_download_queue),
+                    ).outerCircleColorInt(getResourceColor(R.attr.colorSecondary))
+                    .outerCircleAlpha(0.95f)
                     .titleTextSize(
                         20,
-                    )
-                    .titleTextColorInt(getResourceColor(R.attr.colorOnSecondary)).descriptionTextSize(16)
+                    ).titleTextColorInt(getResourceColor(R.attr.colorOnSecondary))
+                    .descriptionTextSize(16)
                     .descriptionTextColorInt(getResourceColor(R.attr.colorOnSecondary))
                     .icon(contextCompatDrawable(R.drawable.ic_recent_read_32dp))
                     .targetCircleColor(android.R.color.white)
@@ -973,10 +1041,11 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     extensionManager.findAvailableExtensions()
-                    val pendingUpdates = ExtensionApi().checkForUpdates(
-                        this@MainActivity,
-                        extensionManager.availableExtensionsFlow.value.takeIf { it.isNotEmpty() },
-                    )
+                    val pendingUpdates =
+                        ExtensionApi().checkForUpdates(
+                            this@MainActivity,
+                            extensionManager.availableExtensionsFlow.value.takeIf { it.isNotEmpty() },
+                        )
                     preferences.extensionUpdatesCount().set(pendingUpdates.size)
                     preferences.lastExtCheck().set(Date().time)
                 } catch (_: Exception) {
@@ -1090,11 +1159,12 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         when (val controller = router.backstack.lastOrNull()?.controller) {
             is MangaDetailsController -> {
                 val source = controller.presenter.source as? HttpSource ?: return
-                val url = try {
-                    source.getMangaUrl(controller.presenter.manga)
-                } catch (e: Exception) {
-                    return
-                }
+                val url =
+                    try {
+                        source.getMangaUrl(controller.presenter.manga)
+                    } catch (e: Exception) {
+                        return
+                    }
                 outContent.webUri = Uri.parse(url)
             }
             is BrowseSourceController -> {
@@ -1117,7 +1187,8 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
 
     private fun pressingBack() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ViewCompat.getRootWindowInsets(window.decorView)
+            ViewCompat
+                .getRootWindowInsets(window.decorView)
                 ?.isVisible(WindowInsetsCompat.Type.ime()) == true
         ) {
             WindowInsetsControllerCompat(window, binding.root).hide(WindowInsetsCompat.Type.ime())
@@ -1144,7 +1215,8 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     protected open fun backPress() {
         val controller = router.backstack.lastOrNull()?.controller
         if (if (router.backstackSize == 1) controller?.handleBack() != true else !router.handleBack()) {
-            if (preferences.backReturnsToStart().get() && this !is SearchActivity &&
+            if (preferences.backReturnsToStart().get() &&
+                this !is SearchActivity &&
                 startingTab() != nav.selectedItemId
             ) {
                 goToStartingTab()
@@ -1170,28 +1242,36 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     }
 
     @IdRes
-    private fun startingTab(): Int {
-        return when (preferences.startingTab().get()) {
+    private fun startingTab(): Int =
+        when (preferences.startingTab().get()) {
             0, -1 -> R.id.nav_library
             1, -2 -> R.id.nav_recents
             -3 -> R.id.nav_browse
             else -> R.id.nav_library
         }
-    }
 
     private fun goToStartingTab() {
         nav.selectedItemId = startingTab()
     }
 
-    fun goToTab(@IdRes id: Int) {
+    fun goToTab(
+        @IdRes id: Int,
+    ) {
         nav.selectedItemId = id
     }
 
-    private fun setRoot(controller: Controller, id: Int) {
+    private fun setRoot(
+        controller: Controller,
+        id: Int,
+    ) {
         router.setRoot(controller.withFadeInTransaction().tag(id.toString()))
     }
 
-    override fun onPreparePanel(featureId: Int, view: View?, menu: Menu): Boolean {
+    override fun onPreparePanel(
+        featureId: Int,
+        view: View?,
+        menu: Menu,
+    ): Boolean {
         val prepare = super.onPreparePanel(featureId, view, menu)
         if (canShowFloatingToolbar(router.backstack.lastOrNull()?.controller)) {
             val searchItem = menu.findItem(R.id.action_search)
@@ -1203,16 +1283,29 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
 
     fun setSearchTBMenuIfInvalid() = setupSearchTBMenu(binding.toolbar.menu)
 
-    private fun setupSearchTBMenu(menu: Menu?, showAnyway: Boolean = false) {
+    private fun setupSearchTBMenu(
+        menu: Menu?,
+        showAnyway: Boolean = false,
+    ) {
         val toolbar = binding.searchToolbar
-        val currentItemsId = toolbar.menu.children.toList().map { it.itemId }
-        val newMenuIds = menu?.children?.toList()?.map { it.itemId }.orEmpty()
+        val currentItemsId =
+            toolbar.menu.children
+                .toList()
+                .map { it.itemId }
+        val newMenuIds =
+            menu
+                ?.children
+                ?.toList()
+                ?.map { it.itemId }
+                .orEmpty()
         menu?.children?.toList()?.let { menuItems ->
             val searchActive = toolbar.isSearchExpanded
             menuItems.forEachIndexed { index, oldMenuItem ->
                 if (oldMenuItem.itemId == R.id.action_search) return@forEachIndexed
-                val isVisible = oldMenuItem.isVisible &&
-                    (currentToolbar == toolbar || !binding.appBar.useLargeToolbar) && (!searchActive || showAnyway)
+                val isVisible =
+                    oldMenuItem.isVisible &&
+                        (currentToolbar == toolbar || !binding.appBar.useLargeToolbar) &&
+                        (!searchActive || showAnyway)
                 addOrUpdateMenuItem(oldMenuItem, toolbar.menu, isVisible, currentItemsId, index)
             }
         }
@@ -1224,8 +1317,10 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
 
         // Done because sometimes ActionMenuItemViews have a width/height of 0 and never update
         val actionMenuView = toolbar.findChild<ActionMenuView>()
-        if (binding.appBar.isVisible && toolbar.isVisible &&
-            toolbar.width > 0 && actionMenuView?.children?.any { it.width == 0 } == true
+        if (binding.appBar.isVisible &&
+            toolbar.isVisible &&
+            toolbar.width > 0 &&
+            actionMenuView?.children?.any { it.width == 0 } == true
         ) {
             actionMenuView.children.forEach {
                 if (it !is ActionMenuItemView) return@forEach
@@ -1243,7 +1338,13 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         }
     }
 
-    private fun addOrUpdateMenuItem(oldMenuItem: MenuItem, menu: Menu, isVisible: Boolean, currentItemsId: List<Int>, index: Int) {
+    private fun addOrUpdateMenuItem(
+        oldMenuItem: MenuItem,
+        menu: Menu,
+        isVisible: Boolean,
+        currentItemsId: List<Int>,
+        index: Int,
+    ) {
         if (currentItemsId.contains(oldMenuItem.itemId)) {
             val newItem = menu.findItem(oldMenuItem.itemId) ?: return
             if (newItem.icon != oldMenuItem.icon) {
@@ -1255,21 +1356,23 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
             updateSubMenu(oldMenuItem, newItem)
             return
         }
-        val menuItem = if (oldMenuItem.hasSubMenu()) {
-            menu.addSubMenu(
-                oldMenuItem.groupId,
-                oldMenuItem.itemId,
-                index,
-                oldMenuItem.title,
-            ).item
-        } else {
-            menu.add(
-                oldMenuItem.groupId,
-                oldMenuItem.itemId,
-                index,
-                oldMenuItem.title,
-            )
-        }
+        val menuItem =
+            if (oldMenuItem.hasSubMenu()) {
+                menu
+                    .addSubMenu(
+                        oldMenuItem.groupId,
+                        oldMenuItem.itemId,
+                        index,
+                        oldMenuItem.title,
+                    ).item
+            } else {
+                menu.add(
+                    oldMenuItem.groupId,
+                    oldMenuItem.itemId,
+                    index,
+                    oldMenuItem.title,
+                )
+            }
         menuItem.isVisible = isVisible
         menuItem.actionView = oldMenuItem.actionView
         menuItem.icon = oldMenuItem.icon
@@ -1279,11 +1382,18 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     }
 
     @SuppressLint("RestrictedApi")
-    private fun updateSubMenu(oldMenuItem: MenuItem, menuItem: MenuItem) {
+    private fun updateSubMenu(
+        oldMenuItem: MenuItem,
+        menuItem: MenuItem,
+    ) {
         if (oldMenuItem.hasSubMenu()) {
             val oldSubMenu = oldMenuItem.subMenu ?: return
             val newMenuIds = oldSubMenu.children.toList().map { it.itemId }
-            val currentItemsId = menuItem.subMenu?.children?.toList()?.map { it.itemId } ?: return
+            val currentItemsId =
+                menuItem.subMenu
+                    ?.children
+                    ?.toList()
+                    ?.map { it.itemId } ?: return
             var isExclusiveCheckable = false
             var isCheckable = false
             oldSubMenu.children.toList().forEachIndexed { index, oldSubMenuItem ->
@@ -1367,8 +1477,7 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         return super.dispatchTouchEvent(ev)
     }
 
-    protected fun canShowFloatingToolbar(controller: Controller?) =
-        (controller is FloatingSearchInterface && controller.showFloatingBar())
+    protected fun canShowFloatingToolbar(controller: Controller?) = (controller is FloatingSearchInterface && controller.showFloatingBar())
 
     protected open fun syncActivityViewWithController(
         to: Controller?,
@@ -1394,10 +1503,11 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         } else {
             animationSet?.cancel()
             animationSet = AnimatorSet()
-            val alphaAnimation = ValueAnimator.ofFloat(
-                nav.alpha,
-                if (hideBottomNav) 0f else 1f,
-            )
+            val alphaAnimation =
+                ValueAnimator.ofFloat(
+                    nav.alpha,
+                    if (hideBottomNav) 0f else 1f,
+                )
             alphaAnimation.addUpdateListener { valueAnimator ->
                 nav.alpha = valueAnimator.animatedValue as Float
             }
@@ -1420,35 +1530,41 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     private fun updateControllersWithSideNavChanges(extraController: Controller? = null) {
         if (!isBindingInitialized || !this::router.isInitialized || this is SearchActivity) return
         binding.sideNav?.let { sideNav ->
-            val controllers = (router.backstack.map { it?.controller } + extraController)
-                .filterNotNull()
-                .distinct()
+            val controllers =
+                (router.backstack.map { it?.controller } + extraController)
+                    .filterNotNull()
+                    .distinct()
             val navWidth = sideNav.width.takeIf { it != 0 } ?: 80.dpToPx
             controllers.forEach { controller ->
                 val isRootController = controller is RootSearchInterface
                 if (controller.view?.layoutParams !is ViewGroup.MarginLayoutParams) return@forEach
                 controller.view?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    marginStart = if (sideNav.isVisible) {
-                        if (isRootController) 0 else -navWidth
-                    } else {
-                        if (isRootController) navWidth else 0
-                    }
+                    marginStart =
+                        if (sideNav.isVisible) {
+                            if (isRootController) 0 else -navWidth
+                        } else {
+                            if (isRootController) navWidth else 0
+                        }
                 }
             }
         }
     }
 
-    fun showTabBar(show: Boolean, animate: Boolean = true) {
+    fun showTabBar(
+        show: Boolean,
+        animate: Boolean = true,
+    ) {
         tabAnimation?.cancel()
         if (animate) {
             if (show && !binding.tabsFrameLayout.isVisible) {
                 binding.tabsFrameLayout.alpha = 0f
                 binding.tabsFrameLayout.isVisible = true
             }
-            val tA = ValueAnimator.ofFloat(
-                binding.tabsFrameLayout.alpha,
-                if (show) 1f else 0f,
-            )
+            val tA =
+                ValueAnimator.ofFloat(
+                    binding.tabsFrameLayout.alpha,
+                    if (show) 1f else 0f,
+                )
             tA.addUpdateListener { valueAnimator ->
                 binding.tabsFrameLayout.alpha = valueAnimator.animatedValue as Float
             }
@@ -1481,42 +1597,45 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
         }
     }
 
-    private fun whatsNewSheet() = MaterialMenuSheet(
-        this,
-        listOf(
-            MaterialMenuSheet.MenuSheetItem(
-                0,
-                textRes = R.string.whats_new_this_release,
-                drawable = R.drawable.ic_new_releases_24dp,
+    private fun whatsNewSheet() =
+        MaterialMenuSheet(
+            this,
+            listOf(
+                MaterialMenuSheet.MenuSheetItem(
+                    0,
+                    textRes = R.string.whats_new_this_release,
+                    drawable = R.drawable.ic_new_releases_24dp,
+                ),
+                MaterialMenuSheet.MenuSheetItem(
+                    1,
+                    textRes = R.string.close,
+                    drawable = R.drawable.ic_close_24dp,
+                ),
             ),
-            MaterialMenuSheet.MenuSheetItem(
-                1,
-                textRes = R.string.close,
-                drawable = R.drawable.ic_close_24dp,
-            ),
-        ),
-        title = getString(R.string.updated_to_, BuildConfig.VERSION_NAME),
-        showDivider = true,
-        selectedId = 0,
-        onMenuItemClicked = { _, item ->
-            if (item == 0) {
-                try {
-                    val intent = Intent(
-                        Intent.ACTION_VIEW,
-                        RELEASE_URL.toUri(),
-                    )
-                    startActivity(intent)
-                } catch (e: Throwable) {
-                    toast(e.message)
+            title = getString(R.string.updated_to_, BuildConfig.VERSION_NAME),
+            showDivider = true,
+            selectedId = 0,
+            onMenuItemClicked = { _, item ->
+                if (item == 0) {
+                    try {
+                        val intent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                RELEASE_URL.toUri(),
+                            )
+                        startActivity(intent)
+                    } catch (e: Throwable) {
+                        toast(e.message)
+                    }
                 }
-            }
-            true
-        },
-    )
+                true
+            },
+        )
 
     private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
         private var startingX = 0f
         private var startingY = 0f
+
         override fun onDown(e: MotionEvent): Boolean {
             startingX = e.x
             startingY = e.y
@@ -1560,7 +1679,6 @@ open class MainActivity : BaseActivity<MainActivityBinding>() {
     }
 
     companion object {
-
         private const val SWIPE_THRESHOLD = 100
         private const val SWIPE_VELOCITY_THRESHOLD = 100
 
@@ -1597,7 +1715,9 @@ interface RootSearchInterface {
     fun expandSearch() {
         if (this is Controller) {
             val mainActivity = activity as? MainActivity ?: return
-            mainActivity.binding.searchToolbar.menu.findItem(R.id.action_search)?.expandActionView()
+            mainActivity.binding.searchToolbar.menu
+                .findItem(R.id.action_search)
+                ?.expandActionView()
         }
     }
 }
@@ -1608,7 +1728,9 @@ interface HingeSupportedController {
     fun updateForHinge()
 }
 
-interface SearchControllerInterface : FloatingSearchInterface, SmallToolbarInterface
+interface SearchControllerInterface :
+    FloatingSearchInterface,
+    SmallToolbarInterface
 
 interface FloatingSearchInterface {
     fun searchTitle(title: String?): String? {
@@ -1623,6 +1745,8 @@ interface FloatingSearchInterface {
 
 interface BottomSheetController {
     fun showSheet()
+
     fun hideSheet()
+
     fun toggleSheet()
 }

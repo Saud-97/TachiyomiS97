@@ -46,7 +46,8 @@
     <color name="download_badge_text">@color/md_black_1000</color>
     <color name="download_badge_light">@color/strong_green</color>
     <color name="download_badge_light_text">@color/md_white_1000</color>
-    <color name="total_badge">@color/material_deep_purple_500</color>
+    <color name="material_red_500">#e51c23</color>
+    <color name="total_badge">#673ab7</color>
     <color name="total_badge_text">@color/md_white_1000</color>
 
     <color name="colorAmoledPrimary">@color/md_black_1000</color>
@@ -55,7 +56,7 @@
 
     <color name="strong_divider">@color/md_black_1000_38</color>
     <color name="divider">@color/md_black_1000_12</color>
-    <color name="download">@color/material_green_800</color>
+    <color name="download">#056f00</color>
 
     <color name="background">@color/md_grey_50</color>
     <color name="dialog">@color/md_white_1000</color>

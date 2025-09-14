@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.database.models
 
 class TrackImpl : Track {
-
     override var id: Long? = null
 
     override var manga_id: Long = 0

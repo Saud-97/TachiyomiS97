@@ -11,12 +11,15 @@ import eu.kanade.tachiyomi.util.system.executeOnIO
 import okhttp3.OkHttpClient
 import uy.kohesive.injekt.injectLazy
 
-abstract class TrackService(val id: Int) {
-
+abstract class TrackService(
+    val id: Int,
+) {
     val trackPreferences: TrackPreferences by injectLazy()
     val networkService: NetworkHelper by injectLazy()
     val db: DatabaseHelper by injectLazy()
+
     open fun canRemoveFromService() = false
+
     open val client: OkHttpClient
         get() = networkService.client
 
@@ -39,7 +42,9 @@ abstract class TrackService(val id: Int) {
     abstract fun isCompletedStatus(index: Int): Boolean
 
     abstract fun completedStatus(): Int
+
     abstract fun readingStatus(): Int
+
     abstract fun planningStatus(): Int
 
     abstract fun getStatus(status: Int): String
@@ -48,19 +53,18 @@ abstract class TrackService(val id: Int) {
 
     abstract fun getScoreList(): List<String>
 
-    open fun indexToScore(index: Int): Float {
-        return index.toFloat()
-    }
+    open fun indexToScore(index: Int): Float = index.toFloat()
 
-    open fun get10PointScore(score: Float): Float {
-        return score
-    }
+    open fun get10PointScore(score: Float): Float = score
 
     abstract fun displayScore(track: Track): String
 
     abstract suspend fun add(track: Track): Track
 
-    abstract suspend fun update(track: Track, setToRead: Boolean = false): Track
+    abstract suspend fun update(
+        track: Track,
+        setToRead: Boolean = false,
+    ): Track
 
     abstract suspend fun bind(track: Track): Track
 
@@ -68,7 +72,10 @@ abstract class TrackService(val id: Int) {
 
     abstract suspend fun refresh(track: Track): Track
 
-    abstract suspend fun login(username: String, password: String): Boolean
+    abstract suspend fun login(
+        username: String,
+        password: String,
+    ): Boolean
 
     open suspend fun removeFromService(track: Track): Boolean = false
 
@@ -96,22 +103,27 @@ abstract class TrackService(val id: Int) {
     }
 
     open val isLogged: Boolean
-        get() = getUsername().isNotEmpty() &&
-            getPassword().isNotEmpty()
+        get() =
+            getUsername().isNotEmpty() &&
+                getPassword().isNotEmpty()
 
     fun getUsername() = trackPreferences.trackUsername(this).get()
 
     fun getPassword() = trackPreferences.trackPassword(this).get()
 
-    fun saveCredentials(username: String, password: String) {
+    fun saveCredentials(
+        username: String,
+        password: String,
+    ) {
         trackPreferences.setCredentials(this, username, password)
     }
 }
 
 suspend fun TrackService.updateNewTrackInfo(track: Track) {
     val manga = db.getManga(track.manga_id).executeOnIO()
-    val allRead = manga?.isOneShotOrCompleted(db) == true &&
-        db.getChapters(track.manga_id).executeOnIO().all { it.read }
+    val allRead =
+        manga?.isOneShotOrCompleted(db) == true &&
+            db.getChapters(track.manga_id).executeOnIO().all { it.read }
     if (supportsReadingDates) {
         track.started_reading_date = getStartDate(track)
         track.finished_reading_date = getCompletedDate(track, allRead)
@@ -136,7 +148,10 @@ suspend fun TrackService.getStartDate(track: Track): Long {
     return 0L
 }
 
-suspend fun TrackService.getCompletedDate(track: Track, allRead: Boolean): Long {
+suspend fun TrackService.getCompletedDate(
+    track: Track,
+    allRead: Boolean,
+): Long {
     if (allRead) {
         val chapters = db.getHistoryByMangaId(track.manga_id).executeOnIO()
         val date = chapters.maxOfOrNull { it.last_read } ?: return 0L

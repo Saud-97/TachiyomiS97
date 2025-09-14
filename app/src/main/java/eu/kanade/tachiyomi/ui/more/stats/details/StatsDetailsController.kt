@@ -66,7 +66,6 @@ class StatsDetailsController :
     BaseCoroutineController<StatsDetailsControllerBinding, StatsDetailsPresenter>(),
     SmallToolbarInterface,
     StatsDetailsChartLayout.StatDetailsHeaderListener {
-
     override val presenter = StatsDetailsPresenter()
     private var query = ""
     private val concatAdapter: ConcatAdapter? get() = binding.statsRecyclerView.adapter as? ConcatAdapter
@@ -124,7 +123,8 @@ class StatsDetailsController :
 
             chipStat.setOnClickListener {
                 searchView.clearFocus()
-                activity?.materialAlertDialog()
+                activity
+                    ?.materialAlertDialog()
                     ?.setTitle(R.string.stat)
                     ?.setSingleChoiceItems(
                         presenter.getStatsArray(),
@@ -142,8 +142,7 @@ class StatsDetailsController :
                         highlightedBar = null
                         highlightedDay = null
                         binding.statsRecyclerView.scrollToPosition(0)
-                    }
-                    ?.setNegativeButton(android.R.string.cancel, null)
+                    }?.setNegativeButton(android.R.string.cancel, null)
                     ?.show()
             }
             chipSeriesType.setOnClickListener {
@@ -245,15 +244,17 @@ class StatsDetailsController :
         val topColor = activity.getResourceColor(R.attr.colorSurface)
         colorAnimator?.cancel()
         val view = binding.filterConstraintLayout ?: binding.statsHorizontalScroll
-        val percent = ImageUtil.getPercentOfColor(
-            view.backgroundColor ?: Color.TRANSPARENT,
-            activity.getResourceColor(R.attr.colorSurface),
-            activity.getResourceColor(R.attr.colorPrimaryVariant),
-        )
-        val cA = ValueAnimator.ofFloat(
-            percent,
-            toolbarIsColored.toInt().toFloat(),
-        )
+        val percent =
+            ImageUtil.getPercentOfColor(
+                view.backgroundColor ?: Color.TRANSPARENT,
+                activity.getResourceColor(R.attr.colorSurface),
+                activity.getResourceColor(R.attr.colorPrimaryVariant),
+            )
+        val cA =
+            ValueAnimator.ofFloat(
+                percent,
+                toolbarIsColored.toInt().toFloat(),
+            )
         colorAnimator = cA
         colorAnimator?.addUpdateListener { animator ->
             view.setBackgroundColor(
@@ -292,15 +293,21 @@ class StatsDetailsController :
                 R.string.category,
                 R.plurals.category_plural,
             )
-            statsSortTextView?.text = activity?.getString(
-                presenter.selectedStatsSort?.resourceId ?: defaultSort.resourceId,
-            )
+            statsSortTextView?.text =
+                activity?.getString(
+                    presenter.selectedStatsSort?.resourceId ?: defaultSort.resourceId,
+                )
         }
     }
 
     private val headerBinding: StatsDetailsChartBinding?
         get() =
-            binding.chartLinearLayout ?: (binding.statsRecyclerView.findViewHolderForAdapterPosition(0) as? HeaderStatsDetailsAdapter.HeaderStatsDetailsHolder)?.binding
+            binding.chartLinearLayout
+                ?: (
+                    binding.statsRecyclerView.findViewHolderForAdapterPosition(
+                        0,
+                    ) as? HeaderStatsDetailsAdapter.HeaderStatsDetailsHolder
+                )?.binding
 
     private val statsSortTextView: TextView?
         get() = binding.statSort ?: headerBinding?.statSort
@@ -312,17 +319,19 @@ class StatsDetailsController :
     private fun changeReadDurationPeriod(toAdd: Int) {
         presenter.changeReadDurationPeriod(toAdd)
         binding.progress.isVisible = true
-        jobReadDuration = viewScope.launchIO {
-            presenter.updateMangaHistory()
-            presenter.getStatisticData()
-        }
+        jobReadDuration =
+            viewScope.launchIO {
+                presenter.updateMangaHistory()
+                presenter.getStatisticData()
+            }
     }
 
     private fun updateHighlightedValue(barChart: BarChart) {
-        val highlightValue = presenter.historyByDayAndManga.keys.toTypedArray().indexOfFirst {
-            it.get(Calendar.DAY_OF_YEAR) == highlightedDay?.get(Calendar.DAY_OF_YEAR) &&
-                it.get(Calendar.YEAR) == highlightedDay?.get(Calendar.YEAR)
-        }
+        val highlightValue =
+            presenter.historyByDayAndManga.keys.toTypedArray().indexOfFirst {
+                it.get(Calendar.DAY_OF_YEAR) == highlightedDay?.get(Calendar.DAY_OF_YEAR) &&
+                    it.get(Calendar.YEAR) == highlightedDay?.get(Calendar.YEAR)
+            }
         if (highlightValue == -1) return
         barChart.highlightValue(highlightValue.toFloat(), 0)
         barChart.marker.refreshContent(
@@ -331,7 +340,10 @@ class StatsDetailsController :
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.stats_bar, menu)
         searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem.actionView as SearchView
@@ -373,18 +385,22 @@ class StatsDetailsController :
         @PluralsRes resourceIdPlural: Int,
     ) {
         val tempValues = selectedValues.toMutableSet()
-        val items = statsList.map {
-            when (it) {
-                is Category -> it.name
-                is Source -> it.nameBasedOnEnabledLanguages(
-                    presenter.enabledLanguages,
-                    presenter.extensionManager,
-                )
-                else -> it.toString()
-            }
-        }.toTypedArray()
+        val items =
+            statsList
+                .map {
+                    when (it) {
+                        is Category -> it.name
+                        is Source ->
+                            it.nameBasedOnEnabledLanguages(
+                                presenter.enabledLanguages,
+                                presenter.extensionManager,
+                            )
+                        else -> it.toString()
+                    }
+                }.toTypedArray()
         searchView.clearFocus()
-        activity!!.materialAlertDialog()
+        activity!!
+            .materialAlertDialog()
             .setTitle(resourceId)
             .setMultiChoiceItems(
                 items,
@@ -396,16 +412,14 @@ class StatsDetailsController :
                 } else {
                     tempValues.remove(newSelection)
                 }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 selectedValues.clear()
                 selectedValues.addAll(tempValues)
                 setState(selectedValues, resourceId, resourceIdPlural)
                 binding.progress.isVisible = true
                 resetAndSetup(keepAdapter = true)
-            }
-            .show()
+            }.show()
     }
 
     /**
@@ -448,7 +462,10 @@ class StatsDetailsController :
         if (updateChipsVisibility) updateChipsVisibility()
     }
 
-    fun updateStats(binding: StatsDetailsChartBinding? = null, keepAdapter: Boolean = false) {
+    fun updateStats(
+        binding: StatsDetailsChartBinding? = null,
+        keepAdapter: Boolean = false,
+    ) {
         val currentStats = presenter.currentStats
         with(binding ?: headerBinding) {
             val hasNoData = currentStats.isNullOrEmpty() || currentStats.all { it.count == 0 }
@@ -461,9 +478,18 @@ class StatsDetailsController :
                 this?.statsLineChart?.isVisible = false
                 highlightedDay = null
                 highlightedBar = null
-                this@StatsDetailsController.binding.chartLinearLayout?.root?.listener = this@StatsDetailsController
-                this@StatsDetailsController.binding.chartLinearLayout?.root?.setupChart(presenter)
-                this@StatsDetailsController.binding.chartLinearLayout?.root?.hideChart()
+                this@StatsDetailsController
+                    .binding.chartLinearLayout
+                    ?.root
+                    ?.listener = this@StatsDetailsController
+                this@StatsDetailsController
+                    .binding.chartLinearLayout
+                    ?.root
+                    ?.setupChart(presenter)
+                this@StatsDetailsController
+                    .binding.chartLinearLayout
+                    ?.root
+                    ?.hideChart()
             } else {
                 this@StatsDetailsController.binding.noChartData.hide()
                 if (!keepAdapter) {
@@ -494,12 +520,13 @@ class StatsDetailsController :
                 (presenter.selectedStat == Stats.SOURCE || presenter.selectedSource.isEmpty())
             chipCategory.isVisible = presenter.selectedStat !in listOf(Stats.CATEGORY, Stats.READ_DURATION) &&
                 presenter.categoriesStats.size > 1
-            statsSortTextView?.isVisible = presenter.selectedStat !in listOf(
-                Stats.SCORE,
-                Stats.LENGTH,
-                Stats.START_YEAR,
-                Stats.READ_DURATION,
-            )
+            statsSortTextView?.isVisible = presenter.selectedStat !in
+                listOf(
+                    Stats.SCORE,
+                    Stats.LENGTH,
+                    Stats.START_YEAR,
+                    Stats.READ_DURATION,
+                )
         }
     }
 
@@ -513,20 +540,22 @@ class StatsDetailsController :
         resourceIdPlural: Int,
     ) {
         this.setColors(selectedValues.size)
-        this.text = when (selectedValues.size) {
-            0 -> activity?.getString(resourceId)
-            1 -> {
-                when (val firstValue = selectedValues.first()) {
-                    is Category -> firstValue.name
-                    is Source -> firstValue.nameBasedOnEnabledLanguages(
-                        presenter.enabledLanguages,
-                        presenter.extensionManager,
-                    )
-                    else -> firstValue.toString()
+        this.text =
+            when (selectedValues.size) {
+                0 -> activity?.getString(resourceId)
+                1 -> {
+                    when (val firstValue = selectedValues.first()) {
+                        is Category -> firstValue.name
+                        is Source ->
+                            firstValue.nameBasedOnEnabledLanguages(
+                                presenter.enabledLanguages,
+                                presenter.extensionManager,
+                            )
+                        else -> firstValue.toString()
+                    }
                 }
+                else -> activity?.resources?.getQuantityString(resourceIdPlural, selectedValues.size, selectedValues.size)
             }
-            else -> activity?.resources?.getQuantityString(resourceIdPlural, selectedValues.size, selectedValues.size)
-        }
     }
 
     /**
@@ -553,11 +582,12 @@ class StatsDetailsController :
         }
     }
 
-    private fun hasActiveFilters() = with(presenter) {
-        listOf(selectedSeriesType, selectedSource, selectedStatus, selectedLanguage, selectedCategory).any {
-            it.isNotEmpty()
+    private fun hasActiveFilters() =
+        with(presenter) {
+            listOf(selectedSeriesType, selectedSource, selectedStatus, selectedLanguage, selectedCategory).any {
+                it.isNotEmpty()
+            }
         }
-    }
 
     fun Chip.setColors(sizeStat: Int) {
         val emptyTextColor = activity!!.getResourceColor(R.attr.colorOnBackground)
@@ -567,11 +597,12 @@ class StatsDetailsController :
         val neverSelect = alwaysShowIcon || sizeStat == 0
         setTextColor(if (neverSelect) emptyTextColor else emptyBackColor)
         chipBackgroundColor = ColorStateList.valueOf(if (neverSelect) emptyBackColor else filteredBackColor)
-        closeIcon = if (neverSelect) {
-            context.contextCompatDrawable(R.drawable.ic_arrow_drop_down_24dp)
-        } else {
-            context.contextCompatDrawable(R.drawable.ic_close_24dp)
-        }
+        closeIcon =
+            if (neverSelect) {
+                context.contextCompatDrawable(R.drawable.ic_arrow_drop_down_24dp)
+            } else {
+                context.contextCompatDrawable(R.drawable.ic_close_24dp)
+            }
         closeIconTint = ColorStateList.valueOf(if (neverSelect) emptyTextColor else emptyBackColor)
         isChipIconVisible = alwaysShowIcon || sizeStat == 1
         chipIconTint = ColorStateList.valueOf(if (neverSelect) emptyTextColor else emptyBackColor)
@@ -582,10 +613,11 @@ class StatsDetailsController :
      */
     private fun handleLayout(onlyUpdateDetails: Boolean) {
         binding.chartLinearLayout?.root?.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            matchConstraintPercentWidth = when (presenter.selectedStat) {
-                Stats.SERIES_TYPE, Stats.STATUS, Stats.LANGUAGE, Stats.TRACKER, Stats.CATEGORY -> 0.33f
-                else -> 0.5f
-            }
+            matchConstraintPercentWidth =
+                when (presenter.selectedStat) {
+                    Stats.SERIES_TYPE, Stats.STATUS, Stats.LANGUAGE, Stats.TRACKER, Stats.CATEGORY -> 0.33f
+                    else -> 0.5f
+                }
         }
         assignAdapter(onlyUpdateDetails)
         binding.chartLinearLayout?.root?.listener = this
@@ -599,18 +631,21 @@ class StatsDetailsController :
     @SuppressLint("NotifyDataSetChanged")
     private fun assignAdapter(onlyUpdateDetails: Boolean) {
         if (concatAdapter == null) {
-            val statsAdapter = StatsDetailsAdapter(
-                activity!!,
-                presenter.selectedStat!!,
-                presenter.currentStats ?: ArrayList(),
-            )
+            val statsAdapter =
+                StatsDetailsAdapter(
+                    activity!!,
+                    presenter.selectedStat!!,
+                    presenter.currentStats ?: ArrayList(),
+                )
             statsAdapter.setHasStableIds(true)
             val headAdapter = HeaderStatsDetailsAdapter(this, presenter)
             headAdapter.setHasStableIds(true)
-            val concatConfig = ConcatAdapter.Config.Builder()
-                .setIsolateViewTypes(false)
-                .setStableIdMode(ConcatAdapter.Config.StableIdMode.SHARED_STABLE_IDS)
-                .build()
+            val concatConfig =
+                ConcatAdapter.Config
+                    .Builder()
+                    .setIsolateViewTypes(false)
+                    .setStableIdMode(ConcatAdapter.Config.StableIdMode.SHARED_STABLE_IDS)
+                    .build()
             val concatAdapter = ConcatAdapter(concatConfig, statsAdapter)
             if (!binding.root.context.isLandscape()) {
                 concatAdapter.addAdapter(0, headAdapter)
@@ -624,13 +659,18 @@ class StatsDetailsController :
         if (query.isNotBlank()) statsAdapter?.filter(query)
     }
 
-    fun onItemClicked(id: Long?, name: String?) {
+    fun onItemClicked(
+        id: Long?,
+        name: String?,
+    ) {
         name ?: return
         val statuses = presenter.selectedStatus.map { presenter.statusStats.indexOf(it) + 1 }.toTypedArray()
         val seriesTypes = presenter.selectedSeriesType.map { presenter.seriesTypeStats.indexOf(it) + 1 }.toTypedArray()
-        val languages = presenter.selectedLanguage.mapNotNull { lang ->
-            presenter.languagesStats.firstNotNullOfOrNull { if (it.value == lang) it.key else null }
-        }.toTypedArray()
+        val languages =
+            presenter.selectedLanguage
+                .mapNotNull { lang ->
+                    presenter.languagesStats.firstNotNullOfOrNull { if (it.value == lang) it.key else null }
+                }.toTypedArray()
         val categories = presenter.selectedCategory.mapNotNull { it.id }.toTypedArray()
         val sources = presenter.selectedSource.map { it.id }.toTypedArray()
         when (val selectedStat = presenter.selectedStat) {
@@ -642,32 +682,38 @@ class StatsDetailsController :
                         } else {
                             name
                         },
-                        filterMangaType = when (selectedStat) {
-                            Stats.SERIES_TYPE -> arrayOf(presenter.seriesTypeStats.indexOf(name) + 1)
-                            else -> seriesTypes
-                        },
-                        filterStatus = when (selectedStat) {
-                            Stats.STATUS -> arrayOf(presenter.statusStats.indexOf(name) + 1)
-                            else -> statuses
-                        },
-                        filterSources = when (selectedStat) {
-                            Stats.SOURCE -> arrayOf(id!!)
-                            Stats.LANGUAGE -> emptyArray()
-                            else -> sources
-                        },
-                        filterLanguages = when (selectedStat) {
-                            Stats.LANGUAGE -> {
-                                val language = presenter.languagesStats.firstNotNullOfOrNull {
-                                    if (it.value == name) it.key else null
+                        filterMangaType =
+                            when (selectedStat) {
+                                Stats.SERIES_TYPE -> arrayOf(presenter.seriesTypeStats.indexOf(name) + 1)
+                                else -> seriesTypes
+                            },
+                        filterStatus =
+                            when (selectedStat) {
+                                Stats.STATUS -> arrayOf(presenter.statusStats.indexOf(name) + 1)
+                                else -> statuses
+                            },
+                        filterSources =
+                            when (selectedStat) {
+                                Stats.SOURCE -> arrayOf(id!!)
+                                Stats.LANGUAGE -> emptyArray()
+                                else -> sources
+                            },
+                        filterLanguages =
+                            when (selectedStat) {
+                                Stats.LANGUAGE -> {
+                                    val language =
+                                        presenter.languagesStats.firstNotNullOfOrNull {
+                                            if (it.value == name) it.key else null
+                                        }
+                                    listOfNotNull(language).toTypedArray()
                                 }
-                                listOfNotNull(language).toTypedArray()
-                            }
-                            else -> languages
-                        },
-                        filterCategories = when (selectedStat) {
-                            Stats.CATEGORY -> arrayOf(id!!.toInt())
-                            else -> categories
-                        },
+                                else -> languages
+                            },
+                        filterCategories =
+                            when (selectedStat) {
+                                Stats.CATEGORY -> arrayOf(id!!.toInt())
+                                else -> categories
+                            },
                         filterTags = if (selectedStat == Stats.TAG) arrayOf(name) else emptyArray(),
                         filterTrackingScore = if (selectedStat == Stats.SCORE) id?.toInt() ?: -1 else 0,
                         filterStartYear = if (selectedStat == Stats.START_YEAR) id?.toInt() ?: -1 else 0,
@@ -675,11 +721,12 @@ class StatsDetailsController :
                 )
             }
             Stats.TRACKER -> {
-                val serviceName: String? = id?.let {
-                    val loggedServices = presenter.trackManager.services.filter { it.isLogged }
-                    val service = loggedServices.find { it.id == id.toInt() } ?: return
-                    return@let binding.root.context.getString(service.nameRes())
-                }
+                val serviceName: String? =
+                    id?.let {
+                        val loggedServices = presenter.trackManager.services.filter { it.isLogged }
+                        val service = loggedServices.find { it.id == id.toInt() } ?: return
+                        return@let binding.root.context.getString(service.nameRes())
+                    }
                 router.pushController(
                     FilteredLibraryController(
                         serviceName ?: name,
@@ -688,25 +735,27 @@ class StatsDetailsController :
                         filterSources = sources,
                         filterLanguages = languages,
                         filterCategories = categories,
-                        filterTracked = if (serviceName == null) {
-                            FilterBottomSheet.STATE_EXCLUDE
-                        } else {
-                            FilterBottomSheet.STATE_INCLUDE
-                        },
+                        filterTracked =
+                            if (serviceName == null) {
+                                FilterBottomSheet.STATE_EXCLUDE
+                            } else {
+                                FilterBottomSheet.STATE_INCLUDE
+                            },
                         filterTrackerName = serviceName,
                     ).withFadeTransaction(),
                 )
             }
             Stats.LENGTH -> {
-                val range: IntRange = if (name.contains("-")) {
-                    val values = name.split("-").map { it.toInt() }
-                    IntRange(values.min(), values.max())
-                } else if (name.contains("+")) {
-                    val values = name.split("+").mapNotNull { it.toIntOrNull() }
-                    IntRange(values[0], Int.MAX_VALUE)
-                } else {
-                    IntRange(name.toInt(), name.toInt())
-                }
+                val range: IntRange =
+                    if (name.contains("-")) {
+                        val values = name.split("-").map { it.toInt() }
+                        IntRange(values.min(), values.max())
+                    } else if (name.contains("+")) {
+                        val values = name.split("+").mapNotNull { it.toIntOrNull() }
+                        IntRange(values[0], Int.MAX_VALUE)
+                    } else {
+                        IntRange(name.toInt(), name.toInt())
+                    }
                 router.pushController(
                     FilteredLibraryController(
                         binding.root.resources.getQuantityString(R.plurals.chapters_plural, range.last, name),
@@ -748,30 +797,30 @@ class StatsDetailsController :
         }
     }
 
-    override fun onBarValueChanged(highlight: Highlight?, e: Entry?) {
+    override fun onBarValueChanged(
+        highlight: Highlight?,
+        e: Entry?,
+    ) {
         highlightedBar = highlight?.let { Triple(it.x, it.y, it.dataSetIndex) }
         highlightedDay = e?.let { presenter.historyByDayAndManga.keys.toTypedArray()[e.x.toInt()] }
         presenter.setupReadDuration(highlightedDay)
         updateStatsAdapter(true)
     }
 
-    override fun getHighlight(): Highlight? =
-        highlightedBar?.let { Highlight(it.first, it.second, it.third) }
+    override fun getHighlight(): Highlight? = highlightedBar?.let { Highlight(it.first, it.second, it.third) }
 
-    override fun getReadDates(): String {
-        return (
+    override fun getReadDates(): String =
+        (
             highlightedDay?.let { presenter.convertCalendarToLongString(it) }
                 ?: presenter.getPeriodString()
-            )
-    }
+        )
 
-    override fun getReadDuration(): String {
-        return statsAdapter?.list?.sumOf { it.readDuration }?.getReadDuration() ?: ""
-    }
+    override fun getReadDuration(): String = statsAdapter?.list?.sumOf { it.readDuration }?.getReadDuration() ?: ""
 
     override fun onSortClicked(binding: StatsDetailsChartBinding?) {
         searchView.clearFocus()
-        activity!!.materialAlertDialog()
+        activity!!
+            .materialAlertDialog()
             .setTitle(R.string.sort_by)
             .setSingleChoiceItems(
                 presenter.getSortDataArray(),
@@ -786,21 +835,28 @@ class StatsDetailsController :
                 presenter.sortCurrentStats()
                 resetLayout()
                 updateStats(binding, true)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
-    override fun onDateTextClicked(statsDateText: TextView, barChart: BarChart) {
-        val dialog = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText(R.string.read_duration)
-            .setSelection(
-                Pair(
-                    presenter.startDate.timeInMillis.toUtcCalendar()?.timeInMillis,
-                    presenter.endDate.timeInMillis.toUtcCalendar()?.timeInMillis,
-                ),
-            )
-            .build()
+    override fun onDateTextClicked(
+        statsDateText: TextView,
+        barChart: BarChart,
+    ) {
+        val dialog =
+            MaterialDatePicker.Builder
+                .dateRangePicker()
+                .setTitleText(R.string.read_duration)
+                .setSelection(
+                    Pair(
+                        presenter.startDate.timeInMillis
+                            .toUtcCalendar()
+                            ?.timeInMillis,
+                        presenter.endDate.timeInMillis
+                            .toUtcCalendar()
+                            ?.timeInMillis,
+                    ),
+                ).build()
 
         dialog.addOnPositiveButtonClickListener { utcMillis ->
             binding.progress.isVisible = true
@@ -825,7 +881,11 @@ class StatsDetailsController :
      * @param referenceDate date used to determine if should change week
      * @param toAdd whether to add or remove
      */
-    override fun changeDatesReadDurationWithArrow(referenceDate: Calendar, toAdd: Int, barChart: BarChart) {
+    override fun changeDatesReadDurationWithArrow(
+        referenceDate: Calendar,
+        toAdd: Int,
+        barChart: BarChart,
+    ) {
         jobReadDuration?.cancel()
         if (highlightedDay == null) {
             changeReadDurationPeriod(toAdd)
@@ -833,10 +893,11 @@ class StatsDetailsController :
             val daySelected = highlightedDay?.get(Calendar.DAY_OF_YEAR)
             val endDay = referenceDate.get(Calendar.DAY_OF_YEAR)
             barChart.highlightValues(null)
-            highlightedDay = Calendar.getInstance().apply {
-                timeInMillis = highlightedDay!!.timeInMillis
-                add(Calendar.DAY_OF_YEAR, toAdd)
-            }
+            highlightedDay =
+                Calendar.getInstance().apply {
+                    timeInMillis = highlightedDay!!.timeInMillis
+                    add(Calendar.DAY_OF_YEAR, toAdd)
+                }
             if (daySelected == endDay) {
                 changeReadDurationPeriod(toAdd)
             } else {

@@ -14,8 +14,10 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 
-class Bangumi(private val context: Context, id: Int) : TrackService(id) {
-
+class Bangumi(
+    private val context: Context,
+    id: Int,
+) : TrackService(id) {
     @StringRes
     override fun nameRes() = R.string.bangumi
 
@@ -25,15 +27,14 @@ class Bangumi(private val context: Context, id: Int) : TrackService(id) {
 
     private val api by lazy { BangumiApi(client, interceptor) }
 
-    override fun getScoreList(): List<String> {
-        return IntRange(0, 10).map(Int::toString)
-    }
+    override fun getScoreList(): List<String> = IntRange(0, 10).map(Int::toString)
 
-    override fun displayScore(track: Track): String {
-        return track.score.toInt().toString()
-    }
+    override fun displayScore(track: Track): String = track.score.toInt().toString()
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead, setToComplete = true, mustReadToComplete = false)
         return api.updateLibManga(track)
     }
@@ -60,9 +61,7 @@ class Bangumi(private val context: Context, id: Int) : TrackService(id) {
         }
     }
 
-    override suspend fun search(query: String): List<TrackSearch> {
-        return api.search(query)
-    }
+    override suspend fun search(query: String): List<TrackSearch> = api.search(query)
 
     override suspend fun refresh(track: Track): Track {
         val statusTrack = api.statusLibManga(track)
@@ -81,39 +80,44 @@ class Bangumi(private val context: Context, id: Int) : TrackService(id) {
 
     override fun getLogoColor() = Color.rgb(240, 145, 153)
 
-    override fun getStatusList(): List<Int> {
-        return listOf(READING, COMPLETED, ON_HOLD, DROPPED, PLAN_TO_READ)
-    }
+    override fun getStatusList(): List<Int> = listOf(READING, COMPLETED, ON_HOLD, DROPPED, PLAN_TO_READ)
 
     override fun isCompletedStatus(index: Int) = getStatusList()[index] == COMPLETED
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = PLAN_TO_READ
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                else -> ""
+            }
         }
-    }
 
-    override suspend fun login(username: String, password: String) = login(password)
+    override suspend fun login(
+        username: String,
+        password: String,
+    ) = login(password)
 
     suspend fun login(code: String): Boolean {
         try {
@@ -132,13 +136,12 @@ class Bangumi(private val context: Context, id: Int) : TrackService(id) {
         trackPreferences.trackToken(this).set(json.encodeToString(oauth))
     }
 
-    fun restoreToken(): OAuth? {
-        return try {
+    fun restoreToken(): OAuth? =
+        try {
             json.decodeFromString<OAuth>(trackPreferences.trackToken(this).get())
         } catch (e: Exception) {
             null
         }
-    }
 
     override fun logout() {
         super.logout()

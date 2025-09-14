@@ -17,26 +17,29 @@ class PageIndicatorTextView(
     context: Context,
     attrs: AttributeSet? = null,
 ) : AppCompatTextView(context, attrs) {
-
     init {
         setTextColor(fillColor)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun setText(text: CharSequence?, type: BufferType?) {
+    override fun setText(
+        text: CharSequence?,
+        type: BufferType?,
+    ) {
         // Add spaces at the start & end of the text, otherwise the stroke is cut-off because it's
         // not taken into account when measuring the text (view's padding doesn't help).
         val currText = " $text "
 
         // Also add a bit of spacing between each character, as the stroke overlaps them
-        val finalText = SpannableString(currText.asIterable().joinToString("\u00A0")).apply {
-            // Apply text outline
-            setSpan(spanOutline, 1, length - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val finalText =
+            SpannableString(currText.asIterable().joinToString("\u00A0")).apply {
+                // Apply text outline
+                setSpan(spanOutline, 1, length - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            for (i in 1..lastIndex step 2) {
-                setSpan(ScaleXSpan(0.2f), i, i + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                for (i in 1..lastIndex step 2) {
+                    setSpan(ScaleXSpan(0.2f), i, i + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             }
-        }
 
         super.setText(finalText, BufferType.SPANNABLE)
     }
@@ -46,9 +49,10 @@ class PageIndicatorTextView(
         private val strokeColor = Color.rgb(45, 45, 45)
 
         // A span object with text outlining properties
-        val spanOutline = OutlineSpan(
-            strokeColor = strokeColor,
-            strokeWidth = 4f,
-        )
+        val spanOutline =
+            OutlineSpan(
+                strokeColor = strokeColor,
+                strokeWidth = 4f,
+            )
     }
 }

@@ -14,15 +14,15 @@ import eu.kanade.tachiyomi.ui.reader.viewer.ViewerNavigation
  * +---+---+---+
  */
 class RightAndLeftNavigation : ViewerNavigation() {
-
-    override var regions: List<Region> = listOf(
-        Region(
-            rectF = RectF(0f, 0f, 0.33f, 1f),
-            type = NavigationRegion.LEFT,
-        ),
-        Region(
-            rectF = RectF(0.66f, 0f, 1f, 1f),
-            type = NavigationRegion.RIGHT,
-        ),
-    )
+    override var regions: List<Region> =
+        listOf(
+            Region(
+                rectF = RectF(0f, 0f, 0.33f, 1f),
+                type = NavigationRegion.LEFT,
+            ),
+            Region(
+                rectF = RectF(0.66f, 0f, 1f, 1f),
+                type = NavigationRegion.RIGHT,
+            ),
+        )
 }

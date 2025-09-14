@@ -24,7 +24,6 @@ class WebtoonConfig(
     scope: CoroutineScope,
     preferences: PreferencesHelper = Injekt.get(),
 ) : ViewerConfig(preferences, scope) {
-
     var webtoonCropBorders = false
         private set
 
@@ -46,10 +45,12 @@ class WebtoonConfig(
     var menuThreshold = PreferenceValues.ReaderHideThreshold.LOW.threshold
 
     init {
-        preferences.navigationModeWebtoon()
+        preferences
+            .navigationModeWebtoon()
             .register({ navigationMode = it }, { updateNavigation(it) })
 
-        preferences.webtoonNavInverted()
+        preferences
+            .webtoonNavInverted()
             .register(
                 { tappingInverted = it },
                 {
@@ -57,32 +58,39 @@ class WebtoonConfig(
                 },
             )
 
-        preferences.webtoonNavInverted().asFlow()
+        preferences
+            .webtoonNavInverted()
+            .asFlow()
             .drop(1)
             .onEach {
                 navigationModeInvertedListener?.invoke()
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
-        preferences.cropBordersWebtoon()
+        preferences
+            .cropBordersWebtoon()
             .register({ webtoonCropBorders = it }, { imagePropertyChangedListener?.invoke() })
 
-        preferences.cropBorders()
+        preferences
+            .cropBorders()
             .register({ verticalCropBorders = it }, { imagePropertyChangedListener?.invoke() })
 
-        preferences.webtoonSidePadding()
+        preferences
+            .webtoonSidePadding()
             .register({ sidePadding = it }, { imagePropertyChangedListener?.invoke() })
 
-        preferences.webtoonEnableZoomOut()
+        preferences
+            .webtoonEnableZoomOut()
             .register({ enableZoomOut = it }, { zoomPropertyChangedListener?.invoke(it) })
 
-        preferences.webtoonPageLayout()
+        preferences
+            .webtoonPageLayout()
             .register(
                 { splitPages = it == PageLayout.SPLIT_PAGES.webtoonValue },
                 { imagePropertyChangedListener?.invoke() },
             )
         preferences.webtoonReaderHideThreshold().register({ menuThreshold = it.threshold })
-        preferences.webtoonInvertDoublePages()
+        preferences
+            .webtoonInvertDoublePages()
             .register({ invertDoublePages = it }, { imagePropertyChangedListener?.invoke() })
 
         navigationOverlayForNewUser = preferences.showNavigationOverlayNewUserWebtoon().get()
@@ -96,20 +104,19 @@ class WebtoonConfig(
             field = value.also { it.invertMode = tappingInverted }
         }
 
-    override fun defaultNavigation(): ViewerNavigation {
-        return LNavigation()
-    }
+    override fun defaultNavigation(): ViewerNavigation = LNavigation()
 
     override fun updateNavigation(navigationMode: Int) {
-        this.navigator = when (navigationMode) {
-            0 -> defaultNavigation()
-            1 -> LNavigation()
-            2 -> KindlishNavigation()
-            3 -> EdgeNavigation()
-            4 -> RightAndLeftNavigation()
-            5 -> DisabledNavigation()
-            else -> defaultNavigation()
-        }
+        this.navigator =
+            when (navigationMode) {
+                0 -> defaultNavigation()
+                1 -> LNavigation()
+                2 -> KindlishNavigation()
+                3 -> EdgeNavigation()
+                4 -> RightAndLeftNavigation()
+                5 -> DisabledNavigation()
+                else -> defaultNavigation()
+            }
         navigationModeChangedListener?.invoke()
     }
 }

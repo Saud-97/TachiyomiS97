@@ -8,8 +8,9 @@ import java.io.File
 /**
  * Loader used to load a chapter from a .epub file.
  */
-class EpubPageLoader(file: File) : PageLoader() {
-
+class EpubPageLoader(
+    file: File,
+) : PageLoader() {
     /**
      * The epub file.
      */
@@ -26,8 +27,9 @@ class EpubPageLoader(file: File) : PageLoader() {
     /**
      * Returns the pages found on this zip archive ordered with a natural comparator.
      */
-    override suspend fun getPages(): List<ReaderPage> {
-        return epub.getImagesFromPages()
+    override suspend fun getPages(): List<ReaderPage> =
+        epub
+            .getImagesFromPages()
             .mapIndexed { i, path ->
                 val streamFn = { epub.getInputStream(epub.getEntry(path)!!) }
                 ReaderPage(i).apply {
@@ -35,7 +37,6 @@ class EpubPageLoader(file: File) : PageLoader() {
                     status = Page.State.READY
                 }
             }
-    }
 
     /**
      * No additional action required to load the page

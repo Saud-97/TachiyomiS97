@@ -10,16 +10,16 @@ import eu.davidea.flexibleadapter.items.IFlexible
 import eu.davidea.viewholders.FlexibleViewHolder
 import eu.kanade.tachiyomi.source.model.Filter
 
-class SeparatorItem(val filter: Filter.Separator) : AbstractHeaderItem<SeparatorItem.Holder>() {
-
+class SeparatorItem(
+    val filter: Filter.Separator,
+) : AbstractHeaderItem<SeparatorItem.Holder>() {
     @SuppressLint("PrivateResource")
-    override fun getLayoutRes(): Int {
-        return R.layout.design_navigation_item_separator
-    }
+    override fun getLayoutRes(): Int = R.layout.design_navigation_item_separator
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -35,9 +35,10 @@ class SeparatorItem(val filter: Filter.Separator) : AbstractHeaderItem<Separator
         return filter == (other as SeparatorItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 
-    class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : FlexibleViewHolder(view, adapter)
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : FlexibleViewHolder(view, adapter)
 }

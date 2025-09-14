@@ -80,9 +80,10 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-class LibraryUpdateJob(private val context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
+class LibraryUpdateJob(
+    private val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     private val db: DatabaseHelper = Injekt.get()
     private val coverCache: CoverCache = Injekt.get()
     private val sourceManager: SourceManager = Injekt.get()
@@ -156,17 +157,22 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         val savedMangasList = inputData.getLongArray(KEY_MANGAS)?.asList()?.plus(extraManga)
         extraManga = emptyList()
 
-        val mangaList = (
-            if (savedMangasList != null) {
-                val mangas = db.getLibraryMangas().executeAsBlocking().filter {
-                    it.id in savedMangasList
-                }.distinctBy { it.id }
-                val categoryId = inputData.getInt(KEY_CATEGORY, -1)
-                if (categoryId > -1) categoryIds.add(categoryId)
-                mangas
-            } else {
-                getMangaToUpdate()
-            }
+        val mangaList =
+            (
+                if (savedMangasList != null) {
+                    val mangas =
+                        db
+                            .getLibraryMangas()
+                            .executeAsBlocking()
+                            .filter {
+                                it.id in savedMangasList
+                            }.distinctBy { it.id }
+                    val categoryId = inputData.getInt(KEY_CATEGORY, -1)
+                    if (categoryId > -1) categoryIds.add(categoryId)
+                    mangas
+                } else {
+                    getMangaToUpdate()
+                }
             ).sortedBy { it.title }
 
         return withIOContext {
@@ -190,7 +196,10 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         }
     }
 
-    private suspend fun launchTarget(target: Target, mangaToAdd: List<LibraryManga>) {
+    private suspend fun launchTarget(
+        target: Target,
+        mangaToAdd: List<LibraryManga>,
+    ) {
         if (target == Target.CHAPTERS) {
             sendUpdate(STARTING_UPDATE_SOURCE)
         }
@@ -216,16 +225,17 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         loggedServices = trackManager.services.filter { it.isLogged }
         // checkIfMassiveUpdate()
         coroutineScope {
-            val list = mangaToUpdateMap.keys.map { source ->
-                async {
-                    try {
-                        requestSemaphore.withPermit { updateMangaInSource(source) }
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                        false
+            val list =
+                mangaToUpdateMap.keys.map { source ->
+                    async {
+                        try {
+                            requestSemaphore.withPermit { updateMangaInSource(source) }
+                        } catch (e: Exception) {
+                            Timber.e(e)
+                            false
+                        }
                     }
                 }
-            }
             val results = list.awaitAll()
             if (!hasDownloads) {
                 hasDownloads = results.any { it }
@@ -240,55 +250,63 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
      *
      * @param mangaToUpdate the list to update
      */
-    private suspend fun updateDetails(mangaToUpdate: List<LibraryManga>) = coroutineScope {
-        // Initialize the variables holding the progress of the updates.
-        val count = AtomicInteger(0)
-        val asyncList = mangaToUpdate.groupBy { it.source }.values.map { list ->
-            async {
-                requestSemaphore.withPermit {
-                    list.forEach { manga ->
-                        ensureActive()
-                        val source = sourceManager.get(manga.source) as? HttpSource ?: return@async
-                        notifier.showProgressNotification(
-                            manga,
-                            count.andIncrement,
-                            mangaToUpdate.size,
-                        )
-                        ensureActive()
-                        val networkManga = try {
-                            source.getMangaDetails(manga.copy())
-                        } catch (e: java.lang.Exception) {
-                            Timber.e(e)
-                            null
-                        }
-                        if (networkManga != null) {
-                            val thumbnailUrl = manga.thumbnail_url
-                            manga.copyFrom(networkManga)
-                            manga.initialized = true
-                            if (thumbnailUrl != manga.thumbnail_url) {
-                                coverCache.deleteFromCache(thumbnailUrl)
-                                // load new covers in background
-                                val request =
-                                    ImageRequest.Builder(context).data(manga)
-                                        .memoryCachePolicy(CachePolicy.DISABLED).build()
-                                Coil.imageLoader(context).execute(request)
-                            } else {
-                                val request =
-                                    ImageRequest.Builder(context).data(manga)
-                                        .memoryCachePolicy(CachePolicy.DISABLED)
-                                        .diskCachePolicy(CachePolicy.WRITE_ONLY)
-                                        .build()
-                                Coil.imageLoader(context).execute(request)
+    private suspend fun updateDetails(mangaToUpdate: List<LibraryManga>) =
+        coroutineScope {
+            // Initialize the variables holding the progress of the updates.
+            val count = AtomicInteger(0)
+            val asyncList =
+                mangaToUpdate.groupBy { it.source }.values.map { list ->
+                    async {
+                        requestSemaphore.withPermit {
+                            list.forEach { manga ->
+                                ensureActive()
+                                val source = sourceManager.get(manga.source) as? HttpSource ?: return@async
+                                notifier.showProgressNotification(
+                                    manga,
+                                    count.andIncrement,
+                                    mangaToUpdate.size,
+                                )
+                                ensureActive()
+                                val networkManga =
+                                    try {
+                                        source.getMangaDetails(manga.copy())
+                                    } catch (e: java.lang.Exception) {
+                                        Timber.e(e)
+                                        null
+                                    }
+                                if (networkManga != null) {
+                                    val thumbnailUrl = manga.thumbnail_url
+                                    manga.copyFrom(networkManga)
+                                    manga.initialized = true
+                                    if (thumbnailUrl != manga.thumbnail_url) {
+                                        coverCache.deleteFromCache(thumbnailUrl)
+                                        // load new covers in background
+                                        val request =
+                                            ImageRequest
+                                                .Builder(context)
+                                                .data(manga)
+                                                .memoryCachePolicy(CachePolicy.DISABLED)
+                                                .build()
+                                        Coil.imageLoader(context).execute(request)
+                                    } else {
+                                        val request =
+                                            ImageRequest
+                                                .Builder(context)
+                                                .data(manga)
+                                                .memoryCachePolicy(CachePolicy.DISABLED)
+                                                .diskCachePolicy(CachePolicy.WRITE_ONLY)
+                                                .build()
+                                        Coil.imageLoader(context).execute(request)
+                                    }
+                                    db.insertManga(manga).executeAsBlocking()
+                                }
                             }
-                            db.insertManga(manga).executeAsBlocking()
                         }
                     }
                 }
-            }
+            asyncList.awaitAll()
+            notifier.cancelProgressNotification()
         }
-        asyncList.awaitAll()
-        notifier.cancelProgressNotification()
-    }
 
     /**
      * Method that updates the metadata of the connected tracking services. It's called in a
@@ -346,11 +364,12 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         }
         newUpdates.clear()
         if (skippedUpdates.isNotEmpty() && Notifications.isNotificationChannelEnabled(context, Notifications.CHANNEL_LIBRARY_SKIPPED)) {
-            val skippedFile = writeErrorFile(
-                skippedUpdates,
-                "skipped",
-                context.getString(R.string.learn_why) + " - " + LibraryUpdateNotifier.HELP_SKIPPED_URL,
-            ).getUriCompat(context)
+            val skippedFile =
+                writeErrorFile(
+                    skippedUpdates,
+                    "skipped",
+                    context.getString(R.string.learn_why) + " - " + LibraryUpdateNotifier.HELP_SKIPPED_URL,
+                ).getUriCompat(context)
             notifier.showUpdateSkippedNotification(skippedUpdates.map { it.key.title }, skippedFile)
         }
         if (failedUpdates.isNotEmpty() && Notifications.isNotificationChannelEnabled(context, Notifications.CHANNEL_LIBRARY_ERROR)) {
@@ -367,10 +386,11 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
     }
 
     private fun checkIfMassiveUpdate() {
-        val largestSourceSize = mangaToUpdate
-            .groupBy { it.source }
-            .filterKeys { sourceManager.get(it) !is UnmeteredSource }
-            .maxOfOrNull { it.value.size } ?: 0
+        val largestSourceSize =
+            mangaToUpdate
+                .groupBy { it.source }
+                .filterKeys { sourceManager.get(it) !is UnmeteredSource }
+                .maxOfOrNull { it.value.size } ?: 0
         if (largestSourceSize > MANGA_PER_SOURCE_QUEUE_WARNING_THRESHOLD) {
             notifier.showQueueSizeWarningNotification()
         }
@@ -398,68 +418,73 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         progress: Int,
         source: HttpSource,
         shouldDownload: Boolean,
-    ): Boolean = coroutineScope {
-        try {
-            var hasDownloads = false
-            ensureActive()
-            notifier.showProgressNotification(manga, progress, mangaToUpdate.size)
-            val fetchedChapters = source.getChapterList(manga)
+    ): Boolean =
+        coroutineScope {
+            try {
+                var hasDownloads = false
+                ensureActive()
+                notifier.showProgressNotification(manga, progress, mangaToUpdate.size)
+                val fetchedChapters = source.getChapterList(manga)
 
-            if (fetchedChapters.isNotEmpty()) {
-                val newChapters = syncChaptersWithSource(db, fetchedChapters, manga, source)
-                if (newChapters.first.isNotEmpty()) {
-                    if (shouldDownload) {
-                        downloadChapters(
-                            manga,
-                            newChapters.first.sortedBy { it.chapter_number },
-                        )
-                        hasDownloads = true
+                if (fetchedChapters.isNotEmpty()) {
+                    val newChapters = syncChaptersWithSource(db, fetchedChapters, manga, source)
+                    if (newChapters.first.isNotEmpty()) {
+                        if (shouldDownload) {
+                            downloadChapters(
+                                manga,
+                                newChapters.first.sortedBy { it.chapter_number },
+                            )
+                            hasDownloads = true
+                        }
+                        newUpdates[manga] =
+                            newChapters.first.sortedBy { it.chapter_number }.toTypedArray()
                     }
-                    newUpdates[manga] =
-                        newChapters.first.sortedBy { it.chapter_number }.toTypedArray()
-                }
-                if (deleteRemoved && newChapters.second.isNotEmpty()) {
-                    val removedChapters = newChapters.second.filter {
-                        downloadManager.isChapterDownloaded(it, manga) &&
-                            newChapters.first.none { newChapter ->
-                                newChapter.chapter_number == it.chapter_number && it.scanlator.isNullOrBlank()
+                    if (deleteRemoved && newChapters.second.isNotEmpty()) {
+                        val removedChapters =
+                            newChapters.second.filter {
+                                downloadManager.isChapterDownloaded(it, manga) &&
+                                    newChapters.first.none { newChapter ->
+                                        newChapter.chapter_number == it.chapter_number && it.scanlator.isNullOrBlank()
+                                    }
                             }
+                        if (removedChapters.isNotEmpty()) {
+                            downloadManager.deleteChapters(removedChapters, manga, source)
+                        }
                     }
-                    if (removedChapters.isNotEmpty()) {
-                        downloadManager.deleteChapters(removedChapters, manga, source)
+                    if (newChapters.first.size + newChapters.second.size > 0) {
+                        sendUpdate(manga.id)
                     }
                 }
-                if (newChapters.first.size + newChapters.second.size > 0) {
-                    sendUpdate(manga.id)
-                }
-            }
-            if (preferences.twowaySyncTracking()) {
-                val tracks = db.getTracks(manga).executeAsBlocking()
-                tracks.forEach { track ->
-                    val service = trackManager.getService(track.sync_id)
-                    if (service != null && service in loggedServices) {
-                        try {
-                            val newTrack = service.refresh(track)
-                            db.insertTrack(newTrack).executeAsBlocking()
-                            syncChaptersWithTrackServiceTwoWay(db, db.getChapters(manga).executeAsBlocking(), track, service)
-                            sendUpdate(manga.id)
-                        } catch (e: Exception) {
-                            Timber.e(e)
+                if (preferences.twowaySyncTracking()) {
+                    val tracks = db.getTracks(manga).executeAsBlocking()
+                    tracks.forEach { track ->
+                        val service = trackManager.getService(track.sync_id)
+                        if (service != null && service in loggedServices) {
+                            try {
+                                val newTrack = service.refresh(track)
+                                db.insertTrack(newTrack).executeAsBlocking()
+                                syncChaptersWithTrackServiceTwoWay(db, db.getChapters(manga).executeAsBlocking(), track, service)
+                                sendUpdate(manga.id)
+                            } catch (e: Exception) {
+                                Timber.e(e)
+                            }
                         }
                     }
                 }
+                return@coroutineScope hasDownloads
+            } catch (e: Exception) {
+                if (e !is CancellationException) {
+                    failedUpdates[manga] = e.message
+                    Timber.e("Failed updating: ${manga.title}: $e")
+                }
+                return@coroutineScope false
             }
-            return@coroutineScope hasDownloads
-        } catch (e: Exception) {
-            if (e !is CancellationException) {
-                failedUpdates[manga] = e.message
-                Timber.e("Failed updating: ${manga.title}: $e")
-            }
-            return@coroutineScope false
         }
-    }
 
-    private fun downloadChapters(manga: Manga, chapters: List<Chapter>) {
+    private fun downloadChapters(
+        manga: Manga,
+        chapters: List<Chapter>,
+    ) {
         // We don't want to start downloading while the library is updating, because websites
         // may don't like it and they could ban the user.
         downloadManager.downloadChapters(manga, chapters, false)
@@ -503,28 +528,30 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
     private fun getMangaToUpdate(categoryId: Int): List<LibraryManga> {
         val libraryManga = db.getLibraryMangas().executeAsBlocking()
 
-        val listToUpdate = if (categoryId != -1) {
-            categoryIds.add(categoryId)
-            libraryManga.filter { it.category == categoryId }
-        } else {
-            val categoriesToUpdate =
-                preferences.libraryUpdateCategories().get().map(String::toInt)
-            if (categoriesToUpdate.isNotEmpty()) {
-                categoryIds.addAll(categoriesToUpdate)
-                libraryManga.filter { it.category in categoriesToUpdate }.distinctBy { it.id }
+        val listToUpdate =
+            if (categoryId != -1) {
+                categoryIds.add(categoryId)
+                libraryManga.filter { it.category == categoryId }
             } else {
-                categoryIds.addAll(db.getCategories().executeAsBlocking().mapNotNull { it.id } + 0)
-                libraryManga.distinctBy { it.id }
+                val categoriesToUpdate =
+                    preferences.libraryUpdateCategories().get().map(String::toInt)
+                if (categoriesToUpdate.isNotEmpty()) {
+                    categoryIds.addAll(categoriesToUpdate)
+                    libraryManga.filter { it.category in categoriesToUpdate }.distinctBy { it.id }
+                } else {
+                    categoryIds.addAll(db.getCategories().executeAsBlocking().mapNotNull { it.id } + 0)
+                    libraryManga.distinctBy { it.id }
+                }
             }
-        }
 
         val categoriesToExclude =
             preferences.libraryUpdateCategoriesExclude().get().map(String::toInt)
-        val listToExclude = if (categoriesToExclude.isNotEmpty() && categoryId == -1) {
-            libraryManga.filter { it.category in categoriesToExclude }.toSet()
-        } else {
-            emptySet()
-        }
+        val listToExclude =
+            if (categoriesToExclude.isNotEmpty() && categoryId == -1) {
+                libraryManga.filter { it.category in categoriesToExclude }.toSet()
+            } else {
+                emptySet()
+            }
 
         return listToUpdate.minus(listToExclude)
     }
@@ -542,7 +569,11 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
     /**
      * Writes basic file of update errors to cache dir.
      */
-    private fun writeErrorFile(errors: Map<Manga, String?>, fileName: String = "errors", additionalInfo: String? = null): File {
+    private fun writeErrorFile(
+        errors: Map<Manga, String?>,
+        fileName: String = "errors",
+        additionalInfo: String? = null,
+    ): File {
         try {
             if (errors.isNotEmpty()) {
                 val file = context.createFileInCacheDir("tachiyomi_update_$fileName.txt")
@@ -571,7 +602,10 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         return File("")
     }
 
-    private fun addMangaToQueue(categoryId: Int, manga: List<LibraryManga>) {
+    private fun addMangaToQueue(
+        categoryId: Int,
+        manga: List<LibraryManga>,
+    ) {
         val mangas = filterMangaToUpdate(manga).sortedBy { it.title }
         categoryIds.add(categoryId)
         addManga(mangas)
@@ -595,11 +629,12 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
                 extraScope.launch {
                     extraDeferredJobs.add(
                         async(Dispatchers.IO) {
-                            val hasDLs = try {
-                                requestSemaphore.withPermit { updateMangaInSource(it.key) }
-                            } catch (e: Exception) {
-                                false
-                            }
+                            val hasDLs =
+                                try {
+                                    requestSemaphore.withPermit { updateMangaInSource(it.key) }
+                                } catch (e: Exception) {
+                                    false
+                                }
                             if (!hasDownloads) {
                                 hasDownloads = hasDLs
                             }
@@ -614,7 +649,6 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
     }
 
     enum class Target {
-
         CHAPTERS, // Manga chapters
 
         DETAILS, // Manga metadata
@@ -648,38 +682,46 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
 
         private var extraManga = emptyList<Long>()
 
-        val updateMutableFlow = MutableSharedFlow<Long?>(
-            extraBufferCapacity = 10,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        )
+        val updateMutableFlow =
+            MutableSharedFlow<Long?>(
+                extraBufferCapacity = 10,
+                onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            )
         val updateFlow = updateMutableFlow.asSharedFlow()
 
         private var runExtensionUpdatesAfter = false
 
-        fun runExtensionUpdatesAfterJob() { runExtensionUpdatesAfter = true }
+        fun runExtensionUpdatesAfterJob() {
+            runExtensionUpdatesAfter = true
+        }
 
-        fun setupTask(context: Context, prefInterval: Int? = null) {
+        fun setupTask(
+            context: Context,
+            prefInterval: Int? = null,
+        ) {
             val preferences = Injekt.get<PreferencesHelper>()
             val interval = prefInterval ?: preferences.libraryUpdateInterval().get()
             if (interval > 0) {
                 val restrictions = preferences.libraryUpdateDeviceRestriction().get()
 
-                val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(DEVICE_CHARGING in restrictions)
-                    .setRequiresBatteryNotLow(DEVICE_BATTERY_NOT_LOW in restrictions)
-                    .build()
+                val constraints =
+                    Constraints
+                        .Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresCharging(DEVICE_CHARGING in restrictions)
+                        .setRequiresBatteryNotLow(DEVICE_BATTERY_NOT_LOW in restrictions)
+                        .build()
 
-                val request = PeriodicWorkRequestBuilder<LibraryUpdateJob>(
-                    interval.toLong(),
-                    TimeUnit.HOURS,
-                    10,
-                    TimeUnit.MINUTES,
-                )
-                    .addTag(TAG)
-                    .addTag(WORK_NAME_AUTO)
-                    .setConstraints(constraints)
-                    .build()
+                val request =
+                    PeriodicWorkRequestBuilder<LibraryUpdateJob>(
+                        interval.toLong(),
+                        TimeUnit.HOURS,
+                        10,
+                        TimeUnit.MINUTES,
+                    ).addTag(TAG)
+                        .addTag(WORK_NAME_AUTO)
+                        .setConstraints(constraints)
+                        .build()
 
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                     WORK_NAME_AUTO,
@@ -735,12 +777,14 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
                 }
             }
             val inputData = builder.build()
-            val request = OneTimeWorkRequestBuilder<LibraryUpdateJob>()
-                .addTag(TAG)
-                .addTag(WORK_NAME_MANUAL)
-                .setInputData(inputData)
-                .build()
-            WorkManager.getInstance(context)
+            val request =
+                OneTimeWorkRequestBuilder<LibraryUpdateJob>()
+                    .addTag(TAG)
+                    .addTag(WORK_NAME_MANUAL)
+                    .setInputData(inputData)
+                    .build()
+            WorkManager
+                .getInstance(context)
                 .enqueueUniqueWork(WORK_NAME_MANUAL, ExistingWorkPolicy.KEEP, request)
 
             return true
@@ -748,10 +792,14 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
 
         fun stop(context: Context) {
             val wm = WorkManager.getInstance(context)
-            val workQuery = WorkQuery.Builder.fromTags(listOf(TAG))
-                .addStates(listOf(WorkInfo.State.RUNNING))
-                .build()
-            wm.getWorkInfos(workQuery).get()
+            val workQuery =
+                WorkQuery.Builder
+                    .fromTags(listOf(TAG))
+                    .addStates(listOf(WorkInfo.State.RUNNING))
+                    .build()
+            wm
+                .getWorkInfos(workQuery)
+                .get()
                 // Should only return one work but just in case
                 .forEach {
                     wm.cancelWorkById(it.id)

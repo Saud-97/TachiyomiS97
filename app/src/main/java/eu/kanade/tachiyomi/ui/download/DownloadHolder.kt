@@ -18,10 +18,12 @@ import eu.kanade.tachiyomi.util.view.setVectorCompat
  * @param view the inflated view for this holder.
  * @constructor creates a new download holder.
  */
-class DownloadHolder(private val view: View, val adapter: DownloadAdapter) :
-    BaseFlexibleViewHolder(view, adapter) {
-
+class DownloadHolder(
+    private val view: View,
+    val adapter: DownloadAdapter,
+) : BaseFlexibleViewHolder(view, adapter) {
     private val binding = DownloadItemBinding.bind(view)
+
     init {
         setDragHandleView(binding.reorder)
         binding.downloadMenu.setOnClickListener { it.post { showPopupMenu(it) } }
@@ -37,8 +39,9 @@ class DownloadHolder(private val view: View, val adapter: DownloadAdapter) :
     fun bind(download: Download) {
         this.download = download
         // Update the chapter name.
-        binding.chapterTitle.text = download.chapter
-            .preferredChapterName(itemView.context, download.manga, adapter.preferences)
+        binding.chapterTitle.text =
+            download.chapter
+                .preferredChapterName(itemView.context, download.manga, adapter.preferences)
 
         // Update the manga title
         binding.title.text = download.manga.title
@@ -80,7 +83,10 @@ class DownloadHolder(private val view: View, val adapter: DownloadAdapter) :
         binding.downloadProgressText.text = "${download.downloadedImages}/${pages.size}"
     }
 
-    override fun onActionStateChanged(position: Int, actionState: Int) {
+    override fun onActionStateChanged(
+        position: Int,
+        actionState: Int,
+    ) {
         super.onActionStateChanged(position, actionState)
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             binding.root.isDragged = true
@@ -117,15 +123,9 @@ class DownloadHolder(private val view: View, val adapter: DownloadAdapter) :
         popup.show()
     }
 
-    override fun getFrontView(): View {
-        return binding.frontView
-    }
+    override fun getFrontView(): View = binding.frontView
 
-    override fun getRearStartView(): View {
-        return binding.startView
-    }
+    override fun getRearStartView(): View = binding.startView
 
-    override fun getRearEndView(): View {
-        return binding.endView
-    }
+    override fun getRearEndView(): View = binding.endView
 }

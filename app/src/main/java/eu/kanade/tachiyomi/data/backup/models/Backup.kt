@@ -16,7 +16,6 @@ data class Backup(
     @ProtoNumber(104) var backupPreferences: List<BackupPreference> = emptyList(),
     @ProtoNumber(105) var backupSourcePreferences: List<BackupSourcePreferences> = emptyList(),
 ) {
-
     companion object {
         val filenameRegex = """(${BuildConfig.APPLICATION_ID}|tachiyomi)?_\d+-\d+-\d+_\d+-\d+\.(tachibk|proto\.gz)""".toRegex()
 

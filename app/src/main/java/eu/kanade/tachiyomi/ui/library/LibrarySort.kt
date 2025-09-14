@@ -13,7 +13,6 @@ enum class LibrarySort(
     @StringRes private val dynamicStringRes: Int = stringRes,
     @DrawableRes private val dynamicIconRes: Int = iconRes,
 ) {
-
     Title(0, R.string.title, R.drawable.ic_sort_by_alpha_24dp),
     Author(8, R.string.author, R.drawable.ic_author_24dp, 8),
     LastRead(1, R.string.last_read, R.drawable.ic_recent_read_outline_24dp, 3),
@@ -40,16 +39,17 @@ enum class LibrarySort(
         get() = if (this == DragAndDrop) 'D' else 'b' + catValue * 2
 
     fun serialize(): String {
-        val type = when (this) {
-            LastRead -> "LAST_READ"
-            Unread -> "UNREAD_COUNT"
-            TotalChapters -> "TOTAL_CHAPTERS"
-            LatestChapter -> "LATEST_CHAPTER"
-            DateFetched -> "CHAPTER_FETCH_DATE"
-            DateAdded -> "DATE_ADDED"
-            Author -> "AUTHOR"
-            else -> "ALPHABETICAL"
-        }
+        val type =
+            when (this) {
+                LastRead -> "LAST_READ"
+                Unread -> "UNREAD_COUNT"
+                TotalChapters -> "TOTAL_CHAPTERS"
+                LatestChapter -> "LATEST_CHAPTER"
+                DateFetched -> "CHAPTER_FETCH_DATE"
+                DateAdded -> "DATE_ADDED"
+                Author -> "AUTHOR"
+                else -> "ALPHABETICAL"
+            }
         return "$type,ASCENDING"
     }
 
@@ -62,13 +62,12 @@ enum class LibrarySort(
     val hasInvertedSort: Boolean
         get() = this in listOf(LastRead, DateAdded, LatestChapter, DateFetched)
 
-    fun menuSheetItem(isDynamic: Boolean): MaterialMenuSheet.MenuSheetItem {
-        return MaterialMenuSheet.MenuSheetItem(
+    fun menuSheetItem(isDynamic: Boolean): MaterialMenuSheet.MenuSheetItem =
+        MaterialMenuSheet.MenuSheetItem(
             mainValue,
             iconRes(isDynamic),
             stringRes(isDynamic),
         )
-    }
 
     companion object {
         fun deserialize(serialized: String): LibrarySort {
@@ -93,6 +92,7 @@ enum class LibrarySort(
         }
 
         fun valueOf(value: Int) = entries.find { it.mainValue == value }
+
         fun valueOf(char: Char?) = entries.find { it.categoryValue == char || it.categoryValueDescending == char }
     }
 }

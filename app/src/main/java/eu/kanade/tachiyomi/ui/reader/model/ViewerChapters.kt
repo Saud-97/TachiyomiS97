@@ -5,7 +5,6 @@ data class ViewerChapters(
     val prevChapter: ReaderChapter?,
     val nextChapter: ReaderChapter?,
 ) {
-
     fun ref() {
         currChapter.ref()
         prevChapter?.ref()

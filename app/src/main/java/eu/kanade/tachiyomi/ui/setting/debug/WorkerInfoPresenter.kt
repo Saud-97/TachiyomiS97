@@ -23,8 +23,7 @@ class WorkerInfoPresenter : BaseCoroutinePresenter<WorkerInfoController>() {
                     WorkInfo.State.FAILED,
                     WorkInfo.State.CANCELLED,
                 ),
-            )
-            .asFlow()
+            ).asFlow()
             .map(::constructString)
             .stateIn(presenterScope, SharingStarted.WhileSubscribed(), "")
     }
@@ -45,20 +44,21 @@ class WorkerInfoPresenter : BaseCoroutinePresenter<WorkerInfoController>() {
             .stateIn(presenterScope, SharingStarted.WhileSubscribed(), "")
     }
 
-    private fun constructString(list: List<WorkInfo>) = buildString {
-        if (list.isEmpty()) {
-            appendLine("-")
-        } else {
-            val newList = list.toList()
-            newList.forEach { workInfo ->
-                appendLine("Id: ${workInfo.id}")
-                appendLine("Tags:")
-                workInfo.tags.forEach {
-                    appendLine(" - $it")
+    private fun constructString(list: List<WorkInfo>) =
+        buildString {
+            if (list.isEmpty()) {
+                appendLine("-")
+            } else {
+                val newList = list.toList()
+                newList.forEach { workInfo ->
+                    appendLine("Id: ${workInfo.id}")
+                    appendLine("Tags:")
+                    workInfo.tags.forEach {
+                        appendLine(" - $it")
+                    }
+                    appendLine("State: ${workInfo.state}")
+                    appendLine()
                 }
-                appendLine("State: ${workInfo.state}")
-                appendLine()
             }
         }
-    }
 }

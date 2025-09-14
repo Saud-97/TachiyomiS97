@@ -37,18 +37,26 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.Locale
 
-abstract class SettingsController : PreferenceController(), BackHandlerControllerInterface {
-
+abstract class SettingsController :
+    PreferenceController(),
+    BackHandlerControllerInterface {
     var preferenceKey: String? = null
     val preferences: PreferencesHelper = Injekt.get()
     val viewScope = MainScope()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         listView.layoutManager = LinearLayoutManagerAccurateOffset(view.context)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup,
+        savedInstanceState: Bundle?,
+    ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         view.backgroundColor = view.context.getResourceColor(R.attr.background)
         scrollViewWith(listView, padBottom = true)
@@ -74,7 +82,10 @@ abstract class SettingsController : PreferenceController(), BackHandlerControlle
         }
     }
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreatePreferences(
+        savedInstanceState: Bundle?,
+        rootKey: String?,
+    ) {
         val screen = preferenceManager.createPreferenceScreen(getThemedContext())
         preferenceScreen = screen
         setupPreferenceScreen(screen)
@@ -83,6 +94,7 @@ abstract class SettingsController : PreferenceController(), BackHandlerControlle
     abstract fun setupPreferenceScreen(screen: PreferenceScreen): PreferenceScreen
 
     open fun onActionViewExpand(item: MenuItem?) { }
+
     open fun onActionViewCollapse(item: MenuItem?) { }
 
     private fun getThemedContext(): Context {
@@ -104,13 +116,12 @@ abstract class SettingsController : PreferenceController(), BackHandlerControlle
 
     open fun getTitle(): String? = preferenceScreen?.title?.toString()
 
-    open fun getSearchTitle(): String? {
-        return if (this is FloatingSearchInterface) {
+    open fun getSearchTitle(): String? =
+        if (this is FloatingSearchInterface) {
             searchTitle(preferenceScreen?.title?.toString()?.lowercase(Locale.ROOT))
         } else {
             null
         }
-    }
 
     fun setTitle() {
         var parentController = parentController
@@ -126,7 +137,10 @@ abstract class SettingsController : PreferenceController(), BackHandlerControlle
         activityBinding?.bigIconLayout?.isVisible = false
     }
 
-    override fun onChangeStarted(handler: ControllerChangeHandler, type: ControllerChangeType) {
+    override fun onChangeStarted(
+        handler: ControllerChangeHandler,
+        type: ControllerChangeType,
+    ) {
         if (type.isEnter && isControllerVisible) {
             setTitle()
         } else if (type.isEnter) {
@@ -136,7 +150,10 @@ abstract class SettingsController : PreferenceController(), BackHandlerControlle
         super.onChangeStarted(handler, type)
     }
 
-    inline fun <T> Preference.visibleIf(preference: com.fredporciuncula.flow.preferences.Preference<T>, crossinline block: (T) -> Boolean) {
+    inline fun <T> Preference.visibleIf(
+        preference: com.fredporciuncula.flow.preferences.Preference<T>,
+        crossinline block: (T) -> Boolean,
+    ) {
         preference.asImmediateFlowIn(viewScope) { isVisible = block(it) }
     }
 }

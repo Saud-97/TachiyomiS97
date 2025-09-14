@@ -34,73 +34,63 @@ import com.fredporciuncula.flow.preferences.Preference as FlowPreference
 @Target(AnnotationTarget.TYPE)
 annotation class DSL
 
-inline fun PreferenceManager.newScreen(block: (@DSL PreferenceScreen).() -> Unit): PreferenceScreen {
-    return createPreferenceScreen(context).also { it.block() }
-}
+inline fun PreferenceManager.newScreen(block: (@DSL PreferenceScreen).() -> Unit): PreferenceScreen =
+    createPreferenceScreen(context).also {
+        it.block()
+    }
 
-inline fun PreferenceGroup.preference(block: (@DSL Preference).() -> Unit): Preference {
-    return initThenAdd(Preference(context), block)
-}
+inline fun PreferenceGroup.preference(block: (@DSL Preference).() -> Unit): Preference = initThenAdd(Preference(context), block)
 
-inline fun PreferenceGroup.themePreference(block: (@DSL ThemePreference).() -> Unit): ThemePreference {
-    return initThenAdd(ThemePreference(context), block)
-}
+inline fun PreferenceGroup.themePreference(block: (@DSL ThemePreference).() -> Unit): ThemePreference =
+    initThenAdd(ThemePreference(context), block)
 
-inline fun PreferenceGroup.switchPreference(block: (@DSL SwitchPreferenceCompat).() -> Unit): SwitchPreferenceCompat {
-    return initThenAdd(SwitchPreferenceCompat(context), block)
-}
+inline fun PreferenceGroup.switchPreference(block: (@DSL SwitchPreferenceCompat).() -> Unit): SwitchPreferenceCompat =
+    initThenAdd(SwitchPreferenceCompat(context), block)
 
-inline fun PreferenceGroup.checkBoxPreference(block: (@DSL CheckBoxPreference).() -> Unit): CheckBoxPreference {
-    return initThenAdd(CheckBoxPreference(context), block)
-}
+inline fun PreferenceGroup.checkBoxPreference(block: (@DSL CheckBoxPreference).() -> Unit): CheckBoxPreference =
+    initThenAdd(CheckBoxPreference(context), block)
 
-inline fun PreferenceGroup.editTextPreference(activity: Activity?, block: (@DSL EditTextResetPreference).() -> Unit): EditTextResetPreference {
+inline fun PreferenceGroup.editTextPreference(
+    activity: Activity?,
+    block: (@DSL EditTextResetPreference).() -> Unit,
+): EditTextResetPreference {
     return initThenAdd(EditTextResetPreference(activity, context), block) // .also(::initDialog)
 }
 
-inline fun PreferenceGroup.dropDownPreference(block: (@DSL DropDownPreference).() -> Unit): DropDownPreference {
-    return initThenAdd(DropDownPreference(context), block).also(::initDialog)
-}
+inline fun PreferenceGroup.dropDownPreference(block: (@DSL DropDownPreference).() -> Unit): DropDownPreference =
+    initThenAdd(DropDownPreference(context), block).also(::initDialog)
 
 inline fun PreferenceGroup.listPreference(
     activity: Activity?,
     block: (@DSL ListMatPreference).()
     -> Unit,
-): ListMatPreference {
-    return initThenAdd(ListMatPreference(activity, context), block)
-}
+): ListMatPreference = initThenAdd(ListMatPreference(activity, context), block)
 
 inline fun PreferenceGroup.intListPreference(
     activity: Activity?,
     block: (@DSL IntListMatPreference).() -> Unit,
-): IntListMatPreference {
-    return initThenAdd(IntListMatPreference(activity, context), block)
-}
+): IntListMatPreference = initThenAdd(IntListMatPreference(activity, context), block)
 
 inline fun PreferenceGroup.multiSelectListPreferenceMat(
     activity: Activity?,
     block: (@DSL MultiListMatPreference).() -> Unit,
-): MultiListMatPreference {
-    return initThenAdd(MultiListMatPreference(activity, context), block)
-}
+): MultiListMatPreference = initThenAdd(MultiListMatPreference(activity, context), block)
 
 inline fun PreferenceGroup.triStateListPreference(
     activity: Activity?,
     block: (@DSL TriStateListPreference).() -> Unit,
-): TriStateListPreference {
-    return initThenAdd(TriStateListPreference(activity, context), block)
-}
+): TriStateListPreference = initThenAdd(TriStateListPreference(activity, context), block)
 
-inline fun PreferenceScreen.preferenceCategory(block: (@DSL PreferenceCategory).() -> Unit): PreferenceCategory {
-    return addThenInit(AdaptiveTitlePreferenceCategory(context), block)
-}
+inline fun PreferenceScreen.preferenceCategory(block: (@DSL PreferenceCategory).() -> Unit): PreferenceCategory =
+    addThenInit(AdaptiveTitlePreferenceCategory(context), block)
 
-inline fun PreferenceScreen.switchPreference(block: (@DSL SwitchPreferenceCompat).() -> Unit): SwitchPreferenceCompat {
-    return initThenAdd(SwitchPreferenceCompat(context), block)
-}
+inline fun PreferenceScreen.switchPreference(block: (@DSL SwitchPreferenceCompat).() -> Unit): SwitchPreferenceCompat =
+    initThenAdd(SwitchPreferenceCompat(context), block)
 
-fun PreferenceGroup.infoPreference(@StringRes infoRes: Int): Preference {
-    return initThenAdd(
+fun PreferenceGroup.infoPreference(
+    @StringRes infoRes: Int,
+): Preference =
+    initThenAdd(
         Preference(context),
     ) {
         iconRes = R.drawable.ic_info_outline_24dp
@@ -108,11 +98,9 @@ fun PreferenceGroup.infoPreference(@StringRes infoRes: Int): Preference {
         summaryRes = infoRes
         isSelectable = false
     }
-}
 
-inline fun PreferenceScreen.preferenceScreen(block: (@DSL PreferenceScreen).() -> Unit): PreferenceScreen {
-    return addThenInit(preferenceManager.createPreferenceScreen(context), block)
-}
+inline fun PreferenceScreen.preferenceScreen(block: (@DSL PreferenceScreen).() -> Unit): PreferenceScreen =
+    addThenInit(preferenceManager.createPreferenceScreen(context), block)
 
 fun initDialog(dialogPreference: DialogPreference) {
     with(dialogPreference) {
@@ -122,34 +110,40 @@ fun initDialog(dialogPreference: DialogPreference) {
     }
 }
 
-fun <P : Preference> PreferenceGroup.add(p: P): P {
-    return p.apply {
+fun <P : Preference> PreferenceGroup.add(p: P): P =
+    p.apply {
         this.isIconSpaceReserved = false
         this.isSingleLineTitle = false
         addPreference(this)
     }
-}
 
-inline fun <P : Preference> PreferenceGroup.initThenAdd(p: P, block: P.() -> Unit): P {
-    return p.apply {
+inline fun <P : Preference> PreferenceGroup.initThenAdd(
+    p: P,
+    block: P.() -> Unit,
+): P =
+    p.apply {
         this.isIconSpaceReserved = false
         this.isSingleLineTitle = false
         block()
         addPreference(this)
     }
-}
 
-inline fun <P : Preference> PreferenceGroup.addThenInit(p: P, block: P.() -> Unit): P {
-    return p.apply {
+inline fun <P : Preference> PreferenceGroup.addThenInit(
+    p: P,
+    block: P.() -> Unit,
+): P =
+    p.apply {
         this.isIconSpaceReserved = false
         this.isSingleLineTitle = false
         addPreference(this)
         block()
     }
-}
 
 inline fun Preference.onClick(crossinline block: () -> Unit) {
-    setOnPreferenceClickListener { block(); true }
+    setOnPreferenceClickListener {
+        block()
+        true
+    }
 }
 
 inline fun Preference.onChange(crossinline block: (Any?) -> Boolean) {
@@ -182,7 +176,9 @@ fun <T> ListMatPreference.bindTo(preference: FlowPreference<T>) {
     ReplaceWith("bindTo(preference, excludePreference = )"),
     DeprecationLevel.ERROR,
 )
-fun <T> TriStateListPreference.bindTo(preference: FlowPreference<T>) { key = preference.key }
+fun <T> TriStateListPreference.bindTo(preference: FlowPreference<T>) {
+    key = preference.key
+}
 
 fun TriStateListPreference.bindTo(
     includePreference: FlowPreference<Set<String>>,
@@ -204,48 +200,63 @@ fun SwitchPreferenceCompat.requireAuthentication(
     subtitle: String? = null,
     confirmationRequired: Boolean = true,
 ) {
-    onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-        newValue as Boolean
-        if (activity != null && context.isAuthenticationSupported()) {
-            activity.startAuthentication(
-                title,
-                subtitle,
-                confirmationRequired,
-                callback = object : AuthenticatorUtil.AuthenticationCallback() {
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                        super.onAuthenticationSucceeded(result)
-                        isChecked = newValue
-                    }
+    onPreferenceChangeListener =
+        Preference.OnPreferenceChangeListener { _, newValue ->
+            newValue as Boolean
+            if (activity != null && context.isAuthenticationSupported()) {
+                activity.startAuthentication(
+                    title,
+                    subtitle,
+                    confirmationRequired,
+                    callback =
+                        object : AuthenticatorUtil.AuthenticationCallback() {
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+                                isChecked = newValue
+                            }
 
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                        super.onAuthenticationError(errorCode, errString)
-                        activity.toast(errString.toString())
-                    }
-                },
-            )
-            false
-        } else {
-            true
+                            override fun onAuthenticationError(
+                                errorCode: Int,
+                                errString: CharSequence,
+                            ) {
+                                super.onAuthenticationError(errorCode, errString)
+                                activity.toast(errString.toString())
+                            }
+                        },
+                )
+                false
+            } else {
+                true
+            }
         }
-    }
 }
 
 var Preference.defaultValue: Any?
     get() = null // set only
-    set(value) { setDefaultValue(value) }
+    set(value) {
+        setDefaultValue(value)
+    }
 
 var Preference.titleRes: Int
     get() = 0 // set only
-    set(value) { setTitle(value) }
+    set(value) {
+        setTitle(value)
+    }
 
 var Preference.iconRes: Int
     get() = 0 // set only
-    set(value) { icon = AppCompatResources.getDrawable(context, value) }
+    set(value) {
+        icon = AppCompatResources.getDrawable(context, value)
+    }
 
 var Preference.summaryRes: Int
     get() = 0 // set only
-    set(value) { setSummary(value) }
+    set(value) {
+        setSummary(value)
+    }
 
 var Preference.iconTint: Int
     get() = 0 // set only
-    set(value) { icon?.setTint(value) }
+    set(value) {
+        icon?.setTint(value)
+    }

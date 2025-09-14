@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * PreferenceCategory that hides the title placeholder layout if the title is unset
  */
-class AdaptiveTitlePreferenceCategory(context: Context) : PreferenceCategory(context) {
+class AdaptiveTitlePreferenceCategory(
+    context: Context,
+) : PreferenceCategory(context) {
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
         if (title.isNullOrBlank()) {

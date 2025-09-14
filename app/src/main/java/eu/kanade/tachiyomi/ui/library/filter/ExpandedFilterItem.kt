@@ -15,8 +15,9 @@ import eu.kanade.tachiyomi.databinding.ExpandedFilterItemBinding
 import eu.kanade.tachiyomi.databinding.ExpandedFilterItemTextViewBinding
 import eu.kanade.tachiyomi.util.system.dpToPx
 
-class ExpandedFilterItem(val filter: LibraryFilter) : AbstractItem<FastAdapter.ViewHolder<ExpandedFilterItem>>() {
-
+class ExpandedFilterItem(
+    val filter: LibraryFilter,
+) : AbstractItem<FastAdapter.ViewHolder<ExpandedFilterItem>>() {
     /** defines the type defining this item. must be unique. preferably an id */
     override val type: Int = R.id.filter_title
 
@@ -25,19 +26,24 @@ class ExpandedFilterItem(val filter: LibraryFilter) : AbstractItem<FastAdapter.V
 
     override var identifier = filter.hashCode().toLong()
 
-    override fun getViewHolder(v: View): FastAdapter.ViewHolder<ExpandedFilterItem> {
-        return ViewHolder(v)
-    }
+    override fun getViewHolder(v: View): FastAdapter.ViewHolder<ExpandedFilterItem> = ViewHolder(v)
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<ExpandedFilterItem>(view) {
-
+    class ViewHolder(
+        view: View,
+    ) : FastAdapter.ViewHolder<ExpandedFilterItem>(view) {
         val binding = ExpandedFilterItemBinding.bind(view)
 
         val textViews: List<MaterialTextView>
-            get() = binding.filterLinearLayout.children.toList().filterIsInstance<MaterialTextView>()
+            get() =
+                binding.filterLinearLayout.children
+                    .toList()
+                    .filterIsInstance<MaterialTextView>()
 
         @Suppress("UNCHECKED_CAST")
-        override fun bindView(item: ExpandedFilterItem, payloads: List<Any>) {
+        override fun bindView(
+            item: ExpandedFilterItem,
+            payloads: List<Any>,
+        ) {
             binding.filterLinearLayout.removeAllViews()
             binding.filterTitle.text = item.filter.headerName
             val allTextView =
@@ -62,7 +68,7 @@ class ExpandedFilterItem(val filter: LibraryFilter) : AbstractItem<FastAdapter.V
                     (
                         (bindingAdapter as? FastAdapter<ExpandedFilterItem>)?.eventHooks?.first()
                             as? ClickEventHook<ExpandedFilterItem>
-                        )?.onClick(
+                    )?.onClick(
                         tV,
                         bindingAdapterPosition,
                         bindingAdapter as FastAdapter<ExpandedFilterItem>,

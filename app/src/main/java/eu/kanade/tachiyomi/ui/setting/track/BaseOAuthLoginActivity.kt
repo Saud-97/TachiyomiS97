@@ -13,7 +13,6 @@ import eu.kanade.tachiyomi.ui.main.MainActivity
 import uy.kohesive.injekt.injectLazy
 
 abstract class BaseOAuthLoginActivity : BaseThemedActivity() {
-
     internal val trackManager: TrackManager by injectLazy()
 
     abstract fun handleResult(data: Uri?)

@@ -22,23 +22,26 @@ import eu.kanade.tachiyomi.ui.main.MainActivity
 
 @Composable
 fun LockedWidget() {
-    val intent = Intent(LocalContext.current, Class.forName(MainActivity.MAIN_ACTIVITY)).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
+    val intent =
+        Intent(LocalContext.current, Class.forName(MainActivity.MAIN_ACTIVITY)).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
     Box(
-        modifier = GlanceModifier
-            .clickable(actionStartActivity(intent))
-            .then(ContainerModifier)
-            .padding(8.dp),
+        modifier =
+            GlanceModifier
+                .clickable(actionStartActivity(intent))
+                .then(ContainerModifier)
+                .padding(8.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = stringResource(R.string.appwidget_unavailable_locked),
-            style = TextStyle(
-                color = ColorProvider(R.color.appwidget_on_secondary_container),
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-            ),
+            style =
+                TextStyle(
+                    color = ColorProvider(R.color.appwidget_on_secondary_container),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                ),
         )
     }
 }

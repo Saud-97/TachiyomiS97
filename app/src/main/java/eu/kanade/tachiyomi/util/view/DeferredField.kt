@@ -9,7 +9,6 @@ import kotlinx.coroutines.sync.withLock
  * @author nulldev
  */
 class DeferredField<T> {
-
     @Volatile
     var content: T? = null
 

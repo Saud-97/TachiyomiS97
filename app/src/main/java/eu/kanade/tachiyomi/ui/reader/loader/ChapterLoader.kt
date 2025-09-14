@@ -23,7 +23,6 @@ class ChapterLoader(
     private val manga: Manga,
     private val source: Source,
 ) {
-
     /**
      * Assigns the chapter's page loader and loads the its pages. Returns immediately if the chapter
      * is already loaded.
@@ -40,8 +39,10 @@ class ChapterLoader(
                 val loader = getPageLoader(chapter)
                 chapter.pageLoader = loader
 
-                val pages = loader.getPages()
-                    .onEach { it.chapter = chapter }
+                val pages =
+                    loader
+                        .getPages()
+                        .onEach { it.chapter = chapter }
 
                 if (pages.isEmpty()) {
                     throw Exception(context.getString(R.string.no_pages_found))
@@ -64,9 +65,7 @@ class ChapterLoader(
     /**
      * Checks [chapter] to be loaded based on present pages and loader in addition to state.
      */
-    private fun chapterIsReady(chapter: ReaderChapter): Boolean {
-        return chapter.state is ReaderChapter.State.Loaded && chapter.pageLoader != null
-    }
+    private fun chapterIsReady(chapter: ReaderChapter): Boolean = chapter.state is ReaderChapter.State.Loaded && chapter.pageLoader != null
 
     /**
      * Returns the page loader to use for this [chapter].
@@ -77,18 +76,20 @@ class ChapterLoader(
         return when {
             isDownloaded -> DownloadPageLoader(chapter, manga, source, downloadManager, downloadProvider)
             source is HttpSource -> HttpPageLoader(chapter, source)
-            source is LocalSource -> source.getFormat(chapter.chapter).let { format ->
-                when (format) {
-                    is LocalSource.Format.Directory -> DirectoryPageLoader(format.file)
-                    is LocalSource.Format.Zip -> ZipPageLoader(format.file)
-                    is LocalSource.Format.Rar -> try {
-                        RarPageLoader(format.file)
-                    } catch (e: UnsupportedRarV5Exception) {
-                        error(context.getString(R.string.loader_rar5_error))
+            source is LocalSource ->
+                source.getFormat(chapter.chapter).let { format ->
+                    when (format) {
+                        is LocalSource.Format.Directory -> DirectoryPageLoader(format.file)
+                        is LocalSource.Format.Zip -> ZipPageLoader(format.file)
+                        is LocalSource.Format.Rar ->
+                            try {
+                                RarPageLoader(format.file)
+                            } catch (e: UnsupportedRarV5Exception) {
+                                error(context.getString(R.string.loader_rar5_error))
+                            }
+                        is LocalSource.Format.Epub -> EpubPageLoader(format.file)
                     }
-                    is LocalSource.Format.Epub -> EpubPageLoader(format.file)
                 }
-            }
             else -> error(context.getString(R.string.source_not_installed))
         }
     }

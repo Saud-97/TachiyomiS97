@@ -12,7 +12,10 @@ import eu.kanade.tachiyomi.util.system.localeContext
 import eu.kanade.tachiyomi.util.system.toast
 
 class AppUpdateBroadcast : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (AppDownloadInstallJob.PACKAGE_INSTALLED_ACTION == intent.action) {
             val extras = intent.extras ?: return
             when (val status = extras.getInt(PackageInstaller.EXTRA_STATUS)) {

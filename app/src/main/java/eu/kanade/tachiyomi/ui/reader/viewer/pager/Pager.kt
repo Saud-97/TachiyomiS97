@@ -17,7 +17,6 @@ open class Pager(
     context: Context,
     isHorizontal: Boolean = true,
 ) : DirectionalViewPager(context, isHorizontal) {
-
     /**
      * Tap listener function to execute when a tap is detected.
      */
@@ -41,19 +40,20 @@ open class Pager(
     /**
      * Gesture listener that implements tap and long tap events.
      */
-    private val gestureListener = object : GestureDetectorWithLongTap.Listener() {
-        override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
-            tapListener?.invoke(ev)
-            return true
-        }
+    private val gestureListener =
+        object : GestureDetectorWithLongTap.Listener() {
+            override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
+                tapListener?.invoke(ev)
+                return true
+            }
 
-        override fun onLongTapConfirmed(ev: MotionEvent) {
-            val listener = longTapListener
-            if (listener != null && listener.invoke(ev)) {
-                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            override fun onLongTapConfirmed(ev: MotionEvent) {
+                val listener = longTapListener
+                if (listener != null && listener.invoke(ev)) {
+                    performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                }
             }
         }
-    }
 
     /**
      * Gesture detector which handles motion events.
@@ -80,25 +80,23 @@ open class Pager(
      * Whether the given [ev] should be intercepted. Only used to prevent crashes when child
      * views manipulate [requestDisallowInterceptTouchEvent].
      */
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        return try {
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
+        try {
             super.onInterceptTouchEvent(ev)
         } catch (e: IllegalArgumentException) {
             false
         }
-    }
 
     /**
      * Handles a touch event. Only used to prevent crashes when child views manipulate
      * [requestDisallowInterceptTouchEvent].
      */
-    override fun onTouchEvent(ev: MotionEvent): Boolean {
-        return try {
+    override fun onTouchEvent(ev: MotionEvent): Boolean =
+        try {
             super.onTouchEvent(ev)
         } catch (e: IllegalArgumentException) {
             false
         }
-    }
 
     /**
      * Executes the given key event when this pager has focus. Just do nothing because the reader

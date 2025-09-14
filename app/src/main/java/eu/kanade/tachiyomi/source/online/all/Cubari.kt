@@ -17,6 +17,7 @@ import java.util.Locale
 
 class Cubari : DelegatedHttpSource() {
     override val domainName: String = "cubari"
+
     override fun canOpenUrl(uri: Uri): Boolean = true
 
     override fun chapterUrl(uri: Uri): String? = null
@@ -26,29 +27,36 @@ class Cubari : DelegatedHttpSource() {
     override suspend fun fetchMangaFromChapterUrl(uri: Uri): Triple<Chapter, Manga, List<SChapter>>? {
         val cubariType = uri.pathSegments.getOrNull(1)?.lowercase(Locale.ROOT) ?: return null
         val cubariPath = uri.pathSegments.getOrNull(2) ?: return null
-        val chapterNumber = uri.pathSegments.getOrNull(3)?.replace("-", ".")?.toFloatOrNull() ?: return null
+        val chapterNumber =
+            uri.pathSegments
+                .getOrNull(3)
+                ?.replace("-", ".")
+                ?.toFloatOrNull() ?: return null
         val mangaUrl = "/read/$cubariType/$cubariPath"
         return withContext(Dispatchers.IO) {
-            val deferredManga = async {
-                db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking() ?: getMangaInfo(mangaUrl)
-            }
-            val deferredChapters = async {
-                db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking()?.let { manga ->
-                    val chapters = db.getChapters(manga).executeOnIO()
-                    val chapter = findChapter(chapters, cubariType, chapterNumber)
-                    if (chapter != null) {
-                        return@async chapters
-                    }
+            val deferredManga =
+                async {
+                    db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking() ?: getMangaInfo(mangaUrl)
                 }
-                getChapters(mangaUrl)
-            }
+            val deferredChapters =
+                async {
+                    db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking()?.let { manga ->
+                        val chapters = db.getChapters(manga).executeOnIO()
+                        val chapter = findChapter(chapters, cubariType, chapterNumber)
+                        if (chapter != null) {
+                            return@async chapters
+                        }
+                    }
+                    getChapters(mangaUrl)
+                }
             val manga = deferredManga.await()
             val chapters = deferredChapters.await()
             val context = Injekt.get<PreferencesHelper>().context
-            val trueChapter = findChapter(chapters, cubariType, chapterNumber)?.toChapter()
-                ?: error(
-                    context.getString(R.string.chapter_not_found),
-                )
+            val trueChapter =
+                findChapter(chapters, cubariType, chapterNumber)?.toChapter()
+                    ?: error(
+                        context.getString(R.string.chapter_not_found),
+                    )
             if (manga != null) {
                 Triple(trueChapter, manga, chapters.orEmpty())
             } else {
@@ -57,10 +65,13 @@ class Cubari : DelegatedHttpSource() {
         }
     }
 
-    fun findChapter(chapters: List<SChapter>?, cubariType: String, chapterNumber: Float): SChapter? {
-        return when (cubariType) {
+    fun findChapter(
+        chapters: List<SChapter>?,
+        cubariType: String,
+        chapterNumber: Float,
+    ): SChapter? =
+        when (cubariType) {
             "imgur" -> chapters?.firstOrNull()
             else -> chapters?.find { it.chapter_number == chapterNumber }
         }
-    }
 }

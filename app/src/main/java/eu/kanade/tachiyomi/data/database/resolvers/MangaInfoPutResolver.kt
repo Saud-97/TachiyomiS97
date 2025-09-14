@@ -9,9 +9,11 @@ import eu.kanade.tachiyomi.data.database.inTransactionReturn
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.database.tables.MangaTable
 
-class MangaInfoPutResolver() : PutResolver<Manga>() {
-
-    override fun performPut(db: StorIOSQLite, manga: Manga) = db.inTransactionReturn {
+class MangaInfoPutResolver : PutResolver<Manga>() {
+    override fun performPut(
+        db: StorIOSQLite,
+        manga: Manga,
+    ) = db.inTransactionReturn {
         val updateQuery = mapToUpdateQuery(manga)
         val contentValues = mapToContentValues(manga)
 
@@ -19,18 +21,21 @@ class MangaInfoPutResolver() : PutResolver<Manga>() {
         PutResult.newUpdateResult(numberOfRowsUpdated, updateQuery.table())
     }
 
-    fun mapToUpdateQuery(manga: Manga) = UpdateQuery.builder()
-        .table(MangaTable.TABLE)
-        .where("${MangaTable.COL_ID} = ?")
-        .whereArgs(manga.id)
-        .build()
+    fun mapToUpdateQuery(manga: Manga) =
+        UpdateQuery
+            .builder()
+            .table(MangaTable.TABLE)
+            .where("${MangaTable.COL_ID} = ?")
+            .whereArgs(manga.id)
+            .build()
 
-    fun mapToContentValues(manga: Manga) = ContentValues(1).apply {
-        put(MangaTable.COL_TITLE, manga.originalTitle)
-        put(MangaTable.COL_GENRE, manga.originalGenre)
-        put(MangaTable.COL_AUTHOR, manga.originalAuthor)
-        put(MangaTable.COL_ARTIST, manga.originalArtist)
-        put(MangaTable.COL_DESCRIPTION, manga.originalDescription)
-        put(MangaTable.COL_STATUS, manga.originalStatus)
-    }
+    fun mapToContentValues(manga: Manga) =
+        ContentValues(1).apply {
+            put(MangaTable.COL_TITLE, manga.originalTitle)
+            put(MangaTable.COL_GENRE, manga.originalGenre)
+            put(MangaTable.COL_AUTHOR, manga.originalAuthor)
+            put(MangaTable.COL_ARTIST, manga.originalArtist)
+            put(MangaTable.COL_DESCRIPTION, manga.originalDescription)
+            put(MangaTable.COL_STATUS, manga.originalStatus)
+        }
 }

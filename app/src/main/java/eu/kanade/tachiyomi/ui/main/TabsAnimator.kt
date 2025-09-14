@@ -5,8 +5,9 @@ import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
 import com.google.android.material.tabs.TabLayout
 
-class TabsAnimator(val tabs: TabLayout) {
-
+class TabsAnimator(
+    val tabs: TabLayout,
+) {
     /**
      * The default height of the tab layout. It's unknown until the view is layout.
      */
@@ -63,9 +64,7 @@ class TabsAnimator(val tabs: TabLayout) {
      * Returns the height of the tab layout. This method is also called from the animator through
      * reflection.
      */
-    fun getHeight(): Int {
-        return tabs.layoutParams.height
-    }
+    fun getHeight(): Int = tabs.layoutParams.height
 
     /**
      * Expands the tab layout with an animation.

@@ -17,8 +17,10 @@ import eu.kanade.tachiyomi.util.system.getResourceColor
 import uy.kohesive.injekt.injectLazy
 import java.text.DateFormat
 
-class TrackHolder(view: View, adapter: TrackAdapter) : BaseViewHolder(view) {
-
+class TrackHolder(
+    view: View,
+    adapter: TrackAdapter,
+) : BaseViewHolder(view) {
     private val preferences: PreferencesHelper by injectLazy()
     private val binding = TrackItemBinding.bind(view)
     private val dateFormat: DateFormat by lazy {
@@ -58,21 +60,25 @@ class TrackHolder(view: View, adapter: TrackAdapter) : BaseViewHolder(view) {
         if (track != null) {
             binding.trackTitle.text = track.title
             with(binding.trackChapters) {
-                text = when {
-                    track.total_chapters > 0 && track.last_chapter_read.toInt() == track.total_chapters -> context.getString(
-                        R.string.all_chapters_read,
-                    )
-                    track.total_chapters > 0 -> context.getString(
-                        R.string.chapter_x_of_y,
-                        track.last_chapter_read.toInt(),
-                        track.total_chapters,
-                    )
-                    track.last_chapter_read > 0 -> context.getString(
-                        R.string.chapter_,
-                        track.last_chapter_read.toInt().toString(),
-                    )
-                    else -> context.getString(R.string.not_started)
-                }
+                text =
+                    when {
+                        track.total_chapters > 0 && track.last_chapter_read.toInt() == track.total_chapters ->
+                            context.getString(
+                                R.string.all_chapters_read,
+                            )
+                        track.total_chapters > 0 ->
+                            context.getString(
+                                R.string.chapter_x_of_y,
+                                track.last_chapter_read.toInt(),
+                                track.total_chapters,
+                            )
+                        track.last_chapter_read > 0 ->
+                            context.getString(
+                                R.string.chapter_,
+                                track.last_chapter_read.toInt().toString(),
+                            )
+                        else -> context.getString(R.string.not_started)
+                    }
                 setTextColor(enabledTextColor(true))
             }
             val status = item.service.getStatus(track.status)
@@ -130,23 +136,25 @@ class TrackHolder(view: View, adapter: TrackAdapter) : BaseViewHolder(view) {
         }
     }
 
-    fun enabledTextColor(enabled: Boolean): Int {
-        return binding.root.context.getResourceColor(
+    fun enabledTextColor(enabled: Boolean): Int =
+        binding.root.context.getResourceColor(
             if (enabled) {
                 android.R.attr.textColorPrimary
             } else {
                 android.R.attr.textColorHint
             },
         )
-    }
 
-    private fun starIcon(track: Track): Int {
-        return if (track.score == 0f || binding.trackScore.text.toString().toFloatOrNull() != null) {
+    private fun starIcon(track: Track): Int =
+        if (track.score == 0f ||
+            binding.trackScore.text
+                .toString()
+                .toFloatOrNull() != null
+        ) {
             R.drawable.ic_star_12dp
         } else {
             0
         }
-    }
 
     fun setProgress(enabled: Boolean) {
         binding.progress.isVisible = enabled

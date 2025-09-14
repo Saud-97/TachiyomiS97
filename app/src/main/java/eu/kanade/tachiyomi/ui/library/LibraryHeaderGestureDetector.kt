@@ -16,10 +16,10 @@ class LibraryHeaderGestureDetector(
     private val header: LibraryHeaderHolder?,
     private val binding: LibraryCategoryHeaderItemBinding?,
 ) : GestureDetector.SimpleOnGestureListener() {
-
     private var startingX = 0f
     private var startingY = 0f
     var vibrated = false
+
     override fun onDown(e: MotionEvent): Boolean {
         vibrated = false
         startingX = e.x
@@ -79,7 +79,8 @@ class LibraryHeaderGestureDetector(
             binding.rearView.isVisible = false
         }
         val x = abs(binding.categoryHeaderLayout.translationX)
-        if (abs(diffX) >= abs(diffY) && sign(velocityX) == sign(diffX) &&
+        if (abs(diffX) >= abs(diffY) &&
+            sign(velocityX) == sign(diffX) &&
             ((x > 30f.dpToPx && abs(velocityX) > 100) || abs(velocityX) > 5000)
         ) {
             header?.addCategoryToUpdate()

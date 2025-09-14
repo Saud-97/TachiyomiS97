@@ -44,8 +44,10 @@ import uy.kohesive.injekt.api.get
 import java.lang.ref.WeakReference
 import kotlin.math.max
 
-class ExtensionInstallerJob(val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-
+class ExtensionInstallerJob(
+    val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     private val notifier = ExtensionInstallNotifier(context.localeContext)
 
     private val preferences: PreferencesHelper = Injekt.get()
@@ -85,18 +87,21 @@ class ExtensionInstallerJob(val context: Context, workerParams: WorkerParameters
 
         val json = inputData.getString(KEY_EXTENSION) ?: return Result.failure()
 
-        val infos = try {
-            Json.decodeFromString<Array<ExtensionManager.ExtensionInfo>>(json)
-        } catch (e: Exception) {
-            Timber.e(e, "Cannot decode string")
-            null
-        } ?: return Result.failure()
-        val list = infos.filter {
-            val installedExt = extensionManager.installedExtensionsFlow.value.find { installed ->
-                installed.pkgName == it.pkgName
-            } ?: return@filter false
-            installedExt.versionCode < it.versionCode || installedExt.libVersion < it.libVersion
-        }
+        val infos =
+            try {
+                Json.decodeFromString<Array<ExtensionManager.ExtensionInfo>>(json)
+            } catch (e: Exception) {
+                Timber.e(e, "Cannot decode string")
+                null
+            } ?: return Result.failure()
+        val list =
+            infos.filter {
+                val installedExt =
+                    extensionManager.installedExtensionsFlow.value.find { installed ->
+                        installed.pkgName == it.pkgName
+                    } ?: return@filter false
+                installedExt.versionCode < it.versionCode || installedExt.libVersion < it.libVersion
+            }
 
         activeInstalls = list.map { it.pkgName }.toMutableList()
         emitScope.launch { list.forEach { extensionManager.setPending(it.pkgName) } }
@@ -104,29 +109,33 @@ class ExtensionInstallerJob(val context: Context, workerParams: WorkerParameters
         val installedExtensions = mutableListOf<ExtensionManager.ExtensionInfo>()
         val requestSemaphore = Semaphore(3)
         coroutineScope {
-            job = launchIO {
-                list.map { extension ->
-                    async {
-                        requestSemaphore.withPermit {
-                            extensionManager.installExtension(extension, this)
-                                .collect {
-                                    if (it.first.isCompleted()) {
-                                        activeInstalls.remove(extension.pkgName)
-                                        installedExtensions.add(extension)
-                                        installed++
-                                        val prefCount = preferences.extensionUpdatesCount().get()
-                                        preferences.extensionUpdatesCount()
-                                            .set(max(prefCount - 1, 0))
-                                    }
-                                    notifier.showProgressNotification(installed, list.size)
-                                    if (activeInstalls.isEmpty() || isStopped) {
-                                        cancel()
-                                    }
+            job =
+                launchIO {
+                    list
+                        .map { extension ->
+                            async {
+                                requestSemaphore.withPermit {
+                                    extensionManager
+                                        .installExtension(extension, this)
+                                        .collect {
+                                            if (it.first.isCompleted()) {
+                                                activeInstalls.remove(extension.pkgName)
+                                                installedExtensions.add(extension)
+                                                installed++
+                                                val prefCount = preferences.extensionUpdatesCount().get()
+                                                preferences
+                                                    .extensionUpdatesCount()
+                                                    .set(max(prefCount - 1, 0))
+                                            }
+                                            notifier.showProgressNotification(installed, list.size)
+                                            if (activeInstalls.isEmpty() || isStopped) {
+                                                cancel()
+                                            }
+                                        }
                                 }
-                        }
-                    }
-                }.awaitAll()
-            }
+                            }
+                        }.awaitAll()
+                }
         }
 
         if (showUpdatedNotification && installedExtensions.size > 0) {
@@ -138,11 +147,12 @@ class ExtensionInstallerJob(val context: Context, workerParams: WorkerParameters
 
         activeInstalls.forEach { extensionManager.cleanUpInstallation(it) }
         activeInstalls.clear()
-        val hasChain = withContext(Dispatchers.IO) {
-            WorkManager.getInstance(context).getWorkInfosByTag(TAG).get().any {
-                it.state == WorkInfo.State.BLOCKED
+        val hasChain =
+            withContext(Dispatchers.IO) {
+                WorkManager.getInstance(context).getWorkInfosByTag(TAG).get().any {
+                    it.state == WorkInfo.State.BLOCKED
+                }
             }
-        }
         if (!hasChain) {
             extensionManager.emitToInstaller("Finished", (InstallStep.Installed to null))
         }
@@ -166,26 +176,36 @@ class ExtensionInstallerJob(val context: Context, workerParams: WorkerParameters
 
         private var instance: WeakReference<ExtensionInstallerJob>? = null
 
-        fun start(context: Context, extensions: List<Extension.Available>, showUpdatedExtension: Int = -1) {
+        fun start(
+            context: Context,
+            extensions: List<Extension.Available>,
+            showUpdatedExtension: Int = -1,
+        ) {
             startJob(context, extensions.map(ExtensionManager::ExtensionInfo), showUpdatedExtension)
         }
 
-        fun startJob(context: Context, info: List<ExtensionManager.ExtensionInfo>, showUpdatedExtension: Int = -1) {
+        fun startJob(
+            context: Context,
+            info: List<ExtensionManager.ExtensionInfo>,
+            showUpdatedExtension: Int = -1,
+        ) {
             // chunked to satisfy input limits
-            val requests = info.chunked(32).map {
-                OneTimeWorkRequestBuilder<ExtensionInstallerJob>()
-                    .addTag(TAG)
-                    .setInputData(
-                        workDataOf(
-                            KEY_EXTENSION to Json.encodeToString(it.toTypedArray()),
-                            KEY_SHOW_UPDATED to showUpdatedExtension,
-                        ),
-                    )
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    .build()
-            }
-            var workContinuation = WorkManager.getInstance(context)
-                .beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE, requests.first())
+            val requests =
+                info.chunked(32).map {
+                    OneTimeWorkRequestBuilder<ExtensionInstallerJob>()
+                        .addTag(TAG)
+                        .setInputData(
+                            workDataOf(
+                                KEY_EXTENSION to Json.encodeToString(it.toTypedArray()),
+                                KEY_SHOW_UPDATED to showUpdatedExtension,
+                            ),
+                        ).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        .build()
+                }
+            var workContinuation =
+                WorkManager
+                    .getInstance(context)
+                    .beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE, requests.first())
             for (i in 1 until requests.size) {
                 workContinuation = workContinuation.then(requests[i])
             }
@@ -193,6 +213,7 @@ class ExtensionInstallerJob(val context: Context, workerParams: WorkerParameters
         }
 
         fun activeInstalls(): List<String>? = instance?.get()?.activeInstalls
+
         fun removeActiveInstall(pkgName: String) = instance?.get()?.activeInstalls?.remove(pkgName)
 
         fun stop(context: Context) {

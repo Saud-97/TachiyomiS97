@@ -14,18 +14,18 @@ import uy.kohesive.injekt.injectLazy
 import java.util.Date
 
 object SecureActivityDelegate {
-
     private val preferences by injectLazy<PreferencesHelper>()
 
     var locked: Boolean = true
 
     fun setSecure(activity: Activity?) {
         val incognitoMode = preferences.incognitoMode().get()
-        val enabled = when (preferences.secureScreen().get()) {
-            PreferenceValues.SecureScreenMode.ALWAYS -> true
-            PreferenceValues.SecureScreenMode.INCOGNITO -> incognitoMode
-            else -> false
-        }
+        val enabled =
+            when (preferences.secureScreen().get()) {
+                PreferenceValues.SecureScreenMode.ALWAYS -> true
+                PreferenceValues.SecureScreenMode.INCOGNITO -> incognitoMode
+                else -> false
+            }
         activity?.window?.setSecureScreen(enabled)
     }
 
@@ -37,10 +37,18 @@ object SecureActivityDelegate {
         }
     }
 
-    fun promptLockIfNeeded(activity: Activity?, requireSuccess: Boolean = false) {
+    fun promptLockIfNeeded(
+        activity: Activity?,
+        requireSuccess: Boolean = false,
+    ) {
         if (activity == null || AuthenticatorUtil.isAuthenticating) return
         val lockApp = preferences.useBiometrics().get()
-        if (lockApp && BiometricManager.from(activity).canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS) {
+        if (lockApp &&
+            BiometricManager.from(activity).canAuthenticate(
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_WEAK,
+            ) ==
+            BiometricManager.BIOMETRIC_SUCCESS
+        ) {
             if (isAppLocked()) {
                 val intent = Intent(activity, BiometricActivity::class.java)
                 intent.putExtra("fromSearch", (activity is SearchActivity) && !requireSuccess)
@@ -62,12 +70,13 @@ object SecureActivityDelegate {
         return false
     }
 
-    private fun isAppLocked(): Boolean {
-        return locked &&
+    private fun isAppLocked(): Boolean =
+        locked &&
             (
                 preferences.lockAfter().get() <= 0 ||
-                    Date().time >= preferences.lastUnlock().get() + 60 * 1000 * preferences
-                    .lockAfter().get()
-                )
-    }
+                    Date().time >= preferences.lastUnlock().get() + 60 * 1000 *
+                    preferences
+                        .lockAfter()
+                        .get()
+            )
 }

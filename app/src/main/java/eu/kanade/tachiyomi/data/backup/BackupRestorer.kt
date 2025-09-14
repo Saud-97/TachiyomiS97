@@ -44,8 +44,10 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.max
 
-class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
-
+class BackupRestorer(
+    val context: Context,
+    val notifier: BackupNotifier,
+) {
     private val db: DatabaseHelper by injectLazy()
     private val customMangaManager: CustomMangaManager by injectLazy()
     private val preferenceStore: PreferenceStore = Injekt.get()
@@ -143,7 +145,10 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
         showRestoreProgress(restoreProgress, restoreAmount, context.getString(R.string.categories))
     }
 
-    private fun restoreManga(backupManga: BackupManga, backupCategories: List<BackupCategory>) {
+    private fun restoreManga(
+        backupManga: BackupManga,
+        backupCategories: List<BackupCategory>,
+    ) {
         val manga = backupManga.getMangaImpl()
         val chapters = backupManga.getChaptersImpl()
         val categories = backupManga.categories
@@ -192,10 +197,11 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
         backupCategories: List<BackupCategory>,
         customManga: CustomMangaManager.MangaJson?,
     ) {
-        val fetchedManga = manga.also {
-            it.initialized = it.description != null
-            it.id = db.insertManga(it).executeAsBlocking().insertedId()
-        }
+        val fetchedManga =
+            manga.also {
+                it.initialized = it.description != null
+                it.id = db.insertManga(it).executeAsBlocking().insertedId()
+            }
         fetchedManga.id ?: return
 
         restoreChapters(fetchedManga, chapters)
@@ -215,7 +221,10 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
         restoreExtras(backupManga, categories, history, tracks, backupCategories, customManga)
     }
 
-    private fun restoreChapters(manga: Manga, chapters: List<Chapter>) {
+    private fun restoreChapters(
+        manga: Manga,
+        chapters: List<Chapter>,
+    ) {
         val dbChapters = db.getChapters(manga).executeAsBlocking()
 
         chapters.forEach { chapter ->
@@ -263,19 +272,25 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
      * @param manga the manga whose categories have to be restored.
      * @param categories the categories to restore.
      */
-    private fun restoreCategories(manga: Manga, categories: List<Int>, backupCategories: List<BackupCategory>) {
+    private fun restoreCategories(
+        manga: Manga,
+        categories: List<Int>,
+        backupCategories: List<BackupCategory>,
+    ) {
         val dbCategories = db.getCategories().executeAsBlocking()
         val mangaCategoriesToUpdate = ArrayList<MangaCategory>(categories.size)
         categories.forEach { backupCategoryOrder ->
-            backupCategories.firstOrNull {
-                it.order == backupCategoryOrder
-            }?.let { backupCategory ->
-                dbCategories.firstOrNull { dbCategory ->
-                    dbCategory.name == backupCategory.name
-                }?.let { dbCategory ->
-                    mangaCategoriesToUpdate += MangaCategory.create(manga, dbCategory)
+            backupCategories
+                .firstOrNull {
+                    it.order == backupCategoryOrder
+                }?.let { backupCategory ->
+                    dbCategories
+                        .firstOrNull { dbCategory ->
+                            dbCategory.name == backupCategory.name
+                        }?.let { dbCategory ->
+                            mangaCategoriesToUpdate += MangaCategory.create(manga, dbCategory)
+                        }
                 }
-            }
         }
 
         // Update database
@@ -305,10 +320,11 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
             } else {
                 // If not in database create
                 db.getChapter(url).executeAsBlocking()?.let {
-                    val historyToAdd = History.create(it).apply {
-                        last_read = lastRead
-                        time_read = readDuration
-                    }
+                    val historyToAdd =
+                        History.create(it).apply {
+                            last_read = lastRead
+                            time_read = readDuration
+                        }
                     historyToBeUpdated.add(historyToAdd)
                 }
             }
@@ -322,7 +338,10 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
      * @param manga the manga whose sync have to be restored.
      * @param tracks the track list to restore.
      */
-    private fun restoreTrackForManga(manga: Manga, tracks: List<Track>) {
+    private fun restoreTrackForManga(
+        manga: Manga,
+        tracks: List<Track>,
+    ) {
         // Fix foreign keys with the current manga id
         tracks.map { it.manga_id = manga.id!! }
 
@@ -387,7 +406,8 @@ class BackupRestorer(val context: Context, val notifier: BackupNotifier) {
         val prefs = preferenceStore.getAll()
         toRestore.forEach { (key, value) ->
             // j2k fork differences
-            if (key == "library_sorting_mode" && value is StringPreferenceValue &&
+            if (key == "library_sorting_mode" &&
+                value is StringPreferenceValue &&
                 prefs[key] is Int?
             ) {
                 val intValue = LibrarySort.deserialize(value.value)

@@ -23,12 +23,12 @@ import eu.kanade.tachiyomi.util.view.snack
 /**
  * Controller to manage the repos for the user's extensions.
  */
-class RepoController(bundle: Bundle? = null) :
-    BaseController<CategoriesControllerBinding>(bundle),
+class RepoController(
+    bundle: Bundle? = null,
+) : BaseController<CategoriesControllerBinding>(bundle),
     FlexibleAdapter.OnItemClickListener,
     SmallToolbarInterface,
     RepoAdapter.RepoItemListener {
-
     constructor(repoUrl: String) : this(
         Bundle().apply {
             putString(REPO_URL, repoUrl)
@@ -55,9 +55,7 @@ class RepoController(bundle: Bundle? = null) :
     /**
      * Returns the toolbar title to show when this controller is attached.
      */
-    override fun getTitle(): String? {
-        return resources?.getString(R.string.extension_repos)
-    }
+    override fun getTitle(): String? = resources?.getString(R.string.extension_repos)
 
     override fun createBinding(inflater: LayoutInflater) = CategoriesControllerBinding.inflate(inflater)
 
@@ -115,7 +113,10 @@ class RepoController(bundle: Bundle? = null) :
      * @param position The position of the clicked item.
      * @return true if this click should enable selection mode.
      */
-    override fun onItemClick(view: View?, position: Int): Boolean {
+    override fun onItemClick(
+        view: View?,
+        position: Int,
+    ): Boolean {
         adapter?.resetEditing(position)
         return true
     }
@@ -140,7 +141,10 @@ class RepoController(bundle: Bundle? = null) :
         return false
     }
 
-    override fun onRepoRename(position: Int, newName: String): Boolean {
+    override fun onRepoRename(
+        position: Int,
+        newName: String,
+    ): Boolean {
         val repo = (adapter?.getItem(position) as? RepoItem)?.repo ?: return false
         if (newName.isBlank()) {
             activity?.toast(R.string.repo_cannot_be_blank)
@@ -153,18 +157,17 @@ class RepoController(bundle: Bundle? = null) :
     }
 
     override fun onItemDelete(position: Int) {
-        activity!!.materialAlertDialog()
+        activity!!
+            .materialAlertDialog()
             .setTitle(R.string.confirm_repo_deletion)
             .setMessage(
                 activity!!.getString(
                     R.string.delete_repo_confirmation,
                     (adapter!!.getItem(position) as RepoItem).repo,
                 ),
-            )
-            .setPositiveButton(R.string.delete) { _, _ ->
+            ).setPositiveButton(R.string.delete) { _, _ ->
                 deleteRepo(position)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -179,7 +182,10 @@ class RepoController(bundle: Bundle? = null) :
                 }
                 addCallback(
                     object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        override fun onDismissed(
+                            transientBottomBar: Snackbar?,
+                            event: Int,
+                        ) {
                             super.onDismissed(transientBottomBar, event)
                             if (!undoing) confirmDelete()
                         }

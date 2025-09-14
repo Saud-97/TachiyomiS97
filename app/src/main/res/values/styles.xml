@@ -89,13 +89,13 @@
     <style name="Widget.Tachiyomi.CardView.Tracker" parent="Widget.Material3.CardView.Outlined">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">@dimen/material_component_cards_top_and_bottom_padding</item>
+        <item name="android:padding">@dimen/cards_top_and_bottom_padding</item>
         <item name="android:layout_marginTop">@dimen/space_between_cards</item>
         <item name="android:layout_marginBottom">@dimen/space_between_cards</item>
         <item name="android:layout_marginStart">
-            @dimen/material_component_cards_space_between_cards
+            @dimen/material_space_between_cards
         </item>
-        <item name="android:layout_marginEnd">@dimen/material_component_cards_space_between_cards
+        <item name="android:layout_marginEnd">@dimen/material_space_between_cards
         </item>
         <item name="cardCornerRadius">@dimen/rounded_radius</item>
         <item name="cardBackgroundColor">?background</item>

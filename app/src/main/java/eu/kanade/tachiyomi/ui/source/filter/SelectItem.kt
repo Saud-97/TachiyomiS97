@@ -10,17 +10,22 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.widget.MaterialSpinnerView
 
-open class SelectItem(val filter: Filter.Select<*>) : AbstractFlexibleItem<SelectItem.Holder>() {
+open class SelectItem(
+    val filter: Filter.Select<*>,
+) : AbstractFlexibleItem<SelectItem.Holder>() {
+    override fun getLayoutRes(): Int = R.layout.navigation_view_spinner
 
-    override fun getLayoutRes(): Int {
-        return R.layout.navigation_view_spinner
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
-
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: Holder, position: Int, payloads: MutableList<Any?>?) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: Holder,
+        position: Int,
+        payloads: MutableList<Any?>?,
+    ) {
         holder.spinnerView.title = filter.name + ": "
 
         holder.spinnerView.setEntries(filter.values.map { it.toString() })
@@ -36,11 +41,12 @@ open class SelectItem(val filter: Filter.Select<*>) : AbstractFlexibleItem<Selec
         return filter == (other as SelectItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 
-    class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : FlexibleViewHolder(view, adapter) {
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : FlexibleViewHolder(view, adapter) {
         val spinnerView: MaterialSpinnerView = itemView.findViewById(R.id.nav_view_item)
     }
 }

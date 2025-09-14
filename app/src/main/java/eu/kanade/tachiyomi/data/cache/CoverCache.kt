@@ -31,8 +31,9 @@ import java.util.concurrent.TimeUnit
  * @param context the application context.
  * @constructor creates an instance of the cover cache.
  */
-class CoverCache(val context: Context) {
-
+class CoverCache(
+    val context: Context,
+) {
     companion object {
         private const val COVERS_DIR = "covers"
         private const val CUSTOM_COVERS_DIR = "covers/custom"
@@ -58,21 +59,18 @@ class CoverCache(val context: Context) {
      */
     private val renewInterval = TimeUnit.HOURS.toMillis(1)
 
-    fun getChapterCacheSize(): String {
-        return Formatter.formatFileSize(context, DiskUtil.getDirectorySize(cacheDir))
-    }
+    fun getChapterCacheSize(): String = Formatter.formatFileSize(context, DiskUtil.getDirectorySize(cacheDir))
 
-    fun getOnlineCoverCacheSize(): String {
-        return Formatter.formatFileSize(context, DiskUtil.getDirectorySize(onlineCoverDirectory))
-    }
+    fun getOnlineCoverCacheSize(): String = Formatter.formatFileSize(context, DiskUtil.getDirectorySize(onlineCoverDirectory))
 
     suspend fun deleteOldCovers() {
         val db = Injekt.get<DatabaseHelper>()
         var deletedSize = 0L
-        val urls = db.getFavoriteMangas().executeOnIO().mapNotNull {
-            it.thumbnail_url?.let { url -> return@mapNotNull DiskUtil.hashKeyForDisk(url) }
-            null
-        }
+        val urls =
+            db.getFavoriteMangas().executeOnIO().mapNotNull {
+                it.thumbnail_url?.let { url -> return@mapNotNull DiskUtil.hashKeyForDisk(url) }
+                null
+            }
         val files = cacheDir.listFiles()?.iterator() ?: return
         while (files.hasNext()) {
             val file = files.next()
@@ -130,8 +128,9 @@ class CoverCache(val context: Context) {
                         return@withIOContext
                     }
                     var deletedSize = 0L
-                    val files = directory.listFiles()?.sortedBy { it.lastModified() }?.iterator()
-                        ?: return@withIOContext
+                    val files =
+                        directory.listFiles()?.sortedBy { it.lastModified() }?.iterator()
+                            ?: return@withIOContext
                     while (files.hasNext()) {
                         val file = files.next()
                         deletedSize += file.length()
@@ -154,9 +153,7 @@ class CoverCache(val context: Context) {
      * @param manga the manga.
      * @return cover image.
      */
-    fun getCustomCoverFile(manga: Manga): File {
-        return File(customCoverCacheDir, DiskUtil.hashKeyForDisk(manga.id.toString()))
-    }
+    fun getCustomCoverFile(manga: Manga): File = File(customCoverCacheDir, DiskUtil.hashKeyForDisk(manga.id.toString()))
 
     /**
      * Saves the given stream as the manga's custom cover to cache.
@@ -166,7 +163,10 @@ class CoverCache(val context: Context) {
      * @throws IOException if there's any error.
      */
     @Throws(IOException::class)
-    fun setCustomCoverToCache(manga: Manga, inputStream: InputStream) {
+    fun setCustomCoverToCache(
+        manga: Manga,
+        inputStream: InputStream,
+    ) {
         getCustomCoverFile(manga).outputStream().use {
             inputStream.copyTo(it)
             context.imageLoader.memoryCache?.remove(MemoryCache.Key(manga.key()))
@@ -180,9 +180,10 @@ class CoverCache(val context: Context) {
      * @return whether the cover was deleted.
      */
     fun deleteCustomCover(manga: Manga): Boolean {
-        val result = getCustomCoverFile(manga).let {
-            it.exists() && it.delete()
-        }
+        val result =
+            getCustomCoverFile(manga).let {
+                it.exists() && it.delete()
+            }
         context.imageLoader.memoryCache?.remove(MemoryCache.Key(manga.key()))
         return result
     }
@@ -231,8 +232,7 @@ class CoverCache(val context: Context) {
         }
     }
 
-    private fun getCacheDir(dir: String): File {
-        return context.getExternalFilesDir(dir)
+    private fun getCacheDir(dir: String): File =
+        context.getExternalFilesDir(dir)
             ?: File(context.filesDir, dir).also { it.mkdirs() }
-    }
 }

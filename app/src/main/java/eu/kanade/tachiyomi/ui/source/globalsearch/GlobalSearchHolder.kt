@@ -16,9 +16,10 @@ import eu.kanade.tachiyomi.util.system.LocaleHelper
  * @param view view of [GlobalSearchItem]
  * @param adapter instance of [GlobalSearchAdapter]
  */
-class GlobalSearchHolder(view: View, val adapter: GlobalSearchAdapter) :
-    BaseFlexibleViewHolder(view, adapter) {
-
+class GlobalSearchHolder(
+    view: View,
+    val adapter: GlobalSearchAdapter,
+) : BaseFlexibleViewHolder(view, adapter) {
     /**
      * Adapter containing manga from search results.
      */
@@ -31,7 +32,11 @@ class GlobalSearchHolder(view: View, val adapter: GlobalSearchAdapter) :
     init {
         // Set layout horizontal.
         binding.recycler.layoutManager =
-            androidx.recyclerview.widget.LinearLayoutManager(view.context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
+            androidx.recyclerview.widget.LinearLayoutManager(
+                view.context,
+                androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL,
+                false,
+            )
         binding.recycler.adapter = mangaAdapter
 
         binding.titleMoreIcon.isVisible = adapter.controller !is SearchController && adapter.controller.extensionFilter == null

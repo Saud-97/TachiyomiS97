@@ -9,35 +9,46 @@ import eu.davidea.flexibleadapter.FlexibleAdapter
 import eu.davidea.flexibleadapter.items.IFlexible
 import eu.kanade.tachiyomi.databinding.RecyclerWithScrollerBinding
 
-class RecyclerWithScrollerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
-    FrameLayout(context, attrs) {
+class RecyclerWithScrollerView
+    @JvmOverloads
+    constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+    ) : FrameLayout(context, attrs) {
+        var binding: RecyclerWithScrollerBinding? = null
 
-    var binding: RecyclerWithScrollerBinding? = null
-    fun setUp(sheet: ExtensionBottomSheet, binding: RecyclerWithScrollerBinding, height: Int) {
-        binding.recycler.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-        binding.recycler.setHasFixedSize(true)
-        binding.recycler.addItemDecoration(ExtensionDividerItemDecoration(context))
-        binding.recycler.updatePaddingRelative(bottom = height)
-        binding.recycler.addOnScrollListener(
-            object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE ||
-                        newState == RecyclerView.SCROLL_STATE_SETTLING
+        fun setUp(
+            sheet: ExtensionBottomSheet,
+            binding: RecyclerWithScrollerBinding,
+            height: Int,
+        ) {
+            binding.recycler.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+            binding.recycler.setHasFixedSize(true)
+            binding.recycler.addItemDecoration(ExtensionDividerItemDecoration(context))
+            binding.recycler.updatePaddingRelative(bottom = height)
+            binding.recycler.addOnScrollListener(
+                object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(
+                        recyclerView: RecyclerView,
+                        newState: Int,
                     ) {
-                        sheet.sheetBehavior?.isDraggable = true
-                    } else {
-                        sheet.sheetBehavior?.isDraggable = !recyclerView.canScrollVertically(-1)
+                        super.onScrollStateChanged(recyclerView, newState)
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE ||
+                            newState == RecyclerView.SCROLL_STATE_SETTLING
+                        ) {
+                            sheet.sheetBehavior?.isDraggable = true
+                        } else {
+                            sheet.sheetBehavior?.isDraggable = !recyclerView.canScrollVertically(-1)
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
 
-        this.binding = binding
-    }
+            this.binding = binding
+        }
 
-    fun onBind(adapter: FlexibleAdapter<IFlexible<*>>) {
-        binding?.recycler?.adapter = adapter
-        adapter.fastScroller = binding?.fastScroller
+        fun onBind(adapter: FlexibleAdapter<IFlexible<*>>) {
+            binding?.recycler?.adapter = adapter
+            adapter.fastScroller = binding?.fastScroller
+        }
     }
-}

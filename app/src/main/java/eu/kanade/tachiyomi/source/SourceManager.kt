@@ -27,7 +27,6 @@ class SourceManager(
     private val context: Context,
     private val extensionManager: ExtensionManager,
 ) {
-
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     private val sourcesMapFlow = MutableStateFlow(ConcurrentHashMap<Long, Source>())
@@ -37,28 +36,29 @@ class SourceManager(
     val catalogueSources: Flow<List<CatalogueSource>> = sourcesMapFlow.map { it.values.filterIsInstance<CatalogueSource>() }
     val onlineSources: Flow<List<HttpSource>> = catalogueSources.map { it.filterIsInstance<HttpSource>() }
 
-    private val delegatedSources = listOf(
-        DelegatedSource(
-            "reader.kireicake.com",
-            5509224355268673176,
-            KireiCake(),
-        ),
-        DelegatedSource(
-            "mangadex.org",
-            2499283573021220255,
-            MangaDex(),
-        ),
-        DelegatedSource(
-            "mangaplus.shueisha.co.jp",
-            1998944621602463790,
-            MangaPlus(),
-        ),
-        DelegatedSource(
-            "cubari.moe",
-            6338219619148105941,
-            Cubari(),
-        ),
-    ).associateBy { it.sourceId }
+    private val delegatedSources =
+        listOf(
+            DelegatedSource(
+                "reader.kireicake.com",
+                5509224355268673176,
+                KireiCake(),
+            ),
+            DelegatedSource(
+                "mangadex.org",
+                2499283573021220255,
+                MangaDex(),
+            ),
+            DelegatedSource(
+                "mangaplus.shueisha.co.jp",
+                1998944621602463790,
+                MangaPlus(),
+            ),
+            DelegatedSource(
+                "cubari.moe",
+                6338219619148105941,
+                Cubari(),
+            ),
+        ).associateBy { it.sourceId }
 
     init {
         scope.launch {
@@ -87,60 +87,47 @@ class SourceManager(
 //        }
     }
 
-    fun get(sourceKey: Long): Source? {
-        return sourcesMapFlow.value[sourceKey]
-    }
+    fun get(sourceKey: Long): Source? = sourcesMapFlow.value[sourceKey]
 
-    fun getOrStub(sourceKey: Long): Source {
-        return sourcesMapFlow.value[sourceKey] ?: stubSourcesMap.getOrPut(sourceKey) {
+    fun getOrStub(sourceKey: Long): Source =
+        sourcesMapFlow.value[sourceKey] ?: stubSourcesMap.getOrPut(sourceKey) {
             runBlocking { StubSource(sourceKey) }
         }
-    }
 
-    fun isDelegatedSource(source: Source): Boolean {
-        return delegatedSources.values.count { it.sourceId == source.id } > 0
-    }
+    fun isDelegatedSource(source: Source): Boolean = delegatedSources.values.count { it.sourceId == source.id } > 0
 
-    fun getDelegatedSource(urlName: String): DelegatedHttpSource? {
-        return delegatedSources.values.find { it.urlName == urlName }?.delegatedHttpSource
-    }
+    fun getDelegatedSource(urlName: String): DelegatedHttpSource? =
+        delegatedSources.values.find { it.urlName == urlName }?.delegatedHttpSource
 
     fun getOnlineSources() = sourcesMapFlow.value.values.filterIsInstance<HttpSource>()
 
     fun getCatalogueSources() = sourcesMapFlow.value.values.filterIsInstance<CatalogueSource>()
 
     @Suppress("OverridingDeprecatedMember")
-    inner class StubSource(override val id: Long) : Source {
-
+    inner class StubSource(
+        override val id: Long,
+    ) : Source {
         override val name: String
             get() = extensionManager.getStubSource(id)?.name ?: id.toString()
 
-        override suspend fun getMangaDetails(manga: SManga): SManga =
-            throw getSourceNotInstalledException()
+        override suspend fun getMangaDetails(manga: SManga): SManga = throw getSourceNotInstalledException()
 
-        override suspend fun getChapterList(manga: SManga): List<SChapter> =
-            throw getSourceNotInstalledException()
+        override suspend fun getChapterList(manga: SManga): List<SChapter> = throw getSourceNotInstalledException()
 
-        override suspend fun getPageList(chapter: SChapter): List<Page> =
-            throw getSourceNotInstalledException()
+        override suspend fun getPageList(chapter: SChapter): List<Page> = throw getSourceNotInstalledException()
 
-        override fun toString(): String {
-            return name
-        }
+        override fun toString(): String = name
 
-        private fun getSourceNotInstalledException(): Exception {
-            return SourceNotFoundException(
+        private fun getSourceNotInstalledException(): Exception =
+            SourceNotFoundException(
                 context.getString(
                     R.string.source_not_installed_,
                     extensionManager.getStubSource(id)?.name ?: id.toString(),
                 ),
                 id,
             )
-        }
 
-        override fun hashCode(): Int {
-            return id.hashCode()
-        }
+        override fun hashCode(): Int = id.hashCode()
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -157,4 +144,7 @@ class SourceManager(
     )
 }
 
-class SourceNotFoundException(message: String, val id: Long) : Exception(message)
+class SourceNotFoundException(
+    message: String,
+    val id: Long,
+) : Exception(message)

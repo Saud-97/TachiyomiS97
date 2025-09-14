@@ -42,8 +42,9 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.injectLazy
 import java.security.Security
 
-open class App : Application(), DefaultLifecycleObserver {
-
+open class App :
+    Application(),
+    DefaultLifecycleObserver {
     val preferences: PreferencesHelper by injectLazy()
 
     private val disableIncognitoReceiver = DisableIncognitoReceiver()
@@ -52,7 +53,6 @@ open class App : Application(), DefaultLifecycleObserver {
     override fun onCreate() {
         super<Application>.onCreate()
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
-
         // TLS 1.3 support for Android 10 and below
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1)
@@ -72,7 +72,8 @@ open class App : Application(), DefaultLifecycleObserver {
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
         MangaCoverMetadata.load()
-        preferences.nightMode()
+        preferences
+            .nightMode()
             .asImmediateFlow { AppCompatDelegate.setDefaultNightMode(it) }
             .launchIn(ProcessLifecycleOwner.get().lifecycleScope)
 
@@ -81,27 +82,31 @@ open class App : Application(), DefaultLifecycleObserver {
         }
 
         // Show notification to disable Incognito Mode when it's enabled
-        preferences.incognitoMode().asFlow()
+        preferences
+            .incognitoMode()
+            .asFlow()
             .onEach { enabled ->
                 val notificationManager = NotificationManagerCompat.from(this)
                 if (enabled) {
                     disableIncognitoReceiver.register()
                     val nContext = localeContext
-                    val notification = nContext.notification(Notifications.CHANNEL_INCOGNITO_MODE) {
-                        val incogText = nContext.getString(R.string.incognito_mode)
-                        setContentTitle(incogText)
-                        setContentText(nContext.getString(R.string.turn_off_, incogText))
-                        setSmallIcon(R.drawable.ic_incognito_24dp)
-                        setOngoing(true)
+                    val notification =
+                        nContext.notification(Notifications.CHANNEL_INCOGNITO_MODE) {
+                            val incogText = nContext.getString(R.string.incognito_mode)
+                            setContentTitle(incogText)
+                            setContentText(nContext.getString(R.string.turn_off_, incogText))
+                            setSmallIcon(R.drawable.ic_incognito_24dp)
+                            setOngoing(true)
 
-                        val pendingIntent = PendingIntent.getBroadcast(
-                            this@App,
-                            0,
-                            Intent(ACTION_DISABLE_INCOGNITO_MODE),
-                            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
-                        )
-                        setContentIntent(pendingIntent)
-                    }
+                            val pendingIntent =
+                                PendingIntent.getBroadcast(
+                                    this@App,
+                                    0,
+                                    Intent(ACTION_DISABLE_INCOGNITO_MODE),
+                                    PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+                                )
+                            setContentIntent(pendingIntent)
+                        }
                     if (ActivityCompat.checkSelfPermission(
                             this,
                             Manifest.permission.POST_NOTIFICATIONS,
@@ -114,8 +119,7 @@ open class App : Application(), DefaultLifecycleObserver {
                     disableIncognitoReceiver.unregister()
                     notificationManager.cancel(Notifications.ID_INCOGNITO_MODE)
                 }
-            }
-            .launchIn(ProcessLifecycleOwner.get().lifecycleScope)
+            }.launchIn(ProcessLifecycleOwner.get().lifecycleScope)
     }
 
     override fun onPause(owner: LifecycleOwner) {
@@ -143,7 +147,10 @@ open class App : Application(), DefaultLifecycleObserver {
     private inner class DisableIncognitoReceiver : BroadcastReceiver() {
         private var registered = false
 
-        override fun onReceive(context: Context, intent: Intent) {
+        override fun onReceive(
+            context: Context,
+            intent: Intent,
+        ) {
             preferences.incognitoMode().set(false)
         }
 

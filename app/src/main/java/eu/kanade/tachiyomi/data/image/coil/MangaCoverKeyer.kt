@@ -6,7 +6,10 @@ import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 
 class MangaCoverKeyer : Keyer<Manga> {
-    override fun key(data: Manga, options: Options): String? {
+    override fun key(
+        data: Manga,
+        options: Options,
+    ): String? {
         if (data.thumbnail_url.isNullOrBlank()) return null
         return if (!data.favorite) {
             data.thumbnail_url!!

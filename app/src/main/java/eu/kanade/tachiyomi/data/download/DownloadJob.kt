@@ -32,8 +32,10 @@ import uy.kohesive.injekt.api.get
  * This worker is used to manage the downloader. The system can decide to stop the worker, in
  * which case the downloader is also stopped. It's also stopped while there's no network available.
  */
-class DownloadJob(val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-
+class DownloadJob(
+    val context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     private val downloadManager: DownloadManager = Injekt.get()
     private val preferences: PreferencesHelper = Injekt.get()
 
@@ -76,8 +78,8 @@ class DownloadJob(val context: Context, workerParams: WorkerParameters) : Corout
         }
     }
 
-    private fun checkConnectivity(): Boolean {
-        return with(applicationContext) {
+    private fun checkConnectivity(): Boolean =
+        with(applicationContext) {
             if (isOnline()) {
                 val noWifi = preferences.downloadOnlyOverWifi() && !isConnectedToWifi()
                 if (noWifi) {
@@ -89,28 +91,33 @@ class DownloadJob(val context: Context, workerParams: WorkerParameters) : Corout
                 false
             }
         }
-    }
 
     companion object {
         private const val TAG = "Downloader"
         private const val START_EXT_JOB_AFTER = "StartExtJobAfter"
 
-        private val downloadChannel = MutableSharedFlow<Boolean>(
-            extraBufferCapacity = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        )
+        private val downloadChannel =
+            MutableSharedFlow<Boolean>(
+                extraBufferCapacity = 1,
+                onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            )
         val downloadFlow = downloadChannel.asSharedFlow()
 
-        fun start(context: Context, alsoStartExtJob: Boolean = false) {
-            val request = OneTimeWorkRequestBuilder<DownloadJob>()
-                .addTag(TAG)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).apply {
-                    if (alsoStartExtJob) {
-                        setInputData(workDataOf(START_EXT_JOB_AFTER to true))
-                    }
-                }
-                .build()
-            WorkManager.getInstance(context)
+        fun start(
+            context: Context,
+            alsoStartExtJob: Boolean = false,
+        ) {
+            val request =
+                OneTimeWorkRequestBuilder<DownloadJob>()
+                    .addTag(TAG)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .apply {
+                        if (alsoStartExtJob) {
+                            setInputData(workDataOf(START_EXT_JOB_AFTER to true))
+                        }
+                    }.build()
+            WorkManager
+                .getInstance(context)
                 .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, request)
         }
 
@@ -118,16 +125,19 @@ class DownloadJob(val context: Context, workerParams: WorkerParameters) : Corout
             WorkManager.getInstance(context).cancelUniqueWork(TAG)
         }
 
-        fun callListeners(downloading: Boolean? = null, downloadManager: DownloadManager? = null) {
+        fun callListeners(
+            downloading: Boolean? = null,
+            downloadManager: DownloadManager? = null,
+        ) {
             val dManager by lazy { downloadManager ?: Injekt.get() }
             downloadChannel.tryEmit(downloading ?: !dManager.isPaused())
         }
 
-        fun isRunning(context: Context): Boolean {
-            return WorkManager.getInstance(context)
+        fun isRunning(context: Context): Boolean =
+            WorkManager
+                .getInstance(context)
                 .getWorkInfosForUniqueWork(TAG)
                 .get()
                 .let { list -> list.count { it.state == WorkInfo.State.RUNNING } == 1 }
-        }
     }
 }

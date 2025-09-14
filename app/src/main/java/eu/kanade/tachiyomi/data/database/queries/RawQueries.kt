@@ -50,8 +50,11 @@ val libraryQuery =
 /**
  * Query to get the recent chapters of manga from the library up to a date.
  */
-fun getRecentsQuery(search: String, offset: Int, isResuming: Boolean) =
-    """
+fun getRecentsQuery(
+    search: String,
+    offset: Int,
+    isResuming: Boolean,
+) = """
     SELECT ${Manga.TABLE}.${Manga.COL_URL} as mangaUrl, * FROM ${Manga.TABLE} JOIN ${Chapter.TABLE}
     ON ${Manga.TABLE}.${Manga.COL_ID} = ${Chapter.TABLE}.${Chapter.COL_MANGA_ID}
     WHERE ${Manga.COL_FAVORITE} = 1
@@ -61,13 +64,16 @@ fun getRecentsQuery(search: String, offset: Int, isResuming: Boolean) =
     ${limitAndOffset(true, isResuming, offset)}
 """
 
-fun limitAndOffset(endless: Boolean, isResuming: Boolean, offset: Int): String {
-    return when {
+fun limitAndOffset(
+    endless: Boolean,
+    isResuming: Boolean,
+    offset: Int,
+): String =
+    when {
         isResuming && endless && offset > 0 -> "LIMIT $offset"
         endless -> "LIMIT ${RecentsPresenter.ENDLESS_LIMIT}\nOFFSET $offset"
         else -> "LIMIT ${RecentsPresenter.SHORT_LIMIT}"
     }
-}
 
 /**
  * Query to get the recently read chapters of manga from the library up to a date.
@@ -79,8 +85,7 @@ fun getRecentHistoryUngrouped(
     search: String = "",
     offset: Int = 0,
     isResuming: Boolean,
-) =
-    """
+) = """
     SELECT ${Manga.TABLE}.${Manga.COL_URL} as mangaUrl, ${Manga.TABLE}.*, ${Chapter.TABLE}.*, ${History.TABLE}.*
     FROM ${Manga.TABLE}
     JOIN ${Chapter.TABLE}
@@ -103,8 +108,7 @@ fun getRecentMangasLimitQuery(
     search: String = "",
     offset: Int = 0,
     isResuming: Boolean,
-) =
-    """
+) = """
     SELECT ${Manga.TABLE}.${Manga.COL_URL} as mangaUrl, ${Manga.TABLE}.*, ${Chapter.TABLE}.*, ${History.TABLE}.*
     FROM ${Manga.TABLE}
     JOIN ${Chapter.TABLE}
@@ -130,8 +134,10 @@ fun getRecentMangasLimitQuery(
  * The select statement returns all information of chapters that have the same id as the chapter in max_last_read
  * and are read after the given time period
  */
-fun getHistoryPerPeriodQuery(startDate: Long, endDate: Long) =
-    """
+fun getHistoryPerPeriodQuery(
+    startDate: Long,
+    endDate: Long,
+) = """
     SELECT ${Manga.TABLE}.${Manga.COL_URL} as mangaUrl, ${Manga.TABLE}.*, ${Chapter.TABLE}.*, ${History.TABLE}.*
     FROM ${Manga.TABLE}
     JOIN ${Chapter.TABLE}

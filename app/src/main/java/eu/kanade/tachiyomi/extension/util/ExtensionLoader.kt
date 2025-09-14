@@ -31,7 +31,6 @@ import java.nio.file.attribute.BasicFileAttributes
  */
 @SuppressLint("PackageManagerGetSignatures")
 internal object ExtensionLoader {
-
     private val preferences: PreferencesHelper by injectLazy()
     private val trustExtension: TrustExtension by injectLazy()
     private val loadNsfwSource by lazy {
@@ -46,18 +45,24 @@ internal object ExtensionLoader {
     const val LIB_VERSION_MAX = 1.5
 
     @Suppress("DEPRECATION")
-    private val PACKAGE_FLAGS = PackageManager.GET_CONFIGURATIONS or
-        PackageManager.GET_META_DATA or
-        PackageManager.GET_SIGNATURES or
-        (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) PackageManager.GET_SIGNING_CERTIFICATES else 0)
+    private val PACKAGE_FLAGS =
+        PackageManager.GET_CONFIGURATIONS or
+            PackageManager.GET_META_DATA or
+            PackageManager.GET_SIGNATURES or
+            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) PackageManager.GET_SIGNING_CERTIFICATES else 0)
 
     private const val PRIVATE_EXTENSION_EXTENSION = "ext"
 
     private fun getPrivateExtensionDir(context: Context) = File(context.filesDir, "exts")
 
-    fun installPrivateExtensionFile(context: Context, file: File): Boolean {
-        val extension = context.packageManager.getPackageArchiveInfo(file.absolutePath, PACKAGE_FLAGS)
-            ?.takeIf { isPackageAnExtension(it) } ?: return false
+    fun installPrivateExtensionFile(
+        context: Context,
+        file: File,
+    ): Boolean {
+        val extension =
+            context.packageManager
+                .getPackageArchiveInfo(file.absolutePath, PACKAGE_FLAGS)
+                ?.takeIf { isPackageAnExtension(it) } ?: return false
         val currentExtension = getExtensionPackageInfoFromPkgName(context, extension.packageName)
 
         if (currentExtension != null) {
@@ -96,48 +101,54 @@ internal object ExtensionLoader {
         }
     }
 
-    fun uninstallPrivateExtension(context: Context, pkgName: String) {
+    fun uninstallPrivateExtension(
+        context: Context,
+        pkgName: String,
+    ) {
         File(getPrivateExtensionDir(context), "$pkgName.$PRIVATE_EXTENSION_EXTENSION").delete()
     }
 
     private fun getExtensionsPackages(context: Context): List<ExtensionInfo> {
         val pkgManager = context.packageManager
 
-        val installedPkgs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pkgManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(PACKAGE_FLAGS.toLong()))
-        } else {
-            pkgManager.getInstalledPackages(PACKAGE_FLAGS)
-        }
-
-        val sharedExtPkgs = installedPkgs
-            .asSequence()
-            .filter { isPackageAnExtension(it) }
-            .map { ExtensionInfo(packageInfo = it, isShared = true) }
-
-        val privateExtPkgs = getPrivateExtensionDir(context)
-            .listFiles()
-            ?.asSequence()
-            ?.filter { it.isFile && it.extension == PRIVATE_EXTENSION_EXTENSION }
-            ?.mapNotNull {
-                it.setReadOnly()
-                val path = it.absolutePath
-                pkgManager.getPackageArchiveInfo(path, PACKAGE_FLAGS)
-                    ?.apply { applicationInfo.fixBasePaths(path) }
+        val installedPkgs =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pkgManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(PACKAGE_FLAGS.toLong()))
+            } else {
+                pkgManager.getInstalledPackages(PACKAGE_FLAGS)
             }
-            ?.filter { isPackageAnExtension(it) }
-            ?.map { ExtensionInfo(packageInfo = it, isShared = false) }
-            ?: emptySequence()
+
+        val sharedExtPkgs =
+            installedPkgs
+                .asSequence()
+                .filter { isPackageAnExtension(it) }
+                .map { ExtensionInfo(packageInfo = it, isShared = true) }
+
+        val privateExtPkgs =
+            getPrivateExtensionDir(context)
+                .listFiles()
+                ?.asSequence()
+                ?.filter { it.isFile && it.extension == PRIVATE_EXTENSION_EXTENSION }
+                ?.mapNotNull {
+                    it.setReadOnly()
+                    val path = it.absolutePath
+                    pkgManager
+                        .getPackageArchiveInfo(path, PACKAGE_FLAGS)
+                        ?.apply { applicationInfo?.fixBasePaths(path) }
+                }?.filter { isPackageAnExtension(it) }
+                ?.map { ExtensionInfo(packageInfo = it, isShared = false) }
+                ?: emptySequence()
 
         return (sharedExtPkgs + privateExtPkgs)
             // Remove duplicates. Shared takes priority than private by default
             .distinctBy { it.packageInfo.packageName }
             // Compare version number
             .mapNotNull { sharedPkg ->
-                val privatePkg = privateExtPkgs
-                    .singleOrNull { it.packageInfo.packageName == sharedPkg.packageInfo.packageName }
+                val privatePkg =
+                    privateExtPkgs
+                        .singleOrNull { it.packageInfo.packageName == sharedPkg.packageInfo.packageName }
                 selectExtensionPackage(sharedPkg, privatePkg)
-            }
-            .toList()
+            }.toList()
     }
 
     /**
@@ -149,9 +160,10 @@ internal object ExtensionLoader {
         val extPkgs = getExtensionsPackages(context)
         // Load each extension concurrently and wait for completion
         return runBlocking {
-            val deferred = extPkgs.map {
-                async { loadExtension(context, it) }
-            }
+            val deferred =
+                extPkgs.map {
+                    async { loadExtension(context, it) }
+                }
             deferred.awaitAll()
         }
     }
@@ -160,9 +172,10 @@ internal object ExtensionLoader {
         val extPkgs = getExtensionsPackages(context)
         // Load each extension concurrently and wait for completion
         return withIOContext {
-            val deferred = extPkgs.map {
-                async { loadExtension(context, it) }
-            }
+            val deferred =
+                extPkgs.map {
+                    async { loadExtension(context, it) }
+                }
             deferred.awaitAll()
         }
     }
@@ -171,7 +184,10 @@ internal object ExtensionLoader {
      * Attempts to load an extension from the given package name. It checks if the extension
      * contains the required feature flag before trying to load it.
      */
-    fun loadExtensionFromPkgName(context: Context, pkgName: String): LoadResult {
+    fun loadExtensionFromPkgName(
+        context: Context,
+        pkgName: String,
+    ): LoadResult {
         val extensionPackage = getExtensionInfoFromPkgName(context, pkgName)
         if (extensionPackage == null) {
             Timber.e("Extension package is not found ($pkgName)")
@@ -180,14 +196,21 @@ internal object ExtensionLoader {
         return loadExtension(context, extensionPackage)
     }
 
-    fun getExtensionPackageInfoFromPkgName(context: Context, pkgName: String): PackageInfo? {
-        return getExtensionInfoFromPkgName(context, pkgName)?.packageInfo
-    }
-    fun isExtensionPrivate(context: Context, pkgName: String): Boolean =
-        getExtensionInfoFromPkgName(context, pkgName)?.isShared == false
+    fun getExtensionPackageInfoFromPkgName(
+        context: Context,
+        pkgName: String,
+    ): PackageInfo? = getExtensionInfoFromPkgName(context, pkgName)?.packageInfo
 
-    fun extensionInstallDate(context: Context, extension: Extension.Installed): Long {
-        return try {
+    fun isExtensionPrivate(
+        context: Context,
+        pkgName: String,
+    ): Boolean = getExtensionInfoFromPkgName(context, pkgName)?.isShared == false
+
+    fun extensionInstallDate(
+        context: Context,
+        extension: Extension.Installed,
+    ): Long =
+        try {
             if (!extension.isShared) {
                 val file = ExtensionLoader.privateExtensionFile(context, extension.pkgName)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -202,10 +225,12 @@ internal object ExtensionLoader {
         } catch (e: java.lang.Exception) {
             0
         }
-    }
 
-    fun extensionUpdateDate(context: Context, extension: Extension.Installed): Long {
-        return try {
+    fun extensionUpdateDate(
+        context: Context,
+        extension: Extension.Installed,
+    ): Long =
+        try {
             if (!extension.isShared) {
                 ExtensionLoader.privateExtensionFile(context, extension.pkgName).lastModified()
             } else {
@@ -214,46 +239,57 @@ internal object ExtensionLoader {
         } catch (e: java.lang.Exception) {
             0
         }
-    }
 
-    private fun privateExtensionFile(context: Context, pkgName: String): File =
-        File(getPrivateExtensionDir(context), "$pkgName.$PRIVATE_EXTENSION_EXTENSION")
+    private fun privateExtensionFile(
+        context: Context,
+        pkgName: String,
+    ): File = File(getPrivateExtensionDir(context), "$pkgName.$PRIVATE_EXTENSION_EXTENSION")
 
-    private fun getExtensionInfoFromPkgName(context: Context, pkgName: String): ExtensionInfo? {
+    private fun getExtensionInfoFromPkgName(
+        context: Context,
+        pkgName: String,
+    ): ExtensionInfo? {
         val privateExtensionFile = File(getPrivateExtensionDir(context), "$pkgName.$PRIVATE_EXTENSION_EXTENSION")
-        val privatePkg = if (privateExtensionFile.isFile) {
-            privateExtensionFile.setReadOnly()
-            context.packageManager.getPackageArchiveInfo(privateExtensionFile.absolutePath, PACKAGE_FLAGS)
-                ?.takeIf { isPackageAnExtension(it) }
-                ?.let {
-                    it.applicationInfo.fixBasePaths(privateExtensionFile.absolutePath)
-                    ExtensionInfo(
-                        packageInfo = it,
-                        isShared = false,
-                    )
-                }
-        } else {
-            null
-        }
+        val privatePkg =
+            if (privateExtensionFile.isFile) {
+                privateExtensionFile.setReadOnly()
+                context.packageManager
+                    .getPackageArchiveInfo(privateExtensionFile.absolutePath, PACKAGE_FLAGS)
+                    ?.takeIf { isPackageAnExtension(it) }
+                    ?.let {
+                        it.applicationInfo?.fixBasePaths(privateExtensionFile.absolutePath)
+                        ExtensionInfo(
+                            packageInfo = it,
+                            isShared = false,
+                        )
+                    }
+            } else {
+                null
+            }
 
-        val sharedPkg = try {
-            context.packageManager.getPackageInfo(pkgName, PACKAGE_FLAGS)
-                .takeIf { isPackageAnExtension(it) }
-                ?.let {
-                    ExtensionInfo(
-                        packageInfo = it,
-                        isShared = true,
-                    )
-                }
-        } catch (error: PackageManager.NameNotFoundException) {
-            null
-        }
+        val sharedPkg =
+            try {
+                context.packageManager
+                    .getPackageInfo(pkgName, PACKAGE_FLAGS)
+                    .takeIf { isPackageAnExtension(it) }
+                    ?.let {
+                        ExtensionInfo(
+                            packageInfo = it,
+                            isShared = true,
+                        )
+                    }
+            } catch (error: PackageManager.NameNotFoundException) {
+                null
+            }
 
         return selectExtensionPackage(sharedPkg, privatePkg)
     }
 
-    fun isExtensionInstalledByApp(context: Context, pkgName: String): Boolean {
-        return try {
+    fun isExtensionInstalledByApp(
+        context: Context,
+        pkgName: String,
+    ): Boolean =
+        try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 context.packageManager.getInstallSourceInfo(pkgName).installingPackageName
             } else {
@@ -262,7 +298,6 @@ internal object ExtensionLoader {
         } catch (e: java.lang.Exception) {
             false
         }
-    }
 
     /**
      * Loads an extension
@@ -270,10 +305,13 @@ internal object ExtensionLoader {
      * @param context The application context.
      * @param extensionInfo The extension to load.
      */
-    private fun loadExtension(context: Context, extensionInfo: ExtensionInfo): LoadResult {
+    private fun loadExtension(
+        context: Context,
+        extensionInfo: ExtensionInfo,
+    ): LoadResult {
         val pkgManager = context.packageManager
         val pkgInfo = extensionInfo.packageInfo
-        val appInfo = pkgInfo.applicationInfo
+        val appInfo = pkgInfo.applicationInfo!!
         val pkgName = pkgInfo.packageName
 
         val extName = pkgManager.getApplicationLabel(appInfo).toString().substringAfter("Tachiyomi: ")
@@ -299,14 +337,15 @@ internal object ExtensionLoader {
             Timber.w("Package $pkgName isn't signed")
             return LoadResult.Error
         } else if (!isTrusted(pkgInfo, signatures)) {
-            val extension = Extension.Untrusted(
-                extName,
-                pkgName,
-                versionName,
-                versionCode,
-                libVersion,
-                signatures.last(),
-            )
+            val extension =
+                Extension.Untrusted(
+                    extName,
+                    pkgName,
+                    versionName,
+                    versionCode,
+                    libVersion,
+                    signatures.last(),
+                )
             Timber.w("Extension $pkgName isn't trusted")
             return LoadResult.Untrusted(extension)
         }
@@ -319,51 +358,56 @@ internal object ExtensionLoader {
 
         val classLoader = PathClassLoader(appInfo.sourceDir, null, context.classLoader)
 
-        val sources = appInfo.metaData.getString(METADATA_SOURCE_CLASS)!!
-            .split(";")
-            .map {
-                val sourceClass = it.trim()
-                if (sourceClass.startsWith(".")) {
-                    pkgInfo.packageName + sourceClass
-                } else {
-                    sourceClass
-                }
-            }
-            .flatMap {
-                try {
-                    when (val obj = Class.forName(it, false, classLoader).getDeclaredConstructor().newInstance()) {
-                        is Source -> listOf(obj)
-                        is SourceFactory -> obj.createSources()
-                        else -> throw Exception("Unknown source class type! ${obj.javaClass}")
+        val sources =
+            appInfo.metaData
+                .getString(METADATA_SOURCE_CLASS)!!
+                .split(";")
+                .map {
+                    val sourceClass = it.trim()
+                    if (sourceClass.startsWith(".")) {
+                        pkgInfo.packageName + sourceClass
+                    } else {
+                        sourceClass
                     }
-                } catch (e: Throwable) {
-                    Timber.e(e, "Extension load error: $extName.")
-                    return LoadResult.Error
+                }.flatMap {
+                    try {
+                        when (val obj = Class.forName(it, false, classLoader).getDeclaredConstructor().newInstance()) {
+                            is Source -> listOf(obj)
+                            is SourceFactory -> obj.createSources()
+                            else -> throw Exception("Unknown source class type! ${obj.javaClass}")
+                        }
+                    } catch (e: Throwable) {
+                        Timber.e(e, "Extension load error: $extName.")
+                        return LoadResult.Error
+                    }
                 }
+
+        val langs =
+            sources
+                .filterIsInstance<CatalogueSource>()
+                .map { it.lang }
+                .toSet()
+        val lang =
+            when (langs.size) {
+                0 -> ""
+                1 -> langs.first()
+                else -> "all"
             }
 
-        val langs = sources.filterIsInstance<CatalogueSource>()
-            .map { it.lang }
-            .toSet()
-        val lang = when (langs.size) {
-            0 -> ""
-            1 -> langs.first()
-            else -> "all"
-        }
-
-        val extension = Extension.Installed(
-            name = extName,
-            pkgName = pkgName,
-            versionName = versionName,
-            versionCode = versionCode,
-            libVersion = libVersion,
-            lang = lang,
-            isNsfw = isNsfw,
-            sources = sources,
-            pkgFactory = appInfo.metaData.getString(METADATA_SOURCE_FACTORY),
-            icon = appInfo.loadIcon(pkgManager),
-            isShared = extensionInfo.isShared,
-        )
+        val extension =
+            Extension.Installed(
+                name = extName,
+                pkgName = pkgName,
+                versionName = versionName,
+                versionCode = versionCode,
+                libVersion = libVersion,
+                lang = lang,
+                isNsfw = isNsfw,
+                sources = sources,
+                pkgFactory = appInfo.metaData.getString(METADATA_SOURCE_FACTORY),
+                icon = appInfo.loadIcon(pkgManager),
+                isShared = extensionInfo.isShared,
+            )
         return LoadResult.Success(extension)
     }
 
@@ -373,7 +417,10 @@ internal object ExtensionLoader {
      * @param shared extension installed to system
      * @param private extension installed to data directory
      */
-    private fun selectExtensionPackage(shared: ExtensionInfo?, private: ExtensionInfo?): ExtensionInfo? {
+    private fun selectExtensionPackage(
+        shared: ExtensionInfo?,
+        private: ExtensionInfo?,
+    ): ExtensionInfo? {
         when {
             private == null && shared != null -> return shared
             shared == null && private != null -> return private
@@ -389,16 +436,17 @@ internal object ExtensionLoader {
         }
     }
 
-    fun isPackageNameAnExtension(packageManager: PackageManager, pkgName: String): Boolean =
-        isPackageAnExtension(packageManager.getPackageInfo(pkgName, PACKAGE_FLAGS))
+    fun isPackageNameAnExtension(
+        packageManager: PackageManager,
+        pkgName: String,
+    ): Boolean = isPackageAnExtension(packageManager.getPackageInfo(pkgName, PACKAGE_FLAGS))
 
     /**
      * Returns true if the given package is an extension.
      *
      * @param pkgInfo The package info of the application.
      */
-    private fun isPackageAnExtension(pkgInfo: PackageInfo): Boolean =
-        pkgInfo.reqFeatures.orEmpty().any { it.name == EXTENSION_FEATURE }
+    private fun isPackageAnExtension(pkgInfo: PackageInfo): Boolean = pkgInfo.reqFeatures.orEmpty().any { it.name == EXTENSION_FEATURE }
 
     /**
      * Returns the signatures of the package or null if it's not signed.
@@ -406,9 +454,9 @@ internal object ExtensionLoader {
      * @param pkgInfo The package info of the application.
      * @return List SHA256 digest of the signatures
      */
-    private fun getSignatures(pkgInfo: PackageInfo): List<String>? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val signingInfo = pkgInfo.signingInfo
+    private fun getSignatures(pkgInfo: PackageInfo): List<String>? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val signingInfo = pkgInfo.signingInfo!!
             if (signingInfo.hasMultipleSigners()) {
                 signingInfo.apkContentsSigners
             } else {
@@ -417,14 +465,13 @@ internal object ExtensionLoader {
         } else {
             @Suppress("DEPRECATION")
             pkgInfo.signatures
-        }
-            ?.map { Hash.sha256(it.toByteArray()) }
+        }?.map { Hash.sha256(it.toByteArray()) }
             ?.toList()
-    }
 
-    private fun isTrusted(pkgInfo: PackageInfo, signatures: List<String>): Boolean {
-        return trustExtension.isTrusted(pkgInfo, signatures.last())
-    }
+    private fun isTrusted(
+        pkgInfo: PackageInfo,
+        signatures: List<String>,
+    ): Boolean = trustExtension.isTrusted(pkgInfo, signatures.last())
 
     /**
      * On Android 13+ the ApplicationInfo generated by getPackageArchiveInfo doesn't

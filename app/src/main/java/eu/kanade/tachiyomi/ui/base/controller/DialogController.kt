@@ -18,7 +18,6 @@ import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler
  * Implementations should override this class and implement [.onCreateDialog] to create a custom dialog, such as an [android.app.AlertDialog]
  */
 abstract class DialogController : Controller {
-
     protected var dialog: Dialog? = null
         private set
 
@@ -36,7 +35,11 @@ abstract class DialogController : Controller {
      */
     protected constructor(args: Bundle?) : super(args)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup, savedViewState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup,
+        savedViewState: Bundle?,
+    ): View {
         dialog = onCreateDialog(savedViewState)
         dialog!!.setOwnerActivity(activity!!)
         dialog!!.setOnDismissListener { dismissDialog() }
@@ -49,7 +52,10 @@ abstract class DialogController : Controller {
         return View(activity) // stub view
     }
 
-    override fun onSaveViewState(view: View, outState: Bundle) {
+    override fun onSaveViewState(
+        view: View,
+        outState: Bundle,
+    ) {
         super.onSaveViewState(view, outState)
         val dialogState = dialog!!.onSaveInstanceState()
         outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState)
@@ -85,10 +91,14 @@ abstract class DialogController : Controller {
      * @param router The router on which the transaction will be applied
      * @param tag The tag for this controller
      */
-    fun showDialog(router: Router, tag: String?) {
+    fun showDialog(
+        router: Router,
+        tag: String?,
+    ) {
         dismissed = false
         router.pushController(
-            RouterTransaction.with(this)
+            RouterTransaction
+                .with(this)
                 .pushChangeHandler(SimpleSwapChangeHandler(false))
                 .popChangeHandler(SimpleSwapChangeHandler(false))
                 .tag(tag),

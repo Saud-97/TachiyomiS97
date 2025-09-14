@@ -9,9 +9,9 @@ import uy.kohesive.injekt.api.get
  *
  * @param allClickListener instance of [MigrationController].
  */
-class SourceAdapter(val allClickListener: OnAllClickListener) :
-    FlexibleAdapter<IFlexible<*>>(null, allClickListener, true) {
-
+class SourceAdapter(
+    val allClickListener: OnAllClickListener,
+) : FlexibleAdapter<IFlexible<*>>(null, allClickListener, true) {
     init {
         setDisplayHeadersAtStartUp(true)
     }

@@ -7,16 +7,15 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem
 import eu.davidea.flexibleadapter.items.IFlexible
 import eu.kanade.tachiyomi.R
 
-class MigrationProcessItem(val manga: MigratingManga) :
-    AbstractFlexibleItem<MigrationProcessHolder>() {
+class MigrationProcessItem(
+    val manga: MigratingManga,
+) : AbstractFlexibleItem<MigrationProcessHolder>() {
+    override fun getLayoutRes(): Int = R.layout.migration_process_item
 
-    override fun getLayoutRes(): Int {
-        return R.layout.migration_process_item
-    }
-
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): MigrationProcessHolder {
-        return MigrationProcessHolder(view, adapter as MigrationProcessAdapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): MigrationProcessHolder = MigrationProcessHolder(view, adapter as MigrationProcessAdapter)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -35,7 +34,5 @@ class MigrationProcessItem(val manga: MigratingManga) :
         return false
     }
 
-    override fun hashCode(): Int {
-        return manga.mangaId.toInt()
-    }
+    override fun hashCode(): Int = manga.mangaId.toInt()
 }

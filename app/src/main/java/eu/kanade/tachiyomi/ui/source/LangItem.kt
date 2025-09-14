@@ -12,30 +12,33 @@ import eu.kanade.tachiyomi.R
  *
  * @param code The lang code.
  */
-data class LangItem(val code: String) : AbstractHeaderItem<LangHolder>() {
-
+data class LangItem(
+    val code: String,
+) : AbstractHeaderItem<LangHolder>() {
     /**
      * Returns the layout resource of this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.source_header_item
-    }
+    override fun getLayoutRes(): Int = R.layout.source_header_item
 
-    override fun isSwipeable(): Boolean {
-        return false
-    }
+    override fun isSwipeable(): Boolean = false
 
     /**
      * Creates a new view holder for this item.
      */
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): LangHolder {
-        return LangHolder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): LangHolder = LangHolder(view, adapter)
 
     /**
      * Binds this item to the given view holder.
      */
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: LangHolder, position: Int, payloads: MutableList<Any>) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: LangHolder,
+        position: Int,
+        payloads: MutableList<Any>,
+    ) {
         holder.bind(this)
     }
 }

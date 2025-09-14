@@ -10,9 +10,15 @@ import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.database.tables.MangaTable
 import kotlin.reflect.KProperty1
 
-class MangaFlagsPutResolver(private val colName: String, private val fieldGetter: KProperty1<Manga, Int>, private val updateAll: Boolean = false) : PutResolver<Manga>() {
-
-    override fun performPut(db: StorIOSQLite, manga: Manga) = db.inTransactionReturn {
+class MangaFlagsPutResolver(
+    private val colName: String,
+    private val fieldGetter: KProperty1<Manga, Int>,
+    private val updateAll: Boolean = false,
+) : PutResolver<Manga>() {
+    override fun performPut(
+        db: StorIOSQLite,
+        manga: Manga,
+    ) = db.inTransactionReturn {
         val updateQuery = mapToUpdateQuery(manga)
         val contentValues = mapToContentValues(manga)
 

@@ -39,8 +39,8 @@ class LibraryGridHolder(
     compact: Boolean,
     val fixedSize: Boolean,
 ) : LibraryHolder(view, adapter) {
-
     private val binding = MangaGridItemBinding.bind(view)
+
     init {
         binding.playLayout.setOnClickListener { playButtonClicked() }
         binding.playLayout.setOnLongClickListener { itemView.performLongClick() }
@@ -75,23 +75,32 @@ class LibraryGridHolder(
         binding.behindTitle.setTextColor(
             mangaColor?.second ?: itemView.context.getResourceColor(R.attr.colorOnBackground),
         )
-        val authorArtist = if (item.manga.author == item.manga.artist || item.manga.artist.isNullOrBlank()) {
-            item.manga.author?.trim() ?: ""
-        } else {
-            listOfNotNull(
-                item.manga.author?.trim()?.takeIf { it.isNotBlank() },
-                item.manga.artist?.trim()?.takeIf { it.isNotBlank() },
-            ).joinToString(", ")
-        }
+        val authorArtist =
+            if (item.manga.author == item.manga.artist || item.manga.artist.isNullOrBlank()) {
+                item.manga.author?.trim() ?: ""
+            } else {
+                listOfNotNull(
+                    item.manga.author
+                        ?.trim()
+                        ?.takeIf { it.isNotBlank() },
+                    item.manga.artist
+                        ?.trim()
+                        ?.takeIf { it.isNotBlank() },
+                ).joinToString(", ")
+            }
         binding.subtitle.text = authorArtist.highlightText(item.filter, color)
 
-        binding.compactTitle.text = binding.title.text?.toString()?.highlightText(item.filter, color)
+        binding.compactTitle.text =
+            binding.title.text
+                ?.toString()
+                ?.highlightText(item.filter, color)
 
         binding.title.post {
             val hasAuthorInFilter =
                 item.filter.isNotBlank() && authorArtist.contains(item.filter, true)
             binding.subtitle.isVisible =
-                (binding.title.lineCount <= 1 || hasAuthorInFilter) && authorArtist.isNotBlank()
+                (binding.title.lineCount <= 1 || hasAuthorInFilter) &&
+                authorArtist.isNotBlank()
             binding.title.maxLines = if (hasAuthorInFilter) 1 else 2
         }
 
@@ -111,11 +120,12 @@ class LibraryGridHolder(
 
     fun setSelected(isSelected: Boolean) {
         with(binding) {
-            card.strokeWidth = when {
-                isSelected -> 3.dpToPx
-                adapter.showOutline -> 1.dpToPx
-                else -> 0
-            }
+            card.strokeWidth =
+                when {
+                    isSelected -> 3.dpToPx
+                    adapter.showOutline -> 1.dpToPx
+                    else -> 0
+                }
             arrayOf(card, unreadDownloadBadge.root, title, subtitle).forEach {
                 it.isSelected = isSelected
             }
@@ -140,7 +150,10 @@ class LibraryGridHolder(
         }
     }
 
-    fun setFreeformCoverRatio(manga: Manga, parent: AutofitRecyclerView? = null) {
+    fun setFreeformCoverRatio(
+        manga: Manga,
+        parent: AutofitRecyclerView? = null,
+    ) {
         binding.setFreeformCoverRatio(manga, parent)
     }
 
@@ -148,7 +161,10 @@ class LibraryGridHolder(
         adapter.libraryListener?.startReading(flexibleAdapterPosition, binding.playButton)
     }
 
-    override fun onActionStateChanged(position: Int, actionState: Int) {
+    override fun onActionStateChanged(
+        position: Int,
+        actionState: Int,
+    ) {
         super.onActionStateChanged(position, actionState)
         if (actionState == 2) {
             binding.card.isDragged = true
@@ -163,7 +179,10 @@ class LibraryGridHolder(
     }
 }
 
-fun MangaGridItemBinding.setFreeformCoverRatio(manga: Manga?, parent: AutofitRecyclerView? = null) {
+fun MangaGridItemBinding.setFreeformCoverRatio(
+    manga: Manga?,
+    parent: AutofitRecyclerView? = null,
+) {
     val ratio = manga?.let { MangaCoverMetadata.getRatio(it) }
     val itemWidth = parent?.itemWidth ?: root.width
     if (ratio != null) {

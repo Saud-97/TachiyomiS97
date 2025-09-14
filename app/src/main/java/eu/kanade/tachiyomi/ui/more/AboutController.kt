@@ -28,7 +28,6 @@ import eu.kanade.tachiyomi.ui.setting.preference
 import eu.kanade.tachiyomi.ui.setting.preferenceCategory
 import eu.kanade.tachiyomi.ui.setting.titleRes
 import eu.kanade.tachiyomi.util.CrashLogUtil
-import eu.kanade.tachiyomi.util.lang.toTimestampString
 import eu.kanade.tachiyomi.util.system.isOnline
 import eu.kanade.tachiyomi.util.system.localeContext
 import eu.kanade.tachiyomi.util.system.materialAlertDialog
@@ -41,13 +40,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.text.DateFormat
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 
 class AboutController : SettingsController() {
-
     /**
      * Checks for new releases
      */
@@ -59,92 +53,95 @@ class AboutController : SettingsController() {
 
     private val isUpdaterEnabled = BuildConfig.INCLUDE_UPDATER
 
-    override fun setupPreferenceScreen(screen: PreferenceScreen) = screen.apply {
-        titleRes = R.string.about
+    override fun setupPreferenceScreen(screen: PreferenceScreen) =
+        screen.apply {
+            titleRes = R.string.about
 
-        preference {
-            key = "pref_whats_new"
-            titleRes = R.string.whats_new_this_release
-            onClick {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
+            preference {
+                key = "pref_whats_new"
+                titleRes = R.string.whats_new_this_release
+                onClick {
+                    val intent =
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            if (BuildConfig.DEBUG) {
+                                "https://github.com/saud-97/TachiyomiS97/commits"
+                            } else {
+                                RELEASE_URL
+                            }.toUri(),
+                        )
+                    startActivity(intent)
+                }
+            }
+            if (isUpdaterEnabled) {
+                preference {
+                    key = "pref_check_for_updates"
+                    titleRes = R.string.check_for_updates
+                    onClick {
+                        if (activity!!.isOnline()) {
+                            checkVersion()
+                        } else {
+                            activity!!.toast(R.string.no_network_connection)
+                        }
+                    }
+                }
+            }
+            preference {
+                key = "pref_version"
+                titleRes = R.string.version
+                summary =
                     if (BuildConfig.DEBUG) {
-                        "https://github.com/saud-97/TachiyomiS97/commits"
+                        "r" + BuildConfig.COMMIT_COUNT
                     } else {
-                        RELEASE_URL
-                    }.toUri(),
-                )
-                startActivity(intent)
-            }
-        }
-        if (isUpdaterEnabled) {
-            preference {
-                key = "pref_check_for_updates"
-                titleRes = R.string.check_for_updates
+                        BuildConfig.VERSION_NAME
+                    }
+
                 onClick {
-                    if (activity!!.isOnline()) {
-                        checkVersion()
-                    } else {
-                        activity!!.toast(R.string.no_network_connection)
+                    activity?.let {
+                        val deviceInfo = CrashLogUtil(it.localeContext).getDebugInfo()
+                        val clipboard = it.getSystemService<ClipboardManager>()!!
+                        val appInfo = it.getString(R.string.app_info)
+                        clipboard.setPrimaryClip(ClipData.newPlainText(appInfo, deviceInfo))
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            view?.snack(context.getString(R.string._copied_to_clipboard, appInfo))
+                        }
                     }
                 }
             }
-        }
-        preference {
-            key = "pref_version"
-            titleRes = R.string.version
-            summary = if (BuildConfig.DEBUG) {
-                "r" + BuildConfig.COMMIT_COUNT
-            } else {
-                BuildConfig.VERSION_NAME
+            preference {
+                key = "pref_build_time"
+                titleRes = R.string.build_time
+                summary = getFormattedBuildTime(dateFormat)
             }
 
-            onClick {
-                activity?.let {
-                    val deviceInfo = CrashLogUtil(it.localeContext).getDebugInfo()
-                    val clipboard = it.getSystemService<ClipboardManager>()!!
-                    val appInfo = it.getString(R.string.app_info)
-                    clipboard.setPrimaryClip(ClipData.newPlainText(appInfo, deviceInfo))
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                        view?.snack(context.getString(R.string._copied_to_clipboard, appInfo))
+            preferenceCategory {
+                preference {
+                    key = "pref_about_help_translate"
+                    titleRes = R.string.help_translate
+
+                    onClick {
+                        openInBrowser("https://hosted.weblate.org/projects/tachiyomi/tachiyomi-j2k/")
+                    }
+                }
+                preference {
+                    key = "pref_about_helpful_translation_links"
+                    titleRes = R.string.helpful_translation_links
+
+                    onClick {
+                        openInBrowser("https://tachiyomi.org/help/contribution/#translation")
+                    }
+                }
+                preference {
+                    key = "pref_oss"
+                    titleRes = R.string.open_source_licenses
+
+                    onClick {
+                        startActivity(Intent(activity, OssLicensesMenuActivity::class.java))
                     }
                 }
             }
+            add(AboutLinksPreference(context))
         }
-        preference {
-            key = "pref_build_time"
-            titleRes = R.string.build_time
-            summary = getFormattedBuildTime(dateFormat)
-        }
-
-        preferenceCategory {
-            preference {
-                key = "pref_about_help_translate"
-                titleRes = R.string.help_translate
-
-                onClick {
-                    openInBrowser("https://hosted.weblate.org/projects/tachiyomi/tachiyomi-j2k/")
-                }
-            }
-            preference {
-                key = "pref_about_helpful_translation_links"
-                titleRes = R.string.helpful_translation_links
-
-                onClick {
-                    openInBrowser("https://tachiyomi.org/help/contribution/#translation")
-                }
-            }
-            preference {
-                key = "pref_oss"
-                titleRes = R.string.open_source_licenses
-
-                onClick {
-                    startActivity(Intent(activity, OssLicensesMenuActivity::class.java))
-                }
-            }
-        }
-        add(AboutLinksPreference(context))
-    }
 
     /**
      * Checks version and shows a user prompt if an update is available.
@@ -154,14 +151,15 @@ class AboutController : SettingsController() {
 
         activity.toast(R.string.searching_for_updates)
         viewScope.launch {
-            val result = try {
-                updateChecker.checkForUpdate(activity, true)
-            } catch (error: Exception) {
-                withContext(Dispatchers.Main) {
-                    activity.toast(error.message)
-                    Timber.e(error)
+            val result =
+                try {
+                    updateChecker.checkForUpdate(activity, true)
+                } catch (error: Exception) {
+                    withContext(Dispatchers.Main) {
+                        activity.toast(error.message)
+                        Timber.e(error)
+                    }
                 }
-            }
             when (result) {
                 is AppUpdateResult.NewUpdate -> {
                     val body = result.release.info
@@ -183,8 +181,9 @@ class AboutController : SettingsController() {
         }
     }
 
-    class NewUpdateDialogController(bundle: Bundle? = null) : DialogController(bundle) {
-
+    class NewUpdateDialogController(
+        bundle: Bundle? = null,
+    ) : DialogController(bundle) {
         constructor(body: String, url: String, isBeta: Boolean?) : this(
             Bundle().apply {
                 putString(BODY_KEY, body)
@@ -194,21 +193,22 @@ class AboutController : SettingsController() {
         )
 
         override fun onCreateDialog(savedViewState: Bundle?): Dialog {
-            val releaseBody = (args.getString(BODY_KEY) ?: "")
-                .replace("""---(\R|.)*Checksums(\R|.)*""".toRegex(), "")
+            val releaseBody =
+                (args.getString(BODY_KEY) ?: "")
+                    .replace("""---(\R|.)*Checksums(\R|.)*""".toRegex(), "")
             val info = Markwon.create(activity!!).toMarkdown(releaseBody)
 
             val isOnA12 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             val isBeta = args.getBoolean(IS_BETA, false)
-            return activity!!.materialAlertDialog()
+            return activity!!
+                .materialAlertDialog()
                 .setTitle(
                     if (isBeta) {
                         R.string.new_beta_version_available
                     } else {
                         R.string.new_version_available
                     },
-                )
-                .setMessage(info)
+                ).setMessage(info)
                 .setPositiveButton(if (isOnA12) R.string.update else R.string.download) { _, _ ->
                     val appContext = applicationContext
                     if (appContext != null) {
@@ -216,8 +216,7 @@ class AboutController : SettingsController() {
                         val url = args.getString(URL_KEY) ?: ""
                         AppDownloadInstallJob.start(appContext, url, true)
                     }
-                }
-                .setNegativeButton(R.string.ignore, null)
+                }.setNegativeButton(R.string.ignore, null)
                 .create()
         }
 
@@ -236,16 +235,17 @@ class AboutController : SettingsController() {
 
     companion object {
         fun getFormattedBuildTime(dateFormat: DateFormat): String {
-            try {
-                val inputDf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                inputDf.timeZone = TimeZone.getTimeZone("UTC")
-                val buildTime =
-                    inputDf.parse(BuildConfig.BUILD_TIME) ?: return BuildConfig.BUILD_TIME
-
-                return buildTime.toTimestampString(dateFormat)
-            } catch (e: ParseException) {
-                return BuildConfig.BUILD_TIME
-            }
+            return ""
+//            try {
+//                val inputDf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
+//                inputDf.timeZone = TimeZone.getTimeZone("UTC")
+//                val buildTime =
+//                    inputDf.parse(BuildConfig.BUILD_TIME) ?: return BuildConfig.BUILD_TIME
+//
+//                return buildTime.toTimestampString(dateFormat)
+//            } catch (e: ParseException) {
+//                return BuildConfig.BUILD_TIME
+//            }
         }
     }
 }

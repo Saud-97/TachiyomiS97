@@ -10,7 +10,6 @@ import eu.kanade.tachiyomi.data.database.tables.MangaTable
 import eu.kanade.tachiyomi.data.database.tables.TrackTable
 
 class DbOpenCallback : SupportSQLiteOpenHelper.Callback(DATABASE_VERSION) {
-
     companion object {
         /**
          * Name of the database file.
@@ -30,29 +29,37 @@ class DbOpenCallback : SupportSQLiteOpenHelper.Callback(DATABASE_VERSION) {
         setPragma(db, "synchronous = NORMAL")
     }
 
-    private fun setPragma(db: SupportSQLiteDatabase, pragma: String) {
+    private fun setPragma(
+        db: SupportSQLiteDatabase,
+        pragma: String,
+    ) {
         val cursor = db.query("PRAGMA $pragma")
         cursor.moveToFirst()
         cursor.close()
     }
 
-    override fun onCreate(db: SupportSQLiteDatabase) = with(db) {
-        execSQL(MangaTable.createTableQuery)
-        execSQL(ChapterTable.createTableQuery)
-        execSQL(TrackTable.createTableQuery)
-        execSQL(CategoryTable.createTableQuery)
-        execSQL(MangaCategoryTable.createTableQuery)
-        execSQL(HistoryTable.createTableQuery)
+    override fun onCreate(db: SupportSQLiteDatabase) =
+        with(db) {
+            execSQL(MangaTable.createTableQuery)
+            execSQL(ChapterTable.createTableQuery)
+            execSQL(TrackTable.createTableQuery)
+            execSQL(CategoryTable.createTableQuery)
+            execSQL(MangaCategoryTable.createTableQuery)
+            execSQL(HistoryTable.createTableQuery)
 
-        // DB indexes
-        execSQL(MangaTable.createUrlIndexQuery)
-        execSQL(MangaTable.createLibraryIndexQuery)
-        execSQL(ChapterTable.createMangaIdIndexQuery)
-        execSQL(ChapterTable.createUnreadChaptersIndexQuery)
-        execSQL(HistoryTable.createChapterIdIndexQuery)
-    }
+            // DB indexes
+            execSQL(MangaTable.createUrlIndexQuery)
+            execSQL(MangaTable.createLibraryIndexQuery)
+            execSQL(ChapterTable.createMangaIdIndexQuery)
+            execSQL(ChapterTable.createUnreadChaptersIndexQuery)
+            execSQL(HistoryTable.createChapterIdIndexQuery)
+        }
 
-    override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(
+        db: SupportSQLiteDatabase,
+        oldVersion: Int,
+        newVersion: Int,
+    ) {
         if (oldVersion < 2) {
             db.execSQL(ChapterTable.sourceOrderUpdateQuery)
 

@@ -13,9 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 class DownloadQueue(
     private val store: DownloadStore,
     private val queue: MutableList<Download> = CopyOnWriteArrayList<Download>(),
-) :
-    List<Download> by queue {
-
+) : List<Download> by queue {
     private val statusSubject = PublishSubject.create<Download>()
 
     private val updatedRelay = PublishRelay.create<Unit>()
@@ -59,7 +57,9 @@ class DownloadQueue(
     }
 
     fun remove(chapters: List<Chapter>) {
-        for (chapter in chapters) { remove(chapter) }
+        for (chapter in chapters) {
+            remove(chapter)
+        }
     }
 
     fun remove(manga: Manga) {
@@ -83,12 +83,13 @@ class DownloadQueue(
     private fun setPagesFor(download: Download) {
         if (download.status == Download.State.DOWNLOADING) {
             if (download.pages != null) {
-                for (page in download.pages!!)
+                for (page in download.pages!!) {
                     scope.launch {
                         page.statusFlow.collectLatest {
                             callListeners(download)
                         }
                     }
+                }
             }
             callListeners(download)
         } else if (download.status == Download.State.DOWNLOADED || download.status == Download.State.ERROR) {
@@ -123,6 +124,7 @@ class DownloadQueue(
 
     interface DownloadListener {
         fun updateDownload(download: Download)
+
         fun updateDownloads()
     }
 }

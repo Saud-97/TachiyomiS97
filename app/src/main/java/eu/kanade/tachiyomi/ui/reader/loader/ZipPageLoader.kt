@@ -12,16 +12,18 @@ import java.util.zip.ZipFile
 /**
  * Loader used to load a chapter from a .zip or .cbz file.
  */
-class ZipPageLoader(file: File) : PageLoader() {
-
+class ZipPageLoader(
+    file: File,
+) : PageLoader() {
     /**
      * The zip file to load pages from.
      */
-    private val zip = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        ZipFile(file, StandardCharsets.ISO_8859_1)
-    } else {
-        ZipFile(file)
-    }
+    private val zip =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ZipFile(file, StandardCharsets.ISO_8859_1)
+        } else {
+            ZipFile(file)
+        }
 
     /**
      * Recycles this loader and the open zip.
@@ -34,8 +36,10 @@ class ZipPageLoader(file: File) : PageLoader() {
     /**
      * Returns the pages found on this zip archive ordered with a natural comparator.
      */
-    override suspend fun getPages(): List<ReaderPage> {
-        return zip.entries().asSequence()
+    override suspend fun getPages(): List<ReaderPage> =
+        zip
+            .entries()
+            .asSequence()
             .filter { !it.isDirectory && ImageUtil.isImage(it.name) { zip.getInputStream(it) } }
             .sortedWith { f1, f2 -> f1.name.compareToCaseInsensitiveNaturalOrder(f2.name) }
             .mapIndexed { i, entry ->
@@ -43,9 +47,7 @@ class ZipPageLoader(file: File) : PageLoader() {
                     stream = { zip.getInputStream(entry) }
                     status = Page.State.READY
                 }
-            }
-            .toList()
-    }
+            }.toList()
 
     /**
      * No additional action required to load the page

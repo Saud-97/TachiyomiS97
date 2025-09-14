@@ -14,12 +14,9 @@ import eu.kanade.tachiyomi.databinding.MaterialTextButtonBinding
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 
 class SearchGlobalItem : AbstractFlexibleItem<SearchGlobalItem.Holder>() {
-
     var string = ""
 
-    override fun getLayoutRes(): Int {
-        return R.layout.material_text_button
-    }
+    override fun getLayoutRes(): Int = R.layout.material_text_button
 
     override fun createViewHolder(
         view: View,
@@ -31,17 +28,11 @@ class SearchGlobalItem : AbstractFlexibleItem<SearchGlobalItem.Holder>() {
         return Holder(view, adapter)
     }
 
-    override fun isSelectable(): Boolean {
-        return false
-    }
+    override fun isSelectable(): Boolean = false
 
-    override fun isSwipeable(): Boolean {
-        return false
-    }
+    override fun isSwipeable(): Boolean = false
 
-    override fun isDraggable(): Boolean {
-        return false
-    }
+    override fun isDraggable(): Boolean = false
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -54,18 +45,16 @@ class SearchGlobalItem : AbstractFlexibleItem<SearchGlobalItem.Holder>() {
         layoutParams?.isFullSpan = true
     }
 
-    override fun equals(other: Any?): Boolean {
-        return this === other
-    }
+    override fun equals(other: Any?): Boolean = this === other
 
-    override fun hashCode(): Int {
-        return -100
-    }
+    override fun hashCode(): Int = -100
 
-    class Holder(val view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) :
-        BaseFlexibleViewHolder(view, adapter, true) {
-
+    class Holder(
+        val view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : BaseFlexibleViewHolder(view, adapter, true) {
         private val binding = MaterialTextButtonBinding.bind(view)
+
         init {
             binding.button.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 width = MATCH_PARENT

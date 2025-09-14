@@ -14,10 +14,12 @@ import eu.kanade.tachiyomi.util.chapter.ChapterUtil
 import eu.kanade.tachiyomi.util.chapter.ChapterUtil.Companion.preferredChapterName
 import uy.kohesive.injekt.injectLazy
 
-class ReaderChapterItem(val chapter: Chapter, val manga: Manga, val isCurrent: Boolean) :
-    AbstractItem<ReaderChapterItem.ViewHolder>(),
+class ReaderChapterItem(
+    val chapter: Chapter,
+    val manga: Manga,
+    val isCurrent: Boolean,
+) : AbstractItem<ReaderChapterItem.ViewHolder>(),
     Chapter by chapter {
-
     val preferences: PreferencesHelper by injectLazy()
 
     /** defines the type defining this item. must be unique. preferably an id */
@@ -28,14 +30,17 @@ class ReaderChapterItem(val chapter: Chapter, val manga: Manga, val isCurrent: B
 
     override var identifier: Long = chapter.id!!
 
-    override fun getViewHolder(v: View): ViewHolder {
-        return ViewHolder(v)
-    }
+    override fun getViewHolder(v: View): ViewHolder = ViewHolder(v)
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<ReaderChapterItem>(view) {
+    class ViewHolder(
+        view: View,
+    ) : FastAdapter.ViewHolder<ReaderChapterItem>(view) {
         val binding = ReaderChapterItemBinding.bind(view)
 
-        override fun bindView(item: ReaderChapterItem, payloads: List<Any>) {
+        override fun bindView(
+            item: ReaderChapterItem,
+            payloads: List<Any>,
+        ) {
             val manga = item.manga
 
             val chapterColor = ChapterUtil.chapterColor(itemView.context, item.chapter)

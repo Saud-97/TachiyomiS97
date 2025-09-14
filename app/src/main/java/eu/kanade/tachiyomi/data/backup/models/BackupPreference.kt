@@ -19,19 +19,31 @@ data class BackupSourcePreferences(
 sealed class PreferenceValue
 
 @Serializable
-data class IntPreferenceValue(val value: Int) : PreferenceValue()
+data class IntPreferenceValue(
+    val value: Int,
+) : PreferenceValue()
 
 @Serializable
-data class LongPreferenceValue(val value: Long) : PreferenceValue()
+data class LongPreferenceValue(
+    val value: Long,
+) : PreferenceValue()
 
 @Serializable
-data class FloatPreferenceValue(val value: Float) : PreferenceValue()
+data class FloatPreferenceValue(
+    val value: Float,
+) : PreferenceValue()
 
 @Serializable
-data class StringPreferenceValue(val value: String) : PreferenceValue()
+data class StringPreferenceValue(
+    val value: String,
+) : PreferenceValue()
 
 @Serializable
-data class BooleanPreferenceValue(val value: Boolean) : PreferenceValue()
+data class BooleanPreferenceValue(
+    val value: Boolean,
+) : PreferenceValue()
 
 @Serializable
-data class StringSetPreferenceValue(val value: Set<String>) : PreferenceValue()
+data class StringSetPreferenceValue(
+    val value: Set<String>,
+) : PreferenceValue()

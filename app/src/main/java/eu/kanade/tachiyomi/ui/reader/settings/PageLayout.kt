@@ -20,7 +20,6 @@ enum class PageLayout(
     val fullStringRes = _fullStringRes ?: stringRes
 
     companion object {
-        fun fromPreference(preference: Int): PageLayout =
-            entries.find { it.value == preference } ?: SINGLE_PAGE
+        fun fromPreference(preference: Int): PageLayout = entries.find { it.value == preference } ?: SINGLE_PAGE
     }
 }

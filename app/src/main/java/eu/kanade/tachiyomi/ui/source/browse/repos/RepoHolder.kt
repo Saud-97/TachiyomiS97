@@ -22,8 +22,10 @@ import eu.kanade.tachiyomi.util.system.getResourceColor
  * @param view The view used by repo items.
  * @param adapter The adapter containing this holder.
  */
-class RepoHolder(view: View, val adapter: RepoAdapter) : FlexibleViewHolder(view, adapter) {
-
+class RepoHolder(
+    view: View,
+    val adapter: RepoAdapter,
+) : FlexibleViewHolder(view, adapter) {
     private val binding = CategoriesItemBinding.bind(view)
 
     init {
@@ -81,7 +83,9 @@ class RepoHolder(view: View, val adapter: RepoAdapter) : FlexibleViewHolder(view
             binding.editText.requestFocus()
             binding.editText.selectAll()
             binding.editButton.setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.ic_check_24dp))
-            binding.editButton.drawable.mutate().setTint(itemView.context.getResourceColor(R.attr.colorSecondary))
+            binding.editButton.drawable
+                .mutate()
+                .setTint(itemView.context.getResourceColor(R.attr.colorSecondary))
             showKeyboard()
             if (!createRepo) {
                 binding.reorder.setImageDrawable(

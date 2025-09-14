@@ -50,7 +50,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
 
-    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+    <io.writeopia.loadingbutton.customViews.CircularProgressButton
         android:id="@+id/login"
         style="@style/Widget.Tachiyomi.Button.Primary"
         android:layout_width="match_parent"

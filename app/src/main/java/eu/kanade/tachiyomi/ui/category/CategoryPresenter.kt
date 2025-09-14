@@ -20,7 +20,6 @@ class CategoryPresenter(
     private val controller: CategoryController,
     private val db: DatabaseHelper = Injekt.get(),
 ) {
-
     private var scope = CoroutineScope(Job() + Dispatchers.Default)
 
     /**
@@ -118,7 +117,10 @@ class CategoryPresenter(
      * @param category The category to rename.
      * @param name The new name of the category.
      */
-    fun renameCategory(category: Category, name: String): Boolean {
+    fun renameCategory(
+        category: Category,
+        name: String,
+    ): Boolean {
         // Do not allow duplicate categories.
         if (categoryExists(name, category.id)) {
             controller.onCategoryExistsError()
@@ -138,9 +140,10 @@ class CategoryPresenter(
     /**
      * Returns true if a category with the given name already exists.
      */
-    private fun categoryExists(name: String, id: Int?): Boolean {
-        return categories.any { it.name.equals(name, true) && id != it.id }
-    }
+    private fun categoryExists(
+        name: String,
+        id: Int?,
+    ): Boolean = categories.any { it.name.equals(name, true) && id != it.id }
 
     companion object {
         const val CREATE_CATEGORY_ORDER = -2

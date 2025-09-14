@@ -12,8 +12,9 @@ import eu.kanade.tachiyomi.ui.category.CategoryPresenter.Companion.CREATE_CATEGO
 /**
  * Category item for a recycler view.
  */
-class CategoryItem(val category: Category) : AbstractFlexibleItem<CategoryHolder>() {
-
+class CategoryItem(
+    val category: Category,
+) : AbstractFlexibleItem<CategoryHolder>() {
     /**
      * Whether this item is currently selected.
      */
@@ -22,9 +23,7 @@ class CategoryItem(val category: Category) : AbstractFlexibleItem<CategoryHolder
     /**
      * Returns the layout resource for this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.categories_item
-    }
+    override fun getLayoutRes(): Int = R.layout.categories_item
 
     /**
      * Returns a new view holder for this item.
@@ -32,9 +31,10 @@ class CategoryItem(val category: Category) : AbstractFlexibleItem<CategoryHolder
      * @param view The view of this item.
      * @param adapter The adapter of this item.
      */
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): CategoryHolder {
-        return CategoryHolder(view, adapter as CategoryAdapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): CategoryHolder = CategoryHolder(view, adapter as CategoryAdapter)
 
     /**
      * Binds the given view holder with this item.
@@ -44,7 +44,12 @@ class CategoryItem(val category: Category) : AbstractFlexibleItem<CategoryHolder
      * @param position The position of this item in the adapter.
      * @param payloads List of partial changes.
      */
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: CategoryHolder, position: Int, payloads: MutableList<Any>) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: CategoryHolder,
+        position: Int,
+        payloads: MutableList<Any>,
+    ) {
         holder.bind(category)
         holder.isEditing(isEditing)
     }
@@ -52,9 +57,7 @@ class CategoryItem(val category: Category) : AbstractFlexibleItem<CategoryHolder
     /**
      * Returns true if this item is draggable.
      */
-    override fun isDraggable(): Boolean {
-        return category.order != CREATE_CATEGORY_ORDER && !isEditing
-    }
+    override fun isDraggable(): Boolean = category.order != CREATE_CATEGORY_ORDER && !isEditing
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -64,7 +67,5 @@ class CategoryItem(val category: Category) : AbstractFlexibleItem<CategoryHolder
         return false
     }
 
-    override fun hashCode(): Int {
-        return category.id!!
-    }
+    override fun hashCode(): Int = category.id!!
 }

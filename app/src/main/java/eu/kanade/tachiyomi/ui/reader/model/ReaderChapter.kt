@@ -5,8 +5,9 @@ import eu.kanade.tachiyomi.ui.reader.loader.PageLoader
 import kotlinx.coroutines.flow.MutableStateFlow
 import timber.log.Timber
 
-data class ReaderChapter(val chapter: Chapter) {
-
+data class ReaderChapter(
+    val chapter: Chapter,
+) {
     val stateFlow = MutableStateFlow<State>(State.Wait)
     var state: State
         get() = stateFlow.value
@@ -41,8 +42,15 @@ data class ReaderChapter(val chapter: Chapter) {
 
     sealed class State {
         object Wait : State()
+
         object Loading : State()
-        class Error(val error: Throwable) : State()
-        class Loaded(val pages: List<ReaderPage>) : State()
+
+        class Error(
+            val error: Throwable,
+        ) : State()
+
+        class Loaded(
+            val pages: List<ReaderPage>,
+        ) : State()
     }
 }

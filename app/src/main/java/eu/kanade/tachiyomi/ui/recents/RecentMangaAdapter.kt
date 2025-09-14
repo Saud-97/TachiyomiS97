@@ -19,9 +19,9 @@ import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class RecentMangaAdapter(val delegate: RecentsInterface) :
-    BaseChapterAdapter<IFlexible<*>>(delegate) {
-
+class RecentMangaAdapter(
+    val delegate: RecentsInterface,
+) : BaseChapterAdapter<IFlexible<*>>(delegate) {
     val preferences: PreferencesHelper by injectLazy()
 
     var showDownloads = preferences.showRecentsDownloads().get()
@@ -35,20 +35,22 @@ class RecentMangaAdapter(val delegate: RecentsInterface) :
     private var collapseGroupedUpdates = preferences.collapseGroupedUpdates().get()
     private var collapseGroupedHistory = preferences.collapseGroupedHistory().get()
     val collapseGrouped: Boolean
-        get() = if (viewType.isHistory) {
-            collapseGroupedHistory
-        } else {
-            collapseGroupedUpdates
-        }
+        get() =
+            if (viewType.isHistory) {
+                collapseGroupedHistory
+            } else {
+                collapseGroupedUpdates
+            }
 
     val viewType: RecentsViewType
         get() = delegate.getViewType()
 
-    val decimalFormat = DecimalFormat(
-        "#.###",
-        DecimalFormatSymbols()
-            .apply { decimalSeparator = '.' },
-    )
+    val decimalFormat =
+        DecimalFormat(
+            "#.###",
+            DecimalFormatSymbols()
+                .apply { decimalSeparator = '.' },
+        )
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     init {
@@ -70,12 +72,15 @@ class RecentMangaAdapter(val delegate: RecentsInterface) :
                 (recyclerView.findViewHolderForAdapterPosition(i) as? RecentMangaHolder)?.updateCards()
             }
         }
-        preferences.libraryUpdateLastTimestamp().asFlow().onEach {
-            lastUpdatedTime = it
-            if (viewType.isUpdates) {
-                notifyItemChanged(0)
-            }
-        }.launchIn(delegate.scope())
+        preferences
+            .libraryUpdateLastTimestamp()
+            .asFlow()
+            .onEach {
+                lastUpdatedTime = it
+                if (viewType.isUpdates) {
+                    notifyItemChanged(0)
+                }
+            }.launchIn(delegate.scope())
     }
 
     fun getItemByChapterId(id: Long): RecentMangaItem? {
@@ -85,7 +90,10 @@ class RecentMangaAdapter(val delegate: RecentsInterface) :
         } as? RecentMangaItem
     }
 
-    private fun <T> Preference<T>.register(notify: Boolean = true, onChanged: (T) -> Unit) {
+    private fun <T> Preference<T>.register(
+        notify: Boolean = true,
+        onChanged: (T) -> Unit,
+    ) {
         asFlow()
             .drop(1)
             .onEach {
@@ -93,24 +101,45 @@ class RecentMangaAdapter(val delegate: RecentsInterface) :
                 if (notify) {
                     notifyDataSetChanged()
                 }
-            }
-            .launchIn(delegate.scope())
+            }.launchIn(delegate.scope())
     }
 
     interface RecentsInterface : GroupedDownloadInterface {
         fun onCoverClick(position: Int)
+
         fun onRemoveHistoryClicked(position: Int)
-        fun onSubChapterClicked(position: Int, chapter: Chapter, view: View)
-        fun updateExpandedExtraChapters(position: Int, expanded: Boolean)
+
+        fun onSubChapterClicked(
+            position: Int,
+            chapter: Chapter,
+            view: View,
+        )
+
+        fun updateExpandedExtraChapters(
+            position: Int,
+            expanded: Boolean,
+        )
+
         fun areExtraChaptersExpanded(position: Int): Boolean
+
         fun markAsRead(position: Int)
+
         fun alwaysExpanded(): Boolean
+
         fun scope(): CoroutineScope
+
         fun getViewType(): RecentsViewType
-        fun onItemLongClick(position: Int, chapter: ChapterHistory): Boolean
+
+        fun onItemLongClick(
+            position: Int,
+            chapter: ChapterHistory,
+        ): Boolean
     }
 
-    override fun onItemSwiped(position: Int, direction: Int) {
+    override fun onItemSwiped(
+        position: Int,
+        direction: Int,
+    ) {
         super.onItemSwiped(position, direction)
         when (direction) {
             ItemTouchHelper.LEFT -> delegate.markAsRead(position)

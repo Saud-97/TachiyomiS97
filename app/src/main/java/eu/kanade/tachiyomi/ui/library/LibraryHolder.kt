@@ -21,7 +21,6 @@ abstract class LibraryHolder(
     view: View,
     val adapter: LibraryCategoryAdapter,
 ) : BaseFlexibleViewHolder(view, adapter) {
-
     protected val color = ColorUtils.setAlphaComponent(itemView.context.getResourceColor(R.attr.colorSecondary), 75)
 
     init {
@@ -40,7 +39,10 @@ abstract class LibraryHolder(
      */
     abstract fun onSetValues(item: LibraryItem)
 
-    fun setUnreadBadge(badge: LibraryBadge, item: LibraryItem) {
+    fun setUnreadBadge(
+        badge: LibraryBadge,
+        item: LibraryItem,
+    ) {
         val showTotal = item.header.category.sortingMode() == LibrarySort.TotalChapters
         badge.setUnreadDownload(
             when {
@@ -62,7 +64,8 @@ abstract class LibraryHolder(
 
     fun setReadingButton(item: LibraryItem) {
         itemView.findViewById<View>(R.id.play_layout)?.isVisible =
-            item.manga.unread > 0 && !item.hideReadingButton
+            item.manga.unread > 0 &&
+            !item.hideReadingButton
     }
 
     /**
@@ -75,8 +78,8 @@ abstract class LibraryHolder(
         (adapter as? LibraryCategoryAdapter)?.libraryListener?.onItemReleased(position)
     }
 
-    override fun onLongClick(view: View?): Boolean {
-        return if (adapter.isLongPressDragEnabled) {
+    override fun onLongClick(view: View?): Boolean =
+        if (adapter.isLongPressDragEnabled) {
             val manga = (adapter.getItem(flexibleAdapterPosition) as LibraryItem).manga
             if (!isDraggable && !manga.isBlank() && !manga.isHidden()) {
                 adapter.mItemLongClickListener.onItemLongClick(flexibleAdapterPosition)
@@ -89,5 +92,4 @@ abstract class LibraryHolder(
         } else {
             super.onLongClick(view)
         }
-    }
 }

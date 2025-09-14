@@ -14,15 +14,15 @@ class CoverViewTarget(
     val progress: View? = null,
     val scaleType: ImageView.ScaleType = ImageView.ScaleType.CENTER_CROP,
 ) : ImageViewTarget(view) {
-
     override fun onError(error: Drawable?) {
         progress?.isVisible = false
         view.scaleType = ImageView.ScaleType.CENTER
-        val vector = VectorDrawableCompat.create(
-            view.context.resources,
-            R.drawable.ic_broken_image_24dp,
-            null,
-        )
+        val vector =
+            VectorDrawableCompat.create(
+                view.context.resources,
+                R.drawable.ic_broken_image_24dp,
+                null,
+            )
         vector?.setTint(view.context.getResourceColor(android.R.attr.textColorSecondary))
         view.setImageDrawable(vector)
     }

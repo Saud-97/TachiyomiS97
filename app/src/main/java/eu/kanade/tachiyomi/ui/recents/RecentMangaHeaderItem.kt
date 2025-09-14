@@ -10,19 +10,15 @@ import eu.kanade.tachiyomi.databinding.RecentsHeaderItemBinding
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 import eu.kanade.tachiyomi.ui.library.LibraryHeaderItem
 
-class RecentMangaHeaderItem(val recentsType: Int) :
-    AbstractHeaderItem<RecentMangaHeaderItem.Holder>() {
-
-    override fun getLayoutRes(): Int {
-        return R.layout.recents_header_item
-    }
+class RecentMangaHeaderItem(
+    val recentsType: Int,
+) : AbstractHeaderItem<RecentMangaHeaderItem.Holder>() {
+    override fun getLayoutRes(): Int = R.layout.recents_header_item
 
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): Holder {
-        return Holder(view, adapter as RecentMangaAdapter)
-    }
+    ): Holder = Holder(view, adapter as RecentMangaAdapter)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -41,24 +37,20 @@ class RecentMangaHeaderItem(val recentsType: Int) :
         return false
     }
 
-    override fun isDraggable(): Boolean {
-        return false
-    }
+    override fun isDraggable(): Boolean = false
 
-    override fun isSwipeable(): Boolean {
-        return false
-    }
+    override fun isSwipeable(): Boolean = false
 
-    override fun hashCode(): Int {
-        return recentsType.hashCode()
-    }
+    override fun hashCode(): Int = recentsType.hashCode()
 
-    class Holder(val view: View, adapter: RecentMangaAdapter) : BaseFlexibleViewHolder(
-        view,
-        adapter,
-        true,
-    ) {
-
+    class Holder(
+        val view: View,
+        adapter: RecentMangaAdapter,
+    ) : BaseFlexibleViewHolder(
+            view,
+            adapter,
+            true,
+        ) {
         private val binding = RecentsHeaderItemBinding.bind(view)
 
         fun bind(recentsType: Int) {

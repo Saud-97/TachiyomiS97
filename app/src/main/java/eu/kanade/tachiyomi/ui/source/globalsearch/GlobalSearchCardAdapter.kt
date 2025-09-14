@@ -10,9 +10,9 @@ import uy.kohesive.injekt.injectLazy
  *
  * @param controller instance of [GlobalSearchController].
  */
-class GlobalSearchCardAdapter(controller: GlobalSearchController) :
-    FlexibleAdapter<GlobalSearchMangaItem>(null, controller, true) {
-
+class GlobalSearchCardAdapter(
+    controller: GlobalSearchController,
+) : FlexibleAdapter<GlobalSearchMangaItem>(null, controller, true) {
     /**
      * Listen for browse item clicks.
      */
@@ -26,6 +26,10 @@ class GlobalSearchCardAdapter(controller: GlobalSearchController) :
      */
     interface OnMangaClickListener {
         fun onMangaClick(manga: Manga)
-        fun onMangaLongClick(position: Int, adapter: GlobalSearchCardAdapter)
+
+        fun onMangaLongClick(
+            position: Int,
+            adapter: GlobalSearchCardAdapter,
+        )
     }
 }

@@ -10,20 +10,24 @@ import eu.kanade.tachiyomi.data.database.models.History
 import eu.kanade.tachiyomi.data.database.tables.HistoryTable
 
 class HistoryUpsertResolver : HistoryPutResolver() {
-
     /**
      * Updates last_read time of chapter
      */
-    override fun performPut(db: StorIOSQLite, history: History): PutResult {
+    override fun performPut(
+        db: StorIOSQLite,
+        history: History,
+    ): PutResult {
         val updateQuery = mapToUpdateQuery(history)
 
-        val cursor = db.lowLevel().query(
-            Query.builder()
-                .table(updateQuery.table())
-                .where(updateQuery.where())
-                .whereArgs(updateQuery.whereArgs())
-                .build(),
-        )
+        val cursor =
+            db.lowLevel().query(
+                Query
+                    .builder()
+                    .table(updateQuery.table())
+                    .where(updateQuery.where())
+                    .whereArgs(updateQuery.whereArgs())
+                    .build(),
+            )
 
         return cursor.use { putCursor ->
             if (putCursor.count == 0) {
@@ -37,11 +41,13 @@ class HistoryUpsertResolver : HistoryPutResolver() {
         }
     }
 
-    override fun mapToUpdateQuery(obj: History) = UpdateQuery.builder()
-        .table(HistoryTable.TABLE)
-        .where("${HistoryTable.COL_CHAPTER_ID} = ?")
-        .whereArgs(obj.chapter_id)
-        .build()
+    override fun mapToUpdateQuery(obj: History) =
+        UpdateQuery
+            .builder()
+            .table(HistoryTable.TABLE)
+            .where("${HistoryTable.COL_CHAPTER_ID} = ?")
+            .whereArgs(obj.chapter_id)
+            .build()
 
     private fun mapToUpdateContentValues(history: History) =
         contentValuesOf(

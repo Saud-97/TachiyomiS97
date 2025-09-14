@@ -41,22 +41,23 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 object ImageUtil {
-
-    fun isImage(name: String, openStream: (() -> InputStream)? = null): Boolean {
-        val contentType = try {
-            URLConnection.guessContentTypeFromName(name)
-        } catch (e: Exception) {
-            null
-        } ?: openStream?.let { findImageType(it)?.mime }
+    fun isImage(
+        name: String,
+        openStream: (() -> InputStream)? = null,
+    ): Boolean {
+        val contentType =
+            try {
+                URLConnection.guessContentTypeFromName(name)
+            } catch (e: Exception) {
+                null
+            } ?: openStream?.let { findImageType(it)?.mime }
         return contentType?.startsWith("image/") ?: false
     }
 
-    fun findImageType(openStream: () -> InputStream): ImageType? {
-        return openStream().use { findImageType(it) }
-    }
+    fun findImageType(openStream: () -> InputStream): ImageType? = openStream().use { findImageType(it) }
 
-    fun findImageType(stream: InputStream): ImageType? {
-        return try {
+    fun findImageType(stream: InputStream): ImageType? =
+        try {
             when (getImageType(stream)?.format) {
                 Format.Avif -> ImageType.AVIF
                 Format.Gif -> ImageType.GIF
@@ -70,15 +71,19 @@ object ImageUtil {
         } catch (e: Exception) {
             null
         }
-    }
 
-    fun resizeBitMapDrawable(drawable: Drawable, resources: Resources?, size: Int): Drawable? {
+    fun resizeBitMapDrawable(
+        drawable: Drawable,
+        resources: Resources?,
+        size: Int,
+    ): Drawable? {
         val b = (drawable as? BitmapDrawable)?.bitmap
-        val bitmapResized: Bitmap? = if (b != null) {
-            Bitmap.createScaledBitmap(b, size, size, false)
-        } else {
-            null
-        }
+        val bitmapResized: Bitmap? =
+            if (b != null) {
+                Bitmap.createScaledBitmap(b, size, size, false)
+            } else {
+                null
+            }
         return if (bitmapResized != null) {
             BitmapDrawable(resources, bitmapResized)
         } else {
@@ -86,11 +91,10 @@ object ImageUtil {
         }
     }
 
-    fun getExtensionFromMimeType(mime: String?): String {
-        return MimeTypeMap.getSingleton().getExtensionFromMimeType(mime)
+    fun getExtensionFromMimeType(mime: String?): String =
+        MimeTypeMap.getSingleton().getExtensionFromMimeType(mime)
             ?: SUPPLEMENTARY_MIMETYPE_MAPPING[mime]
             ?: "jpg"
-    }
 
     fun isAnimatedAndSupported(stream: InputStream): Boolean {
         try {
@@ -107,7 +111,10 @@ object ImageUtil {
         return false
     }
 
-    enum class ImageType(val mime: String, val extension: String) {
+    enum class ImageType(
+        val mime: String,
+        val extension: String,
+    ) {
         AVIF("image/avif", "avif"),
         GIF("image/gif", "gif"),
         HEIF("image/heif", "heif"),
@@ -121,12 +128,13 @@ object ImageUtil {
     private fun getImageType(stream: InputStream): tachiyomi.decoder.ImageType? {
         val bytes = ByteArray(32)
 
-        val length = if (stream.markSupported()) {
-            stream.mark(bytes.size)
-            stream.read(bytes, 0, bytes.size).also { stream.reset() }
-        } else {
-            stream.read(bytes, 0, bytes.size)
-        }
+        val length =
+            if (stream.markSupported()) {
+                stream.mark(bytes.size)
+                stream.read(bytes, 0, bytes.size).also { stream.reset() }
+            } else {
+                stream.read(bytes, 0, bytes.size)
+            }
 
         if (length == -1) {
             return null
@@ -135,12 +143,17 @@ object ImageUtil {
         return ImageDecoder.findType(bytes)
     }
 
-    fun autoSetBackground(image: Bitmap?, alwaysUseWhite: Boolean, context: Context): Drawable {
-        val backgroundColor = if (alwaysUseWhite) {
-            Color.WHITE
-        } else {
-            context.getResourceColor(R.attr.readerBackground)
-        }
+    fun autoSetBackground(
+        image: Bitmap?,
+        alwaysUseWhite: Boolean,
+        context: Context,
+    ): Drawable {
+        val backgroundColor =
+            if (alwaysUseWhite) {
+                Color.WHITE
+            } else {
+                context.getResourceColor(R.attr.readerBackground)
+            }
         if (image == null) return ColorDrawable(backgroundColor)
         if (image.width < 50 || image.height < 50) {
             return ColorDrawable(backgroundColor)
@@ -160,15 +173,22 @@ object ImageUtil {
         val botLeftIsDark = image.getPixel(left, bot).isDark
         val botRightIsDark = image.getPixel(right, bot).isDark
 
-        var darkBG = (topLeftIsDark && (botLeftIsDark || botRightIsDark || topRightIsDark || midLeftIsDark || topMidIsDark)) ||
-            (topRightIsDark && (botRightIsDark || botLeftIsDark || midRightIsDark || topMidIsDark))
+        var darkBG =
+            (topLeftIsDark && (botLeftIsDark || botRightIsDark || topRightIsDark || midLeftIsDark || topMidIsDark)) ||
+                (topRightIsDark && (botRightIsDark || botLeftIsDark || midRightIsDark || topMidIsDark))
 
-        if (!image.getPixel(left, top).isWhite && pixelIsClose(image.getPixel(left, top), image.getPixel(midX, top)) &&
-            !image.getPixel(right, top).isWhite && pixelIsClose(image.getPixel(right, top), image.getPixel(right, bot)) &&
-            !image.getPixel(right, bot).isWhite && pixelIsClose(image.getPixel(right, bot), image.getPixel(midX, bot)) &&
-            !image.getPixel(midX, top).isWhite && pixelIsClose(image.getPixel(midX, top), image.getPixel(right, top)) &&
-            !image.getPixel(midX, bot).isWhite && pixelIsClose(image.getPixel(midX, bot), image.getPixel(left, bot)) &&
-            !image.getPixel(left, bot).isWhite && pixelIsClose(image.getPixel(left, bot), image.getPixel(left, top))
+        if (!image.getPixel(left, top).isWhite &&
+            pixelIsClose(image.getPixel(left, top), image.getPixel(midX, top)) &&
+            !image.getPixel(right, top).isWhite &&
+            pixelIsClose(image.getPixel(right, top), image.getPixel(right, bot)) &&
+            !image.getPixel(right, bot).isWhite &&
+            pixelIsClose(image.getPixel(right, bot), image.getPixel(midX, bot)) &&
+            !image.getPixel(midX, top).isWhite &&
+            pixelIsClose(image.getPixel(midX, top), image.getPixel(right, top)) &&
+            !image.getPixel(midX, bot).isWhite &&
+            pixelIsClose(image.getPixel(midX, bot), image.getPixel(left, bot)) &&
+            !image.getPixel(left, bot).isWhite &&
+            pixelIsClose(image.getPixel(left, bot), image.getPixel(left, top))
         ) {
             return ColorDrawable(image.getPixel(left, top))
         }
@@ -181,13 +201,14 @@ object ImageUtil {
             darkBG = false
         }
 
-        var blackPixel = when {
-            topLeftIsDark -> image.getPixel(left, top)
-            topRightIsDark -> image.getPixel(right, top)
-            botLeftIsDark -> image.getPixel(left, bot)
-            botRightIsDark -> image.getPixel(right, bot)
-            else -> backgroundColor
-        }
+        var blackPixel =
+            when {
+                topLeftIsDark -> image.getPixel(left, top)
+                topRightIsDark -> image.getPixel(right, top)
+                botLeftIsDark -> image.getPixel(left, bot)
+                botRightIsDark -> image.getPixel(right, bot)
+                else -> backgroundColor
+            }
 
         var overallWhitePixels = 0
         var overallBlackPixels = 0
@@ -245,11 +266,12 @@ object ImageUtil {
             when {
                 blackPixels > 22 -> {
                     if (x == right || x == right + offsetX) {
-                        blackPixel = when {
-                            topRightIsDark -> image.getPixel(right, top)
-                            botRightIsDark -> image.getPixel(right, bot)
-                            else -> blackPixel
-                        }
+                        blackPixel =
+                            when {
+                                topRightIsDark -> image.getPixel(right, top)
+                                botRightIsDark -> image.getPixel(right, bot)
+                                else -> blackPixel
+                            }
                     }
                     darkBG = true
                     overallWhitePixels = 0
@@ -258,11 +280,12 @@ object ImageUtil {
                 blackStreak -> {
                     darkBG = true
                     if (x == right || x == right + offsetX) {
-                        blackPixel = when {
-                            topRightIsDark -> image.getPixel(right, top)
-                            botRightIsDark -> image.getPixel(right, bot)
-                            else -> blackPixel
-                        }
+                        blackPixel =
+                            when {
+                                topRightIsDark -> image.getPixel(right, top)
+                                botRightIsDark -> image.getPixel(right, bot)
+                                else -> blackPixel
+                            }
                     }
                     if (blackPixels > 18) {
                         overallWhitePixels = 0
@@ -283,14 +306,16 @@ object ImageUtil {
         }
         val isLandscape = context.resources.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE
         if (darkBG) {
-            return if (!isLandscape && image.getPixel(left, bot).isWhite &&
+            return if (!isLandscape &&
+                image.getPixel(left, bot).isWhite &&
                 image.getPixel(right, bot).isWhite
             ) {
                 GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     intArrayOf(blackPixel, blackPixel, backgroundColor, backgroundColor),
                 )
-            } else if (!isLandscape && image.getPixel(left, top).isWhite &&
+            } else if (!isLandscape &&
+                image.getPixel(left, top).isWhite &&
                 image.getPixel(right, top).isWhite
             ) {
                 GradientDrawable(
@@ -301,24 +326,32 @@ object ImageUtil {
                 ColorDrawable(blackPixel)
             }
         }
-        if (!isLandscape && (
-            topIsBlackStreak || (
-                topLeftIsDark && topRightIsDark &&
-                    image.getPixel(left - offsetX, top).isDark && image.getPixel(right + offsetX, top).isDark &&
-                    (topMidIsDark || overallBlackPixels > 9)
-                )
+        if (!isLandscape &&
+            (
+                topIsBlackStreak ||
+                    (
+                        topLeftIsDark &&
+                            topRightIsDark &&
+                            image.getPixel(left - offsetX, top).isDark &&
+                            image.getPixel(right + offsetX, top).isDark &&
+                            (topMidIsDark || overallBlackPixels > 9)
+                    )
             )
         ) {
             return GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(blackPixel, blackPixel, backgroundColor, backgroundColor),
             )
-        } else if (!isLandscape && (
-            bottomIsBlackStreak || (
-                botLeftIsDark && botRightIsDark &&
-                    image.getPixel(left - offsetX, bot).isDark && image.getPixel(right + offsetX, bot).isDark &&
-                    (image.getPixel(midX, bot).isDark || overallBlackPixels > 9)
-                )
+        } else if (!isLandscape &&
+            (
+                bottomIsBlackStreak ||
+                    (
+                        botLeftIsDark &&
+                            botRightIsDark &&
+                            image.getPixel(left - offsetX, bot).isDark &&
+                            image.getPixel(right + offsetX, bot).isDark &&
+                            (image.getPixel(midX, bot).isDark || overallBlackPixels > 9)
+                    )
             )
         ) {
             return GradientDrawable(
@@ -339,7 +372,12 @@ object ImageUtil {
         val result = Bitmap.createBitmap(width / 2, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         progressCallback?.invoke(98)
-        canvas.drawBitmap(imageBitmap, Rect(if (!secondHalf) 0 else width / 2, 0, if (secondHalf) width else width / 2, height), result.rect, null)
+        canvas.drawBitmap(
+            imageBitmap,
+            Rect(if (!secondHalf) 0 else width / 2, 0, if (secondHalf) width else width / 2, height),
+            result.rect,
+            null,
+        )
         progressCallback?.invoke(99)
         val output = ByteArrayOutputStream()
         result.compress(Bitmap.CompressFormat.JPEG, 100, output)
@@ -374,18 +412,20 @@ object ImageUtil {
         val canvas = Canvas(result)
         canvas.drawColor(Color.BLACK)
         progressCallback?.invoke(98)
-        val upperPart = Rect(
-            0,
-            0,
-            result.width,
-            result.height / 2,
-        )
-        val lowerPart = Rect(
-            0,
-            result.height / 2 + gap,
-            result.width,
-            result.height,
-        )
+        val upperPart =
+            Rect(
+                0,
+                0,
+                result.width,
+                result.height / 2,
+            )
+        val lowerPart =
+            Rect(
+                0,
+                result.height / 2 + gap,
+                result.width,
+                result.height,
+            )
         canvas.drawBitmap(
             imageBitmap,
             Rect(
@@ -432,11 +472,13 @@ object ImageUtil {
         var width2 = imageBitmap2.width
         val maxHeight = max(height, height2)
         val maxWidth = max(width, width2)
-        val adjustedHingeGap = context?.let {
-            val fullHeight = (context as? Activity)?.window?.decorView?.height
-                ?: context.resources.displayMetrics.heightPixels
-            (maxHeight.toFloat() / fullHeight * hingeGap).toInt()
-        } ?: hingeGap
+        val adjustedHingeGap =
+            context?.let {
+                val fullHeight =
+                    (context as? Activity)?.window?.decorView?.height
+                        ?: context.resources.displayMetrics.heightPixels
+                (maxHeight.toFloat() / fullHeight * hingeGap).toInt()
+            } ?: hingeGap
         val result = Bitmap.createBitmap((maxWidth * 2) + adjustedHingeGap, maxHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         canvas.drawColor(background)
@@ -447,12 +489,13 @@ object ImageUtil {
         }
         height = imageBitmap.height
         width = imageBitmap.width
-        val upperPart = Rect(
-            if (isLTR) max(maxWidth - width, 0) else widthAndHinge,
-            (maxHeight - height) / 2,
-            (if (isLTR) max(maxWidth - width, 0) else widthAndHinge) + width,
-            height + (maxHeight - height) / 2,
-        )
+        val upperPart =
+            Rect(
+                if (isLTR) max(maxWidth - width, 0) else widthAndHinge,
+                (maxHeight - height) / 2,
+                (if (isLTR) max(maxWidth - width, 0) else widthAndHinge) + width,
+                height + (maxHeight - height) / 2,
+            )
         canvas.drawBitmap(imageBitmap, imageBitmap.rect, upperPart, null)
         progressCallback?.invoke(98)
         if (imageBitmap2.height != maxHeight && imageBitmap2.width != maxWidth) {
@@ -462,12 +505,13 @@ object ImageUtil {
         }
         height2 = imageBitmap2.height
         width2 = imageBitmap2.width
-        val bottomPart = Rect(
-            if (!isLTR) max(maxWidth - width2, 0) else widthAndHinge,
-            (maxHeight - height2) / 2,
-            (if (!isLTR) max(maxWidth - width2, 0) else widthAndHinge) + width2,
-            height2 + (maxHeight - height2) / 2,
-        )
+        val bottomPart =
+            Rect(
+                if (!isLTR) max(maxWidth - width2, 0) else widthAndHinge,
+                (maxHeight - height2) / 2,
+                (if (!isLTR) max(maxWidth - width2, 0) else widthAndHinge) + width2,
+                height2 + (maxHeight - height2) / 2,
+            )
         canvas.drawBitmap(imageBitmap2, imageBitmap2.rect, bottomPart, null)
         progressCallback?.invoke(99)
 
@@ -489,35 +533,39 @@ object ImageUtil {
         val height = imageBitmap.height
         val width = imageBitmap.width
         val isFullPageSpread = height < width
-        val fullHeight = (context as? Activity)?.window?.decorView?.height
-            ?: context.resources.displayMetrics.heightPixels
+        val fullHeight =
+            (context as? Activity)?.window?.decorView?.height
+                ?: context.resources.displayMetrics.heightPixels
         val adjustedHingeGap = (height.toFloat() / fullHeight * hingeGap).toInt()
-        val result = Bitmap.createBitmap(
-            (if (isFullPageSpread) width else (width * 2)) + adjustedHingeGap,
-            height,
-            Bitmap.Config.ARGB_8888,
-        )
+        val result =
+            Bitmap.createBitmap(
+                (if (isFullPageSpread) width else (width * 2)) + adjustedHingeGap,
+                height,
+                Bitmap.Config.ARGB_8888,
+            )
         val canvas = Canvas(result)
         canvas.drawColor(background)
         if (isFullPageSpread) {
             val leftPart = Rect(0, 0, width / 2, height)
             canvas.drawBitmap(imageBitmap, imageBitmap.rect.also { it.right /= 2 }, leftPart, null)
             progressCallback?.invoke(98)
-            val rightPart = Rect(
-                width / 2 + adjustedHingeGap,
-                0,
-                width + adjustedHingeGap,
-                height,
-            )
+            val rightPart =
+                Rect(
+                    width / 2 + adjustedHingeGap,
+                    0,
+                    width + adjustedHingeGap,
+                    height,
+                )
             canvas.drawBitmap(imageBitmap, imageBitmap.rect.also { it.left = width / 2 }, rightPart, null)
         } else {
             val placeOnLeft = if (atBeginning == null) true else isLTR.xor(atBeginning)
-            val upperPart = Rect(
-                if (placeOnLeft) 0 else width + adjustedHingeGap,
-                0,
-                (if (placeOnLeft) 0 else width + adjustedHingeGap) + width,
-                height,
-            )
+            val upperPart =
+                Rect(
+                    if (placeOnLeft) 0 else width + adjustedHingeGap,
+                    0,
+                    (if (placeOnLeft) 0 else width + adjustedHingeGap) + width,
+                    height,
+                )
             canvas.drawBitmap(imageBitmap, imageBitmap.rect, upperPart, null)
         }
         progressCallback?.invoke(99)
@@ -540,26 +588,31 @@ object ImageUtil {
     /**
      * Splits tall images to improve performance of reader
      */
-    fun splitTallImage(imageFile: UniFile, imageFilePath: String): Boolean {
+    fun splitTallImage(
+        imageFile: UniFile,
+        imageFilePath: String,
+    ): Boolean {
         if (isAnimatedAndSupported(imageFile.openInputStream()) || !isTallImage(imageFile.openInputStream())) {
             return true
         }
 
-        val bitmapRegionDecoder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            BitmapRegionDecoder.newInstance(imageFile.openInputStream())
-        } else {
-            @Suppress("DEPRECATION")
-            BitmapRegionDecoder.newInstance(imageFile.openInputStream(), false)
-        }
+        val bitmapRegionDecoder =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                BitmapRegionDecoder.newInstance(imageFile.openInputStream())
+            } else {
+                @Suppress("DEPRECATION")
+                BitmapRegionDecoder.newInstance(imageFile.openInputStream(), false)
+            }
 
         if (bitmapRegionDecoder == null) {
             Timber.d("Failed to create new instance of BitmapRegionDecoder")
             return false
         }
 
-        val options = extractImageOptions(imageFile.openInputStream(), resetAfterExtraction = false).apply {
-            inJustDecodeBounds = false
-        }
+        val options =
+            extractImageOptions(imageFile.openInputStream(), resetAfterExtraction = false).apply {
+                inJustDecodeBounds = false
+            }
         val splitDataList = options.splitData
 
         return try {
@@ -591,8 +644,10 @@ object ImageUtil {
         }
     }
 
-    private fun splitImagePath(imageFilePath: String, index: Int) =
-        imageFilePath.substringBeforeLast(".") + "__${"%03d".format(index + 1)}.jpg"
+    private fun splitImagePath(
+        imageFilePath: String,
+        index: Int,
+    ) = imageFilePath.substringBeforeLast(".") + "__${"%03d".format(index + 1)}.jpg"
 
     private val BitmapFactory.Options.splitData
         get(): List<SplitData> {
@@ -640,11 +695,13 @@ object ImageUtil {
     private val Bitmap.rect: Rect
         get() = Rect(0, 0, width, height)
 
-    private fun pixelIsClose(color1: Int, color2: Int): Boolean {
-        return abs(color1.red - color2.red) < 30 &&
+    private fun pixelIsClose(
+        color1: Int,
+        color2: Int,
+    ): Boolean =
+        abs(color1.red - color2.red) < 30 &&
             abs(color1.green - color2.green) < 30 &&
             abs(color1.blue - color2.blue) < 30
-    }
 
     /**
      * Returns if this bitmap matches what would be (if rightSide param is true)
@@ -675,28 +732,43 @@ object ImageUtil {
      * Returns if one side has a vertical padding and the other side does not,
      * 2 for def, 1 for maybe, 0 if not at all
      */
-    private fun Bitmap.isSidePadded(rightSide: Boolean, checkWhite: Boolean, halfCheck: Boolean = false): Int {
+    private fun Bitmap.isSidePadded(
+        rightSide: Boolean,
+        checkWhite: Boolean,
+        halfCheck: Boolean = false,
+    ): Int {
         val left = (width * 0.0275).toInt()
         val right = width - left
         val paddedSide = if (rightSide) right else left
         val unPaddedSide = if (!rightSide) right else left
-        val paddedCount = (1 until 50).count {
-            // if all of a side is padded (the left page usually has a white padding on the right when scanned)
-            getPixel(paddedSide, (height * (it / 50f)).roundToInt()).isWhiteOrDark(checkWhite)
-        }
-        val isNotFullyUnPadded = !(1 until 50).all {
-            // and if all of the other side isn't padded
-            getPixel(unPaddedSide, (height * (it / 50f)).roundToInt()).isWhiteOrDark(checkWhite)
-        }
+        val paddedCount =
+            (1 until 50).count {
+                // if all of a side is padded (the left page usually has a white padding on the right when scanned)
+                getPixel(paddedSide, (height * (it / 50f)).roundToInt()).isWhiteOrDark(checkWhite)
+            }
+        val isNotFullyUnPadded =
+            !(1 until 50).all {
+                // and if all of the other side isn't padded
+                getPixel(unPaddedSide, (height * (it / 50f)).roundToInt()).isWhiteOrDark(checkWhite)
+            }
         return if (isNotFullyUnPadded) {
-            if (paddedCount == 49) 2 else if (paddedCount >= (if (halfCheck) 25 else 47)) 1 else 0
+            if (paddedCount == 49) {
+                2
+            } else if (paddedCount >= (if (halfCheck) 25 else 47)) {
+                1
+            } else {
+                0
+            }
         } else {
             0
         }
     }
 
     /** Returns if one side has a longer streak (of white or black) than the other */
-    private fun Bitmap.isSideLonger(rightSide: Boolean, checkWhite: Boolean): Boolean {
+    private fun Bitmap.isSideLonger(
+        rightSide: Boolean,
+        checkWhite: Boolean,
+    ): Boolean {
         if (isSidePadded(rightSide, checkWhite, true) == 0) return false
         val left = (width * 0.0275).toInt()
         val right = width - left
@@ -718,7 +790,10 @@ object ImageUtil {
     }
 
     /** Returns if one side is more horizontally padded than the other */
-    private fun Bitmap.isOneSideMorePadded(rightSide: Boolean, checkWhite: Boolean): Boolean {
+    private fun Bitmap.isOneSideMorePadded(
+        rightSide: Boolean,
+        checkWhite: Boolean,
+    ): Boolean {
         val middle = (height * 0.475).roundToInt()
         val middle2 = (height * 0.525).roundToInt()
         val widthFactor = max(1, (width / 400f).roundToInt())
@@ -734,8 +809,7 @@ object ImageUtil {
         }
     }
 
-    private fun Int.isWhiteOrDark(checkWhite: Boolean): Boolean =
-        if (checkWhite) isWhite else isDark
+    private fun Int.isWhiteOrDark(checkWhite: Boolean): Boolean = if (checkWhite) isWhite else isDark
 
     private val Int.isWhite: Boolean
         get() = red + blue + green > 740
@@ -785,8 +859,9 @@ object ImageUtil {
     }
 
     // Android doesn't include some mappings
-    private val SUPPLEMENTARY_MIMETYPE_MAPPING = mapOf(
-        // https://issuetracker.google.com/issues/182703810
-        "image/jxl" to "jxl",
-    )
+    private val SUPPLEMENTARY_MIMETYPE_MAPPING =
+        mapOf(
+            // https://issuetracker.google.com/issues/182703810
+            "image/jxl" to "jxl",
+        )
 }

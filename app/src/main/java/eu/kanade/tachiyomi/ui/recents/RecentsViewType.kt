@@ -3,7 +3,10 @@ package eu.kanade.tachiyomi.ui.recents
 import androidx.annotation.StringRes
 import eu.kanade.tachiyomi.R
 
-enum class RecentsViewType(val mainValue: Int, @StringRes val stringRes: Int) {
+enum class RecentsViewType(
+    val mainValue: Int,
+    @StringRes val stringRes: Int,
+) {
     GroupedAll(0, R.string.grouped),
     UngroupedAll(1, R.string.all),
     History(2, R.string.history),

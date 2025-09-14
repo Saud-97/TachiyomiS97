@@ -11,24 +11,29 @@ import eu.kanade.tachiyomi.databinding.ListChartLegendBinding
 class StatsLegendAdapter(
     private val list: List<StatsController.StatusDistributionItem>,
 ) : RecyclerView.Adapter<StatsLegendAdapter.StatsLegendHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatsLegendHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): StatsLegendHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.list_chart_legend, parent, false)
         return StatsLegendHolder(view)
     }
 
-    override fun onBindViewHolder(holder: StatsLegendHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: StatsLegendHolder,
+        position: Int,
+    ) {
         val item = list[position]
         holder.legendColorIcon.imageTintList = ColorStateList.valueOf(item.color)
         holder.legendDescriptionText.text = item.status
         holder.legendValueText.text = item.amount.toString()
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount(): Int = list.size
 
-    class StatsLegendHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class StatsLegendHolder(
+        view: View,
+    ) : RecyclerView.ViewHolder(view) {
         private val binding = ListChartLegendBinding.bind(view)
 
         val legendColorIcon = binding.legendColorIcon

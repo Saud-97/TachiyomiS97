@@ -10,8 +10,10 @@ import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.data.database.tables.ChapterTable
 
 class ChapterSourceOrderPutResolver : PutResolver<Chapter>() {
-
-    override fun performPut(db: StorIOSQLite, chapter: Chapter) = db.inTransactionReturn {
+    override fun performPut(
+        db: StorIOSQLite,
+        chapter: Chapter,
+    ) = db.inTransactionReturn {
         val updateQuery = mapToUpdateQuery(chapter)
         val contentValues = mapToContentValues(chapter)
 
@@ -19,13 +21,16 @@ class ChapterSourceOrderPutResolver : PutResolver<Chapter>() {
         PutResult.newUpdateResult(numberOfRowsUpdated, updateQuery.table())
     }
 
-    fun mapToUpdateQuery(chapter: Chapter) = UpdateQuery.builder()
-        .table(ChapterTable.TABLE)
-        .where("${ChapterTable.COL_URL} = ? AND ${ChapterTable.COL_MANGA_ID} = ?")
-        .whereArgs(chapter.url, chapter.manga_id)
-        .build()
+    fun mapToUpdateQuery(chapter: Chapter) =
+        UpdateQuery
+            .builder()
+            .table(ChapterTable.TABLE)
+            .where("${ChapterTable.COL_URL} = ? AND ${ChapterTable.COL_MANGA_ID} = ?")
+            .whereArgs(chapter.url, chapter.manga_id)
+            .build()
 
-    fun mapToContentValues(chapter: Chapter) = ContentValues(1).apply {
-        put(ChapterTable.COL_SOURCE_ORDER, chapter.source_order)
-    }
+    fun mapToContentValues(chapter: Chapter) =
+        ContentValues(1).apply {
+            put(ChapterTable.COL_SOURCE_ORDER, chapter.source_order)
+        }
 }

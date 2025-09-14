@@ -27,57 +27,68 @@ import uy.kohesive.injekt.injectLazy
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-class BangumiApi(private val client: OkHttpClient, interceptor: BangumiInterceptor) {
-
+class BangumiApi(
+    private val client: OkHttpClient,
+    interceptor: BangumiInterceptor,
+) {
     private val json: Json by injectLazy()
 
     private val authClient = client.newBuilder().addInterceptor(interceptor).build()
 
-    suspend fun addLibManga(track: Track): Track {
-        return withIOContext {
-            val body = FormBody.Builder()
-                .add("rating", track.score.toInt().toString())
-                .add("status", track.toBangumiStatus())
-                .build()
-            authClient.newCall(POST("$apiUrl/collection/${track.media_id}/update", body = body))
+    suspend fun addLibManga(track: Track): Track =
+        withIOContext {
+            val body =
+                FormBody
+                    .Builder()
+                    .add("rating", track.score.toInt().toString())
+                    .add("status", track.toBangumiStatus())
+                    .build()
+            authClient
+                .newCall(POST("$apiUrl/collection/${track.media_id}/update", body = body))
                 .awaitSuccess()
             track
         }
-    }
 
-    suspend fun updateLibManga(track: Track): Track {
-        return withIOContext {
+    suspend fun updateLibManga(track: Track): Track =
+        withIOContext {
             // read status update
-            val sbody = FormBody.Builder()
-                .add("rating", track.score.toInt().toString())
-                .add("status", track.toBangumiStatus())
-                .build()
-            authClient.newCall(POST("$apiUrl/collection/${track.media_id}/update", body = sbody))
+            val sbody =
+                FormBody
+                    .Builder()
+                    .add("rating", track.score.toInt().toString())
+                    .add("status", track.toBangumiStatus())
+                    .build()
+            authClient
+                .newCall(POST("$apiUrl/collection/${track.media_id}/update", body = sbody))
                 .awaitSuccess()
 
             // chapter update
-            val body = FormBody.Builder()
-                .add("watched_eps", track.last_chapter_read.toInt().toString())
-                .build()
-            authClient.newCall(
-                POST(
-                    "$apiUrl/subject/${track.media_id}/update/watched_eps",
-                    body = body,
-                ),
-            ).awaitSuccess()
+            val body =
+                FormBody
+                    .Builder()
+                    .add("watched_eps", track.last_chapter_read.toInt().toString())
+                    .build()
+            authClient
+                .newCall(
+                    POST(
+                        "$apiUrl/subject/${track.media_id}/update/watched_eps",
+                        body = body,
+                    ),
+                ).awaitSuccess()
 
             track
         }
-    }
 
-    suspend fun search(search: String): List<TrackSearch> {
-        return withIOContext {
-            val url = "$apiUrl/search/subject/${URLEncoder.encode(search, StandardCharsets.UTF_8.name())}"
-                .toUri()
-                .buildUpon()
-                .appendQueryParameter("max_results", "20")
-                .build()
-            authClient.newCall(GET(url.toString()))
+    suspend fun search(search: String): List<TrackSearch> =
+        withIOContext {
+            val url =
+                "$apiUrl/search/subject/${URLEncoder.encode(search, StandardCharsets.UTF_8.name())}"
+                    .toUri()
+                    .buildUpon()
+                    .appendQueryParameter("max_results", "20")
+                    .build()
+            authClient
+                .newCall(GET(url.toString()))
                 .awaitSuccess()
                 .use {
                     var responseBody = it.body?.string().orEmpty()
@@ -88,24 +99,31 @@ class BangumiApi(private val client: OkHttpClient, interceptor: BangumiIntercept
                         responseBody = "{\"results\":0,\"list\":[]}"
                     }
                     val response = json.decodeFromString<JsonObject>(responseBody)["list"]?.jsonArray
-                    response?.filter { it.jsonObject["type"]?.jsonPrimitive?.int == 1 }
-                        ?.map { jsonToSearch(it.jsonObject) }.orEmpty()
+                    response
+                        ?.filter { it.jsonObject["type"]?.jsonPrimitive?.int == 1 }
+                        ?.map { jsonToSearch(it.jsonObject) }
+                        .orEmpty()
                 }
         }
-    }
 
     private fun jsonToSearch(obj: JsonObject): TrackSearch {
-        val coverUrl = if (obj["images"] is JsonObject) {
-            obj["images"]?.jsonObject?.get("common")?.jsonPrimitive?.contentOrNull ?: ""
-        } else {
-            // Sometimes JsonNull
-            ""
-        }
-        val totalChapters = if (obj["eps_count"] != null) {
-            obj["eps_count"]!!.jsonPrimitive.int
-        } else {
-            0
-        }
+        val coverUrl =
+            if (obj["images"] is JsonObject) {
+                obj["images"]
+                    ?.jsonObject
+                    ?.get("common")
+                    ?.jsonPrimitive
+                    ?.contentOrNull ?: ""
+            } else {
+                // Sometimes JsonNull
+                ""
+            }
+        val totalChapters =
+            if (obj["eps_count"] != null) {
+                obj["eps_count"]!!.jsonPrimitive.int
+            } else {
+                0
+            }
         return TrackSearch.create(TrackManager.BANGUMI).apply {
             media_id = obj["id"]!!.jsonPrimitive.long
             title = obj["name_cn"]!!.jsonPrimitive.content
@@ -116,25 +134,27 @@ class BangumiApi(private val client: OkHttpClient, interceptor: BangumiIntercept
         }
     }
 
-    suspend fun findLibManga(track: Track): Track? {
-        return withIOContext {
+    suspend fun findLibManga(track: Track): Track? =
+        withIOContext {
             with(json) {
-                authClient.newCall(GET("$apiUrl/subject/${track.media_id}"))
+                authClient
+                    .newCall(GET("$apiUrl/subject/${track.media_id}"))
                     .awaitSuccess()
                     .parseAs<JsonObject>()
                     .let { jsonToSearch(it) }
             }
         }
-    }
 
-    suspend fun statusLibManga(track: Track): Track? {
-        return withIOContext {
+    suspend fun statusLibManga(track: Track): Track? =
+        withIOContext {
             val urlUserRead = "$apiUrl/collection/${track.media_id}"
-            val requestUserRead = Request.Builder()
-                .url(urlUserRead)
-                .cacheControl(CacheControl.FORCE_NETWORK)
-                .get()
-                .build()
+            val requestUserRead =
+                Request
+                    .Builder()
+                    .url(urlUserRead)
+                    .cacheControl(CacheControl.FORCE_NETWORK)
+                    .get()
+                    .build()
 
             // TODO: get user readed chapter here
             var response = authClient.newCall(requestUserRead).awaitSuccess()
@@ -153,28 +173,30 @@ class BangumiApi(private val client: OkHttpClient, interceptor: BangumiIntercept
                 }
             }
         }
-    }
 
-    suspend fun accessToken(code: String): OAuth {
-        return withIOContext {
+    suspend fun accessToken(code: String): OAuth =
+        withIOContext {
             with(json) {
-                client.newCall(accessTokenRequest(code))
+                client
+                    .newCall(accessTokenRequest(code))
                     .awaitSuccess()
                     .parseAs()
             }
         }
-    }
 
-    private fun accessTokenRequest(code: String) = POST(
-        oauthUrl,
-        body = FormBody.Builder()
-            .add("grant_type", "authorization_code")
-            .add("client_id", clientId)
-            .add("client_secret", clientSecret)
-            .add("code", code)
-            .add("redirect_uri", redirectUrl)
-            .build(),
-    )
+    private fun accessTokenRequest(code: String) =
+        POST(
+            oauthUrl,
+            body =
+                FormBody
+                    .Builder()
+                    .add("grant_type", "authorization_code")
+                    .add("client_id", clientId)
+                    .add("client_secret", clientSecret)
+                    .add("code", code)
+                    .add("redirect_uri", redirectUrl)
+                    .build(),
+        )
 
     companion object {
         private const val clientId = "bgm10555cda0762e80ca"
@@ -187,26 +209,29 @@ class BangumiApi(private val client: OkHttpClient, interceptor: BangumiIntercept
         private const val redirectUrl = "tachiyomi://bangumi-auth"
         private const val baseMangaUrl = "$apiUrl/mangas"
 
-        fun mangaUrl(remoteId: Int): String {
-            return "$baseMangaUrl/$remoteId"
-        }
+        fun mangaUrl(remoteId: Int): String = "$baseMangaUrl/$remoteId"
 
         fun authUrl(): Uri =
-            loginUrl.toUri().buildUpon()
+            loginUrl
+                .toUri()
+                .buildUpon()
                 .appendQueryParameter("client_id", clientId)
                 .appendQueryParameter("response_type", "code")
                 .appendQueryParameter("redirect_uri", redirectUrl)
                 .build()
 
-        fun refreshTokenRequest(token: String) = POST(
-            oauthUrl,
-            body = FormBody.Builder()
-                .add("grant_type", "refresh_token")
-                .add("client_id", clientId)
-                .add("client_secret", clientSecret)
-                .add("refresh_token", token)
-                .add("redirect_uri", redirectUrl)
-                .build(),
-        )
+        fun refreshTokenRequest(token: String) =
+            POST(
+                oauthUrl,
+                body =
+                    FormBody
+                        .Builder()
+                        .add("grant_type", "refresh_token")
+                        .add("client_id", clientId)
+                        .add("client_secret", clientSecret)
+                        .add("refresh_token", token)
+                        .add("redirect_uri", redirectUrl)
+                        .build(),
+            )
     }
 }

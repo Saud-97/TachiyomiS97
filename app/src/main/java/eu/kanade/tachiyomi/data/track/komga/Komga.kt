@@ -13,8 +13,11 @@ import eu.kanade.tachiyomi.data.track.updateNewTrackInfo
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 
-class Komga(private val context: Context, id: Int) : TrackService(id), EnhancedTrackService {
-
+class Komga(
+    private val context: Context,
+    id: Int,
+) : TrackService(id),
+    EnhancedTrackService {
     companion object {
         const val UNREAD = 1
         const val READING = 2
@@ -22,7 +25,8 @@ class Komga(private val context: Context, id: Int) : TrackService(id), EnhancedT
     }
 
     override val client: OkHttpClient =
-        networkService.client.newBuilder()
+        networkService.client
+            .newBuilder()
             .dns(Dns.SYSTEM) // don't use DNS over HTTPS as it breaks IP addressing
             .build()
 
@@ -41,45 +45,51 @@ class Komga(private val context: Context, id: Int) : TrackService(id), EnhancedT
 
     override fun isCompletedStatus(index: Int): Boolean = getStatusList()[index] == COMPLETED
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            UNREAD -> getString(R.string.unread)
-            READING -> getString(R.string.currently_reading)
-            COMPLETED -> getString(R.string.completed)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                UNREAD -> getString(R.string.unread)
+                READING -> getString(R.string.currently_reading)
+                COMPLETED -> getString(R.string.completed)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            UNREAD -> getString(R.string.plan_to_read)
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                UNREAD -> getString(R.string.plan_to_read)
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                else -> ""
+            }
         }
-    }
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = UNREAD
 
     override fun getScoreList(): List<String> = emptyList()
 
     override fun displayScore(track: Track): String = ""
+
     override suspend fun add(track: Track): Track {
         track.status = READING
         updateNewTrackInfo(track)
         return api.updateProgress(track)
     }
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead)
         return api.updateProgress(track)
     }
 
-    override suspend fun bind(track: Track): Track {
-        return track
-    }
+    override suspend fun bind(track: Track): Track = track
 
     override suspend fun search(query: String): List<TrackSearch> {
         TODO("Not yet implemented: search")
@@ -92,7 +102,10 @@ class Komga(private val context: Context, id: Int) : TrackService(id), EnhancedT
         return track
     }
 
-    override suspend fun login(username: String, password: String): Boolean {
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): Boolean {
         saveCredentials("user", "pass")
         return true
     }

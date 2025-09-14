@@ -37,7 +37,6 @@ class DownloadCache(
     private val sourceManager: SourceManager,
     private val preferences: PreferencesHelper = Injekt.get(),
 ) {
-
     /**
      * The interval after which this cache should be invalidated. 1 hour shouldn't cause major
      * issues, as the cache is only used for UI feedback.
@@ -54,7 +53,9 @@ class DownloadCache(
     val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     init {
-        preferences.downloadsDirectory().asFlow()
+        preferences
+            .downloadsDirectory()
+            .asFlow()
             .drop(1)
             .onEach { lastRenew = 0L } // invalidate cache
             .launchIn(scope)
@@ -75,7 +76,11 @@ class DownloadCache(
      * @param manga the manga of the chapter.
      * @param skipCache whether to skip the directory cache and check in the filesystem.
      */
-    fun isChapterDownloaded(chapter: Chapter, manga: Manga, skipCache: Boolean): Boolean {
+    fun isChapterDownloaded(
+        chapter: Chapter,
+        manga: Manga,
+        skipCache: Boolean,
+    ): Boolean {
         if (skipCache) {
             val source = sourceManager.get(manga.source) ?: return false
             return provider.findChapterDir(chapter, manga, source) != null
@@ -94,7 +99,10 @@ class DownloadCache(
      *
      * @param manga the manga to check.
      */
-    fun getDownloadCount(manga: Manga, forceCheckFolder: Boolean = false): Int {
+    fun getDownloadCount(
+        manga: Manga,
+        forceCheckFolder: Boolean = false,
+    ): Int {
         checkRenew()
 
         if (forceCheckFolder) {
@@ -137,10 +145,14 @@ class DownloadCache(
     private fun renew() {
         val onlineSources = sourceManager.getOnlineSources()
 
-        val sourceDirs = getDirectoryFromPreference().listFiles().orEmpty()
-            .associate { it.name to SourceDirectory(it) }.mapNotNullKeys { entry ->
-                onlineSources.find { provider.getSourceDirName(it).equals(entry.key, ignoreCase = true) }?.id
-            }
+        val sourceDirs =
+            getDirectoryFromPreference()
+                .listFiles()
+                .orEmpty()
+                .associate { it.name to SourceDirectory(it) }
+                .mapNotNullKeys { entry ->
+                    onlineSources.find { provider.getSourceDirName(it).equals(entry.key, ignoreCase = true) }?.id
+                }
 
         val db: DatabaseHelper by injectLazy()
         val mangas = db.getMangas().executeAsBlocking().groupBy { it.source }
@@ -151,17 +163,31 @@ class DownloadCache(
 
             val sourceDir = sourceValue.value
 
-            val mangaDirs = sourceDir.dir.listFiles().orEmpty().mapNotNull { mangaDir ->
-                val name = mangaDir.name ?: return@mapNotNull null
-                val chapterDirs = mangaDir.listFiles().orEmpty().mapNotNull { chapterFile -> chapterFile.name?.substringBeforeLast(".cbz") }.toHashSet()
-                name to MangaDirectory(mangaDir, chapterDirs)
-            }.toMap()
+            val mangaDirs =
+                sourceDir.dir
+                    .listFiles()
+                    .orEmpty()
+                    .mapNotNull { mangaDir ->
+                        val name = mangaDir.name ?: return@mapNotNull null
+                        val chapterDirs =
+                            mangaDir
+                                .listFiles()
+                                .orEmpty()
+                                .mapNotNull { chapterFile ->
+                                    chapterFile.name?.substringBeforeLast(".cbz")
+                                }.toHashSet()
+                        name to MangaDirectory(mangaDir, chapterDirs)
+                    }.toMap()
 
-            val trueMangaDirs = mangaDirs.mapNotNull { mangaDir ->
-                val manga = findManga(sourceMangaPair.first, mangaDir.key, sourceValue.key) ?: findManga(sourceMangaPair.second, mangaDir.key, sourceValue.key)
-                val id = manga?.id ?: return@mapNotNull null
-                id to mangaDir.value.files
-            }.toMap()
+            val trueMangaDirs =
+                mangaDirs
+                    .mapNotNull { mangaDir ->
+                        val manga =
+                            findManga(sourceMangaPair.first, mangaDir.key, sourceValue.key)
+                                ?: findManga(sourceMangaPair.second, mangaDir.key, sourceValue.key)
+                        val id = manga?.id ?: return@mapNotNull null
+                        id to mangaDir.value.files
+                    }.toMap()
 
             mangaFiles.putAll(trueMangaDirs)
         }
@@ -170,11 +196,14 @@ class DownloadCache(
     /**
      * Searches a manga list and matches the given mangakey and source key
      */
-    private fun findManga(mangaList: List<Manga>, mangaKey: String, sourceKey: Long): Manga? {
-        return mangaList.find {
+    private fun findManga(
+        mangaList: List<Manga>,
+        mangaKey: String,
+        sourceKey: Long,
+    ): Manga? =
+        mangaList.find {
             DiskUtil.buildValidFilename(it.originalTitle).equals(mangaKey, ignoreCase = true) && it.source == sourceKey
         }
-    }
 
     /**
      * Adds a chapter that has just been download to this cache.
@@ -184,7 +213,10 @@ class DownloadCache(
      * @param manga the manga of the chapter.
      */
     @Synchronized
-    fun addChapter(chapterDirName: String, manga: Manga) {
+    fun addChapter(
+        chapterDirName: String,
+        manga: Manga,
+    ) {
         val id = manga.id ?: return
         val files = mangaFiles[id]
         if (files == null) {
@@ -201,7 +233,10 @@ class DownloadCache(
      * @param manga the manga of the chapter.
      */
     @Synchronized
-    fun removeChapters(chapters: List<Chapter>, manga: Manga) {
+    fun removeChapters(
+        chapters: List<Chapter>,
+        manga: Manga,
+    ) {
         val id = manga.id ?: return
         for (chapter in chapters) {
             val list = provider.getValidChapterDirNames(chapter)
@@ -213,7 +248,10 @@ class DownloadCache(
         }
     }
 
-    fun removeFolders(folders: List<String>, manga: Manga) {
+    fun removeFolders(
+        folders: List<String>,
+        manga: Manga,
+    ) {
         val id = manga.id ?: return
         for (chapter in folders) {
             if (mangaFiles[id] != null && chapter in mangaFiles[id]!!) {

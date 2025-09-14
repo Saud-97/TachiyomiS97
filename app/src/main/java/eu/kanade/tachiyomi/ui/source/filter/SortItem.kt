@@ -10,31 +10,36 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.widget.SortTextView
 
-class SortItem(val name: String, val group: SortGroup) : AbstractSectionableItem<SortItem.Holder, SortGroup>(group) {
+class SortItem(
+    val name: String,
+    val group: SortGroup,
+) : AbstractSectionableItem<SortItem.Holder, SortGroup>(group) {
+    override fun getLayoutRes(): Int = R.layout.navigation_view_checkedtext
 
-    override fun getLayoutRes(): Int {
-        return R.layout.navigation_view_checkedtext
-    }
+    override fun getItemViewType(): Int = 102
 
-    override fun getItemViewType(): Int {
-        return 102
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
-
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: Holder, position: Int, payloads: MutableList<Any?>?) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: Holder,
+        position: Int,
+        payloads: MutableList<Any?>?,
+    ) {
         val view = holder.text
         view.text = name
 
         val filter = group.filter
         val i = filter.values.indexOf(name)
-        view.state = when (filter.state) {
-            Filter.Sort.Selection(i, false) -> SortTextView.State.DESCENDING
-            Filter.Sort.Selection(i, true) -> SortTextView.State.ASCENDING
-            else -> SortTextView.State.NONE
-        }
+        view.state =
+            when (filter.state) {
+                Filter.Sort.Selection(i, false) -> SortTextView.State.DESCENDING
+                Filter.Sort.Selection(i, true) -> SortTextView.State.ASCENDING
+                else -> SortTextView.State.NONE
+            }
 
         view.setOnSortChangeListener { _, state ->
             filter.state = Filter.Sort.Selection(i, state == SortTextView.State.ASCENDING)
@@ -55,8 +60,10 @@ class SortItem(val name: String, val group: SortGroup) : AbstractSectionableItem
         return result
     }
 
-    class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : FlexibleViewHolder(view, adapter) {
-
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : FlexibleViewHolder(view, adapter) {
         val text: SortTextView = itemView.findViewById(R.id.nav_view_item)
     }
 }

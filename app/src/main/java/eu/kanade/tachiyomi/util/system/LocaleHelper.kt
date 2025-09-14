@@ -10,19 +10,20 @@ import java.util.Locale
  * Utility class to change the application's language in runtime.
  */
 object LocaleHelper {
-
     /**
      * Returns Display name of a string language code
      */
-    fun getSourceDisplayName(lang: String?, context: Context): String {
-        return when (lang) {
+    fun getSourceDisplayName(
+        lang: String?,
+        context: Context,
+    ): String =
+        when (lang) {
             "", "other" -> context.getString(R.string.other)
             SourcePresenter.LAST_USED_KEY -> context.getString(R.string.last_used)
             SourcePresenter.PINNED_KEY -> context.getString(R.string.pinned)
             "all" -> context.getString(R.string.all)
             else -> getDisplayName(lang)
         }
-    }
 
     /**
      * Returns Display name of a string language code
@@ -34,11 +35,12 @@ object LocaleHelper {
             return ""
         }
 
-        val locale = if (lang.isEmpty()) {
-            LocaleListCompat.getAdjustedDefault()[0]
-        } else {
-            getLocale(lang)
-        } ?: Locale.getDefault()
+        val locale =
+            if (lang.isEmpty()) {
+                LocaleListCompat.getAdjustedDefault()[0]
+            } else {
+                getLocale(lang)
+            } ?: Locale.getDefault()
         return locale.getDisplayName(locale).replaceFirstChar { it.uppercase(locale) }
     }
 

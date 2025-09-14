@@ -12,7 +12,6 @@ import eu.kanade.tachiyomi.data.database.tables.HistoryTable
 import eu.kanade.tachiyomi.util.lang.sqLite
 
 interface HistoryQueries : DbProvider {
-
     /**
      * Insert history into database
      * @param history object containing history information
@@ -41,15 +40,20 @@ interface HistoryQueries : DbProvider {
      * @param date recent date range
      * @offset offset the db by
      */
-    fun getHistoryUngrouped(search: String = "", offset: Int, isResuming: Boolean) = db.get()
+    fun getHistoryUngrouped(
+        search: String = "",
+        offset: Int,
+        isResuming: Boolean,
+    ) = db
+        .get()
         .listOfObjects(MangaChapterHistory::class.java)
         .withQuery(
-            RawQuery.builder()
+            RawQuery
+                .builder()
                 .query(getRecentHistoryUngrouped(search.sqLite, offset, isResuming))
                 .observesTables(HistoryTable.TABLE)
                 .build(),
-        )
-        .withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
+        ).withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
         .prepare()
 
     /**
@@ -57,15 +61,20 @@ interface HistoryQueries : DbProvider {
      * @param date recent date range
      * @offset offset the db by
      */
-    fun getRecentMangaLimit(search: String = "", offset: Int, isResuming: Boolean) = db.get()
+    fun getRecentMangaLimit(
+        search: String = "",
+        offset: Int,
+        isResuming: Boolean,
+    ) = db
+        .get()
         .listOfObjects(MangaChapterHistory::class.java)
         .withQuery(
-            RawQuery.builder()
+            RawQuery
+                .builder()
                 .query(getRecentMangasLimitQuery(search.sqLite, offset, isResuming))
                 .observesTables(HistoryTable.TABLE)
                 .build(),
-        )
-        .withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
+        ).withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
         .prepare()
 
     /**
@@ -74,15 +83,19 @@ interface HistoryQueries : DbProvider {
      * @param endDate end date of the period
      * @offset offset the db by
      */
-    fun getHistoryPerPeriod(startDate: Long, endDate: Long) = db.get()
+    fun getHistoryPerPeriod(
+        startDate: Long,
+        endDate: Long,
+    ) = db
+        .get()
         .listOfObjects(MangaChapterHistory::class.java)
         .withQuery(
-            RawQuery.builder()
+            RawQuery
+                .builder()
                 .query(getHistoryPerPeriodQuery(startDate, endDate))
                 .observesTables(HistoryTable.TABLE)
                 .build(),
-        )
-        .withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
+        ).withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
         .prepare()
 
     /**
@@ -96,10 +109,12 @@ interface HistoryQueries : DbProvider {
         endless: Boolean,
         offset: Int,
         isResuming: Boolean,
-    ) = db.get()
+    ) = db
+        .get()
         .listOfObjects(MangaChapterHistory::class.java)
         .withQuery(
-            RawQuery.builder()
+            RawQuery
+                .builder()
                 .query(
                     getAllRecentsType(
                         search.sqLite,
@@ -112,81 +127,95 @@ interface HistoryQueries : DbProvider {
 //                .args(date.time, startDate.time)
                 .observesTables(HistoryTable.TABLE)
                 .build(),
-        )
-        .withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
+        ).withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
         .prepare()
 
-    fun getHistoryByMangaId(mangaId: Long) = db.get()
-        .listOfObjects(History::class.java)
-        .withQuery(
-            RawQuery.builder()
-                .query(getHistoryByMangaId())
-                .args(mangaId)
-                .observesTables(HistoryTable.TABLE)
-                .build(),
-        )
-        .prepare()
-
-    fun getTotalReadDuration(): Long {
-        val cursor = db.lowLevel()
-            .rawQuery(
-                RawQuery.builder()
-                    .query("SELECT SUM(${HistoryTable.COL_TIME_READ}) FROM ${HistoryTable.TABLE}")
+    fun getHistoryByMangaId(mangaId: Long) =
+        db
+            .get()
+            .listOfObjects(History::class.java)
+            .withQuery(
+                RawQuery
+                    .builder()
+                    .query(getHistoryByMangaId())
+                    .args(mangaId)
                     .observesTables(HistoryTable.TABLE)
                     .build(),
-            )
+            ).prepare()
+
+    fun getTotalReadDuration(): Long {
+        val cursor =
+            db
+                .lowLevel()
+                .rawQuery(
+                    RawQuery
+                        .builder()
+                        .query("SELECT SUM(${HistoryTable.COL_TIME_READ}) FROM ${HistoryTable.TABLE}")
+                        .observesTables(HistoryTable.TABLE)
+                        .build(),
+                )
         cursor.moveToFirst()
         return cursor.getLong(0)
     }
 
-    fun getHistoryByChapterUrl(chapterUrl: String) = db.get()
-        .`object`(History::class.java)
-        .withQuery(
-            RawQuery.builder()
-                .query(getHistoryByChapterUrl())
-                .args(chapterUrl)
-                .observesTables(HistoryTable.TABLE)
-                .build(),
-        )
-        .prepare()
+    fun getHistoryByChapterUrl(chapterUrl: String) =
+        db
+            .get()
+            .`object`(History::class.java)
+            .withQuery(
+                RawQuery
+                    .builder()
+                    .query(getHistoryByChapterUrl())
+                    .args(chapterUrl)
+                    .observesTables(HistoryTable.TABLE)
+                    .build(),
+            ).prepare()
 
     /**
      * Updates the history last read.
      * Inserts history object if not yet in database
      * @param history history object
      */
-    fun upsertHistoryLastRead(history: History) = db.put()
-        .`object`(history)
-        .withPutResolver(HistoryUpsertResolver())
-        .prepare()
+    fun upsertHistoryLastRead(history: History) =
+        db
+            .put()
+            .`object`(history)
+            .withPutResolver(HistoryUpsertResolver())
+            .prepare()
 
     /**
      * Updates the history last read.
      * Inserts history object if not yet in database
      * @param historyList history object list
      */
-    fun upsertHistoryLastRead(historyList: List<History>) = db.inTransactionReturn {
-        db.put()
-            .objects(historyList)
-            .withPutResolver(HistoryUpsertResolver())
-            .prepare()
-    }
+    fun upsertHistoryLastRead(historyList: List<History>) =
+        db.inTransactionReturn {
+            db
+                .put()
+                .objects(historyList)
+                .withPutResolver(HistoryUpsertResolver())
+                .prepare()
+        }
 
-    fun deleteHistory() = db.delete()
-        .byQuery(
-            DeleteQuery.builder()
-                .table(HistoryTable.TABLE)
-                .build(),
-        )
-        .prepare()
+    fun deleteHistory() =
+        db
+            .delete()
+            .byQuery(
+                DeleteQuery
+                    .builder()
+                    .table(HistoryTable.TABLE)
+                    .build(),
+            ).prepare()
 
-    fun deleteHistoryNoLastRead() = db.delete()
-        .byQuery(
-            DeleteQuery.builder()
-                .table(HistoryTable.TABLE)
-                .where("${HistoryTable.COL_LAST_READ} = ?")
-                .whereArgs(0)
-                .build(),
-        )
-        .prepare()
+    fun deleteHistoryNoLastRead() =
+        db
+            .delete()
+            .byQuery(
+                DeleteQuery
+                    .builder()
+                    .table(HistoryTable.TABLE)
+                    .where("${HistoryTable.COL_LAST_READ} = ?")
+                    .whereArgs(0)
+                    .build(),
+            ).prepare()
 }

@@ -12,19 +12,13 @@ import eu.kanade.tachiyomi.data.database.models.Category
 class LibraryHeaderItem(
     private val categoryF: (Int) -> Category,
     val catId: Int,
-) :
-    AbstractHeaderItem<LibraryHeaderHolder>() {
-
-    override fun getLayoutRes(): Int {
-        return R.layout.library_category_header_item
-    }
+) : AbstractHeaderItem<LibraryHeaderHolder>() {
+    override fun getLayoutRes(): Int = R.layout.library_category_header_item
 
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): LibraryHeaderHolder {
-        return LibraryHeaderHolder(view, adapter as LibraryCategoryAdapter)
-    }
+    ): LibraryHeaderHolder = LibraryHeaderHolder(view, adapter as LibraryCategoryAdapter)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -48,15 +42,9 @@ class LibraryHeaderItem(
         return false
     }
 
-    override fun isDraggable(): Boolean {
-        return false
-    }
+    override fun isDraggable(): Boolean = false
 
-    override fun isSelectable(): Boolean {
-        return false
-    }
+    override fun isSelectable(): Boolean = false
 
-    override fun hashCode(): Int {
-        return (category.id ?: 0L).hashCode()
-    }
+    override fun hashCode(): Int = (category.id ?: 0L).hashCode()
 }

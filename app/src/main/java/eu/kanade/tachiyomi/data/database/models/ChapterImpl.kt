@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.database.models
 
 class ChapterImpl : Chapter {
-
     override var id: Long? = null
 
     override var manga_id: Long? = null
@@ -36,7 +35,5 @@ class ChapterImpl : Chapter {
         return url == chapter.url
     }
 
-    override fun hashCode(): Int {
-        return url.hashCode()
-    }
+    override fun hashCode(): Int = url.hashCode()
 }

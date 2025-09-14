@@ -51,44 +51,59 @@ class SmartSearchEngine(
         return eligibleManga.maxBy { it.dist }?.manga
     }*/
 
-    suspend fun normalSearch(source: CatalogueSource, title: String): SManga? {
+    suspend fun normalSearch(
+        source: CatalogueSource,
+        title: String,
+    ): SManga? {
         val titleNormalized = title.toNormalized()
-        val eligibleManga = supervisorScope {
-            val searchQuery = if (extraSearchParams != null) {
-                "$titleNormalized ${extraSearchParams.trim()}"
-            } else {
-                titleNormalized
-            }
-            val searchResults =
-                source.getSearchManga(1, searchQuery, source.getFilterList())
+        val eligibleManga =
+            supervisorScope {
+                val searchQuery =
+                    if (extraSearchParams != null) {
+                        "$titleNormalized ${extraSearchParams.trim()}"
+                    } else {
+                        titleNormalized
+                    }
+                val searchResults =
+                    source.getSearchManga(1, searchQuery, source.getFilterList())
 
-            if (searchResults.mangas.size == 1) {
-                return@supervisorScope listOf(SearchEntry(searchResults.mangas.first(), 0.0))
-            }
+                if (searchResults.mangas.size == 1) {
+                    return@supervisorScope listOf(SearchEntry(searchResults.mangas.first(), 0.0))
+                }
 
-            searchResults.mangas.map {
-                val normalizedDistance = normalizedLevenshtein.similarity(titleNormalized, it.title.toNormalized())
-                SearchEntry(it, normalizedDistance)
-            }.filter { (_, normalizedDistance) ->
-                normalizedDistance >= MIN_NORMAL_ELIGIBLE_THRESHOLD
+                searchResults.mangas
+                    .map {
+                        val normalizedDistance = normalizedLevenshtein.similarity(titleNormalized, it.title.toNormalized())
+                        SearchEntry(it, normalizedDistance)
+                    }.filter { (_, normalizedDistance) ->
+                        normalizedDistance >= MIN_NORMAL_ELIGIBLE_THRESHOLD
+                    }
             }
-        }
 
         return eligibleManga.maxByOrNull { it.dist }?.manga
     }
-    private fun removeTextInBrackets(text: String, readForward: Boolean): String {
-        val bracketPairs = listOf(
-            '(' to ')',
-            '[' to ']',
-            '<' to '>',
-            '{' to '}',
-        )
-        var openingBracketPairs = bracketPairs.mapIndexed { index, (opening, _) ->
-            opening to index
-        }.toMap()
-        var closingBracketPairs = bracketPairs.mapIndexed { index, (_, closing) ->
-            closing to index
-        }.toMap()
+
+    private fun removeTextInBrackets(
+        text: String,
+        readForward: Boolean,
+    ): String {
+        val bracketPairs =
+            listOf(
+                '(' to ')',
+                '[' to ']',
+                '<' to '>',
+                '{' to '}',
+            )
+        var openingBracketPairs =
+            bracketPairs
+                .mapIndexed { index, (opening, _) ->
+                    opening to index
+                }.toMap()
+        var closingBracketPairs =
+            bracketPairs
+                .mapIndexed { index, (_, closing) ->
+                    closing to index
+                }.toMap()
 
         // Reverse pairs if reading backwards
         if (!readForward) {
@@ -128,7 +143,10 @@ class SmartSearchEngine(
      * @param sManga the manga from the source.
      * @return a manga from the database.
      */
-    suspend fun networkToLocalManga(sManga: SManga, sourceId: Long): Manga {
+    suspend fun networkToLocalManga(
+        sManga: SManga,
+        sourceId: Long,
+    ): Manga {
         var localManga = db.getManga(sManga.url, sourceId).executeAsBlocking()
         if (localManga == null) {
             val newManga = Manga.create(sManga.url, sManga.title, sourceId)
@@ -149,4 +167,7 @@ class SmartSearchEngine(
     }
 }
 
-data class SearchEntry(val manga: SManga, val dist: Double)
+data class SearchEntry(
+    val manga: SManga,
+    val dist: Double,
+)

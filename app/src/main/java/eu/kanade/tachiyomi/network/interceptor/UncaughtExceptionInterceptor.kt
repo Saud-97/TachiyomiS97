@@ -13,12 +13,10 @@ import java.io.IOException
  * See https://square.github.io/okhttp/4.x/okhttp/okhttp3/-interceptor/
  */
 class UncaughtExceptionInterceptor : Interceptor {
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        return try {
+    override fun intercept(chain: Interceptor.Chain): Response =
+        try {
             chain.proceed(chain.request())
         } catch (e: Exception) {
             throw IOException(e)
         }
-    }
 }

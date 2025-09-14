@@ -10,7 +10,6 @@ import eu.kanade.tachiyomi.ui.reader.model.ViewerChapters
  * Interface for implementing a viewer.
  */
 interface BaseViewer {
-
     /**
      * Returns the view this viewer uses.
      */
@@ -29,7 +28,10 @@ interface BaseViewer {
     /**
      * Tells this viewer to move to the given [page].
      */
-    fun moveToPage(page: ReaderPage, animated: Boolean = true)
+    fun moveToPage(
+        page: ReaderPage,
+        animated: Boolean = true,
+    )
 
     /**
      * Moves to the next page.

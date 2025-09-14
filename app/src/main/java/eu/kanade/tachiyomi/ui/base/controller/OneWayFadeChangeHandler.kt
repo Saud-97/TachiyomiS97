@@ -44,7 +44,5 @@ class OneWayFadeChangeHandler : AnimatorChangeHandler {
         from.alpha = 1f
     }
 
-    override fun copy(): ControllerChangeHandler {
-        return OneWayFadeChangeHandler(animationDuration, removesFromViewOnPush)
-    }
+    override fun copy(): ControllerChangeHandler = OneWayFadeChangeHandler(animationDuration, removesFromViewOnPush)
 }

@@ -7,12 +7,15 @@ import eu.kanade.tachiyomi.data.track.anilist.Anilist
 class TrackPreferences(
     private val preferenceStore: PreferenceStore,
 ) {
-
     fun trackUsername(sync: TrackService) = preferenceStore.getString(trackUsername(sync.id), "")
 
     fun trackPassword(sync: TrackService) = preferenceStore.getString(trackPassword(sync.id), "")
 
-    fun setCredentials(sync: TrackService, username: String, password: String) {
+    fun setCredentials(
+        sync: TrackService,
+        username: String,
+        password: String,
+    ) {
         trackUsername(sync).set(username)
         trackPassword(sync).set(password)
     }
@@ -26,8 +29,7 @@ class TrackPreferences(
     companion object {
         fun trackUsername(syncId: Int) = Preference.privateKey("pref_mangasync_username_$syncId")
 
-        private fun trackPassword(syncId: Int) =
-            Preference.privateKey("pref_mangasync_password_$syncId")
+        private fun trackPassword(syncId: Int) = Preference.privateKey("pref_mangasync_password_$syncId")
 
         private fun trackToken(syncId: Int) = Preference.privateKey("track_token_$syncId")
     }

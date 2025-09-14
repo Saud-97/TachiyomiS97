@@ -29,7 +29,6 @@ import java.io.File
 import kotlin.math.max
 
 object Migrations {
-
     /**
      * Performs a migration when the application is updated.
      *
@@ -163,14 +162,15 @@ object Migrations {
             }
             if (oldVersion < 77) {
                 // Migrate Rotation and Viewer values to default values for viewer_flags
-                val newOrientation = when (prefs.getInt("pref_rotation_type_key", 1)) {
-                    1 -> OrientationType.FREE.flagValue
-                    2 -> OrientationType.PORTRAIT.flagValue
-                    3 -> OrientationType.LANDSCAPE.flagValue
-                    4 -> OrientationType.LOCKED_PORTRAIT.flagValue
-                    5 -> OrientationType.LOCKED_LANDSCAPE.flagValue
-                    else -> OrientationType.FREE.flagValue
-                }
+                val newOrientation =
+                    when (prefs.getInt("pref_rotation_type_key", 1)) {
+                        1 -> OrientationType.FREE.flagValue
+                        2 -> OrientationType.PORTRAIT.flagValue
+                        3 -> OrientationType.LANDSCAPE.flagValue
+                        4 -> OrientationType.LOCKED_PORTRAIT.flagValue
+                        5 -> OrientationType.LOCKED_LANDSCAPE.flagValue
+                        else -> OrientationType.FREE.flagValue
+                    }
 
                 // Reading mode flag and prefValue is the same value
                 val newReadingMode = prefs.getInt("pref_default_viewer_key", 1)
@@ -228,7 +228,8 @@ object Migrations {
                 LibraryUpdateJob.setupTask(context)
             }
             if (oldVersion < 108) {
-                preferenceStore.getAll()
+                preferenceStore
+                    .getAll()
                     .filter { it.key.startsWith("pref_mangasync_") || it.key.startsWith("track_token_") }
                     .forEach { (key, value) ->
                         if (value is String) {

@@ -7,8 +7,11 @@ import eu.kanade.tachiyomi.source.online.HttpSource
 import rx.subjects.PublishSubject
 import kotlin.math.roundToInt
 
-class Download(val source: HttpSource, val manga: Manga, val chapter: Chapter) {
-
+class Download(
+    val source: HttpSource,
+    val manga: Manga,
+    val chapter: Chapter,
+) {
     var pages: List<Page>? = null
 
     val totalProgress: Int

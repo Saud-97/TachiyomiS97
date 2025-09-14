@@ -9,9 +9,10 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.databinding.SortTextViewBinding
 import eu.kanade.tachiyomi.util.view.setVectorCompat
 
-class SortTextView constructor(context: Context, attrs: AttributeSet?) :
-    FrameLayout(context, attrs) {
-
+class SortTextView constructor(
+    context: Context,
+    attrs: AttributeSet?,
+) : FrameLayout(context, attrs) {
     var text: CharSequence
         get() {
             return binding.textView.text
@@ -29,11 +30,12 @@ class SortTextView constructor(context: Context, attrs: AttributeSet?) :
     val isSorting: Boolean
         get() = state != State.NONE
 
-    private val binding = SortTextViewBinding.inflate(
-        LayoutInflater.from(context),
-        this,
-        false,
-    )
+    private val binding =
+        SortTextViewBinding.inflate(
+            LayoutInflater.from(context),
+            this,
+            false,
+        )
     private var mOnSortChangeListener: OnSortChangeListener? = null
 
     init {
@@ -100,7 +102,6 @@ class SortTextView constructor(context: Context, attrs: AttributeSet?) :
         ASCENDING,
         DESCENDING,
         NONE,
-        ;
     }
 
     /**
@@ -114,6 +115,9 @@ class SortTextView constructor(context: Context, attrs: AttributeSet?) :
          * @param buttonView The compound button view whose state has changed.
          * @param state The new checked state of buttonView.
          */
-        fun onSortChanged(buttonView: SortTextView, state: State)
+        fun onSortChanged(
+            buttonView: SortTextView,
+            state: State,
+        )
     }
 }

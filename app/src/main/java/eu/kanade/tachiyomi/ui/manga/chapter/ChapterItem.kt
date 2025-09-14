@@ -11,26 +11,22 @@ import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.ui.manga.MangaDetailsAdapter
 
-class ChapterItem(chapter: Chapter, val manga: Manga) :
-    BaseChapterItem<ChapterHolder, AbstractHeaderItem<FlexibleViewHolder>>(chapter) {
-
+class ChapterItem(
+    chapter: Chapter,
+    val manga: Manga,
+) : BaseChapterItem<ChapterHolder, AbstractHeaderItem<FlexibleViewHolder>>(chapter) {
     var isLocked = false
 
-    override fun getLayoutRes(): Int {
-        return R.layout.chapters_item
-    }
+    override fun getLayoutRes(): Int = R.layout.chapters_item
 
-    override fun isSelectable(): Boolean {
-        return true
-    }
+    override fun isSelectable(): Boolean = true
 
-    override fun isSwipeable(): Boolean {
-        return !isLocked
-    }
+    override fun isSwipeable(): Boolean = !isLocked
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): ChapterHolder {
-        return ChapterHolder(view, adapter as MangaDetailsAdapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): ChapterHolder = ChapterHolder(view, adapter as MangaDetailsAdapter)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,

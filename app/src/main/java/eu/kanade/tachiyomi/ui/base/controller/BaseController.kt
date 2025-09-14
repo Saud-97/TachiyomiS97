@@ -29,18 +29,23 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import timber.log.Timber
 
-abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
-    Controller(bundle), BackHandlerControllerInterface {
-
+abstract class BaseController<VB : ViewBinding>(
+    bundle: Bundle? = null,
+) : Controller(bundle),
+    BackHandlerControllerInterface {
     lateinit var binding: VB
     lateinit var viewScope: CoroutineScope
     var isDragging = false
 
     val isBindingInitialized get() = this::binding.isInitialized
+
     init {
         addLifecycleListener(
             object : LifecycleListener() {
-                override fun postCreateView(controller: Controller, view: View) {
+                override fun postCreateView(
+                    controller: Controller,
+                    view: View,
+                ) {
                     onViewCreated(view)
                 }
 
@@ -49,15 +54,24 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
                     Timber.d("Create view for ${controller.instance()}")
                 }
 
-                override fun preAttach(controller: Controller, view: View) {
+                override fun preAttach(
+                    controller: Controller,
+                    view: View,
+                ) {
                     Timber.d("Attach view for ${controller.instance()}")
                 }
 
-                override fun preDetach(controller: Controller, view: View) {
+                override fun preDetach(
+                    controller: Controller,
+                    view: View,
+                ) {
                     Timber.d("Detach view for ${controller.instance()}")
                 }
 
-                override fun preDestroyView(controller: Controller, view: View) {
+                override fun preDestroyView(
+                    controller: Controller,
+                    view: View,
+                ) {
                     viewScope.cancel()
                     Timber.d("Destroy view for ${controller.instance()}")
                 }
@@ -65,7 +79,11 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
         )
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup, savedViewState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup,
+        savedViewState: Bundle?,
+    ): View {
         binding = createBinding(inflater)
         binding.root.backgroundColor = binding.root.context.getResourceColor(R.attr.background)
         return binding.root
@@ -75,7 +93,10 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
 
     open fun onViewCreated(view: View) { }
 
-    override fun onChangeStarted(handler: ControllerChangeHandler, type: ControllerChangeType) {
+    override fun onChangeStarted(
+        handler: ControllerChangeHandler,
+        type: ControllerChangeType,
+    ) {
         if (type.isEnter && isControllerVisible) {
             setTitle()
         } else if (type.isEnter) {
@@ -87,19 +108,13 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
         super.onChangeStarted(handler, type)
     }
 
-    open fun getTitle(): String? {
-        return null
-    }
+    open fun getTitle(): String? = null
 
-    open fun getSearchTitle(): String? {
-        return null
-    }
+    open fun getSearchTitle(): String? = null
 
-    open fun getBigIcon(): Drawable? {
-        return null
-    }
+    open fun getBigIcon(): Drawable? = null
 
-    open fun canStillGoBack(): Boolean { return false }
+    open fun canStillGoBack(): Boolean = false
 
     open val mainRecycler: RecyclerView?
         get() = null
@@ -131,9 +146,7 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
         }
     }
 
-    private fun Controller.instance(): String {
-        return "${javaClass.simpleName}@${Integer.toHexString(hashCode())}"
-    }
+    private fun Controller.instance(): String = "${javaClass.simpleName}@${Integer.toHexString(hashCode())}"
 
     /**
      * Workaround for buggy menu item layout after expanding/collapsing an expandable item like a SearchView.
@@ -141,7 +154,11 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
      * Issue link: https://issuetracker.google.com/issues/37657375
      */
     var expandActionViewFromInteraction = false
-    fun MenuItem.fixExpand(onExpand: ((MenuItem) -> Boolean)? = null, onCollapse: ((MenuItem) -> Boolean)? = null) {
+
+    fun MenuItem.fixExpand(
+        onExpand: ((MenuItem) -> Boolean)? = null,
+        onCollapse: ((MenuItem) -> Boolean)? = null,
+    ) {
         setOnActionExpandListener(
             object : MenuItem.OnActionExpandListener {
                 override fun onMenuItemActionExpand(item: MenuItem): Boolean {
@@ -164,10 +181,16 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
     }
 
     open fun onActionViewExpand(item: MenuItem?) { }
+
     open fun onActionViewCollapse(item: MenuItem?) { }
+
     open fun onSearchActionViewLongClickQuery(): String? = null
 
-    fun hideItemsIfExpanded(searchItem: MenuItem?, menu: Menu?, isExpanded: Boolean = false) {
+    fun hideItemsIfExpanded(
+        searchItem: MenuItem?,
+        menu: Menu?,
+        isExpanded: Boolean = false,
+    ) {
         menu ?: return
         searchItem ?: return
         if (searchItem.isActionViewExpanded || isExpanded) {
@@ -184,12 +207,11 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
      * [expandActionViewFromInteraction] should be set to true in [onOptionsItemSelected] when the expandable item is selected
      * This method should be called as part of [MenuItem.OnActionExpandListener.onMenuItemActionExpand]
      */
-    fun invalidateMenuOnExpand(): Boolean {
-        return if (expandActionViewFromInteraction) {
+    fun invalidateMenuOnExpand(): Boolean =
+        if (expandActionViewFromInteraction) {
             activity?.invalidateOptionsMenu()
             false
         } else {
             true
         }
-    }
 }

@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.database.tables
 
 object MangaTable {
-
     const val TABLE = "mangas"
 
     const val COL_ID = "_id"
@@ -79,8 +78,9 @@ object MangaTable {
         get() = "CREATE INDEX ${TABLE}_${COL_URL}_index ON $TABLE($COL_URL)"
 
     val createLibraryIndexQuery: String
-        get() = "CREATE INDEX library_${COL_FAVORITE}_index ON $TABLE($COL_FAVORITE) " +
-            "WHERE $COL_FAVORITE = 1"
+        get() =
+            "CREATE INDEX library_${COL_FAVORITE}_index ON $TABLE($COL_FAVORITE) " +
+                "WHERE $COL_FAVORITE = 1"
 
     val addHideTitle: String
         get() = "ALTER TABLE $TABLE ADD COLUMN $COL_HIDE_TITLE INTEGER DEFAULT 0"

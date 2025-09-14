@@ -25,9 +25,7 @@ object WebViewUtil {
     }
 }
 
-fun WebView.isOutdated(): Boolean {
-    return getWebViewMajorVersion() < WebViewUtil.MINIMUM_WEBVIEW_VERSION
-}
+fun WebView.isOutdated(): Boolean = getWebViewMajorVersion() < WebViewUtil.MINIMUM_WEBVIEW_VERSION
 
 @SuppressLint("SetJavaScriptEnabled")
 fun WebView.setDefaultSettings() {

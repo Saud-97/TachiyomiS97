@@ -10,9 +10,9 @@ import eu.davidea.flexibleadapter.FlexibleAdapter
  *
  * @param controller instance of [GlobalSearchController].
  */
-class GlobalSearchAdapter(val controller: GlobalSearchController) :
-    FlexibleAdapter<GlobalSearchItem>(null, controller, true) {
-
+class GlobalSearchAdapter(
+    val controller: GlobalSearchController,
+) : FlexibleAdapter<GlobalSearchItem>(null, controller, true) {
     val titleClickListener: OnTitleClickListener = controller
 
     /**
@@ -20,7 +20,11 @@ class GlobalSearchAdapter(val controller: GlobalSearchController) :
      */
     private var bundle = Bundle()
 
-    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int, payloads: List<Any?>) {
+    override fun onBindViewHolder(
+        holder: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+        position: Int,
+        payloads: List<Any?>,
+    ) {
         super.onBindViewHolder(holder, position, payloads)
         restoreHolderState(holder)
     }
@@ -48,7 +52,10 @@ class GlobalSearchAdapter(val controller: GlobalSearchController) :
      * @param holder The holder to save.
      * @param outState The bundle where the state is saved.
      */
-    private fun saveHolderState(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, outState: Bundle) {
+    private fun saveHolderState(
+        holder: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+        outState: Bundle,
+    ) {
         val key = "holder_${holder.bindingAdapterPosition}"
         val holderState = SparseArray<Parcelable>()
         holder.itemView.saveHierarchyState(holderState)

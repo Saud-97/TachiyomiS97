@@ -10,17 +10,22 @@ import eu.davidea.viewholders.FlexibleViewHolder
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.Filter
 
-open class CheckboxItem(val filter: Filter.CheckBox) : AbstractFlexibleItem<CheckboxItem.Holder>() {
+open class CheckboxItem(
+    val filter: Filter.CheckBox,
+) : AbstractFlexibleItem<CheckboxItem.Holder>() {
+    override fun getLayoutRes(): Int = R.layout.navigation_view_checkbox
 
-    override fun getLayoutRes(): Int {
-        return R.layout.navigation_view_checkbox
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter)
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter)
-    }
-
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: Holder, position: Int, payloads: MutableList<Any>) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: Holder,
+        position: Int,
+        payloads: MutableList<Any>,
+    ) {
         val view = holder.check
         view.text = filter.name
         view.isChecked = filter.state
@@ -36,12 +41,12 @@ open class CheckboxItem(val filter: Filter.CheckBox) : AbstractFlexibleItem<Chec
         return filter == (other as CheckboxItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 
-    class Holder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) : FlexibleViewHolder(view, adapter) {
-
+    class Holder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : FlexibleViewHolder(view, adapter) {
         val check: CheckBox = itemView.findViewById(R.id.nav_view_item)
     }
 }

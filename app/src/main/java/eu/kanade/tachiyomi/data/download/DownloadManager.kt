@@ -24,8 +24,9 @@ import uy.kohesive.injekt.injectLazy
  *
  * @param context the application context.
  */
-class DownloadManager(val context: Context) {
-
+class DownloadManager(
+    val context: Context,
+) {
     /**
      * The sources manager.
      */
@@ -146,7 +147,11 @@ class DownloadManager(val context: Context) {
      * @param chapters the list of chapters to enqueue.
      * @param autoStart whether to start the downloader after enqueing the chapters.
      */
-    fun downloadChapters(manga: Manga, chapters: List<Chapter>, autoStart: Boolean = true) {
+    fun downloadChapters(
+        manga: Manga,
+        chapters: List<Chapter>,
+        autoStart: Boolean = true,
+    ) {
         downloader.queueChapters(manga, chapters, autoStart)
     }
 
@@ -172,16 +177,24 @@ class DownloadManager(val context: Context) {
      * @param chapter the downloaded chapter.
      * @return the list of pages from the chapter.
      */
-    fun buildPageList(source: Source, manga: Manga, chapter: Chapter): List<Page> {
+    fun buildPageList(
+        source: Source,
+        manga: Manga,
+        chapter: Chapter,
+    ): List<Page> {
         val chapterDir = provider.findChapterDir(chapter, manga, source)
-        val files = chapterDir?.listFiles().orEmpty()
-            .filter { "image" in it.type.orEmpty() }
+        val files =
+            chapterDir
+                ?.listFiles()
+                .orEmpty()
+                .filter { "image" in it.type.orEmpty() }
 
         if (files.isEmpty()) {
             throw Exception(context.getString(R.string.no_pages_found))
         }
 
-        return files.sortedBy { it.name }
+        return files
+            .sortedBy { it.name }
             .mapIndexed { i, file ->
                 Page(i, uri = file.uri).apply { status = Page.State.READY }
             }
@@ -194,9 +207,11 @@ class DownloadManager(val context: Context) {
      * @param manga the manga of the chapter.
      * @param skipCache whether to skip the directory cache and check in the filesystem.
      */
-    fun isChapterDownloaded(chapter: Chapter, manga: Manga, skipCache: Boolean = false): Boolean {
-        return cache.isChapterDownloaded(chapter, manga, skipCache)
-    }
+    fun isChapterDownloaded(
+        chapter: Chapter,
+        manga: Manga,
+        skipCache: Boolean = false,
+    ): Boolean = cache.isChapterDownloaded(chapter, manga, skipCache)
 
     /**
      * Returns the download from queue if the chapter is queued for download
@@ -204,19 +219,16 @@ class DownloadManager(val context: Context) {
      *
      * @param chapter the chapter to check.
      */
-    fun getChapterDownloadOrNull(chapter: Chapter): Download? {
-        return downloader.queue
+    fun getChapterDownloadOrNull(chapter: Chapter): Download? =
+        downloader.queue
             .firstOrNull { it.chapter.id == chapter.id && it.chapter.manga_id == chapter.manga_id }
-    }
 
     /**
      * Returns the amount of downloaded chapters for a manga.
      *
      * @param manga the manga to check.
      */
-    fun getDownloadCount(manga: Manga): Int {
-        return cache.getDownloadCount(manga)
-    }
+    fun getDownloadCount(manga: Manga): Int = cache.getDownloadCount(manga)
 
     /*fun renameCache(from: String, to: String, source: Long) {
         cache.renameFolder(from, to, source)
@@ -242,7 +254,12 @@ class DownloadManager(val context: Context) {
      * @param manga the manga of the chapters.
      * @param source the source of the chapters.
      */
-    fun deleteChapters(chapters: List<Chapter>, manga: Manga, source: Source, force: Boolean = false) {
+    fun deleteChapters(
+        chapters: List<Chapter>,
+        manga: Manga,
+        source: Source,
+        force: Boolean = false,
+    ) {
         val filteredChapters = if (force) chapters else getChaptersToDelete(chapters, manga)
         GlobalScope.launch(Dispatchers.IO) {
             val wasPaused = isPaused()
@@ -263,11 +280,12 @@ class DownloadManager(val context: Context) {
             }
             queue.remove(filteredChapters)
             val chapterDirs =
-                provider.findChapterDirs(filteredChapters, manga, source) + provider.findTempChapterDirs(
-                    filteredChapters,
-                    manga,
-                    source,
-                )
+                provider.findChapterDirs(filteredChapters, manga, source) +
+                    provider.findTempChapterDirs(
+                        filteredChapters,
+                        manga,
+                        source,
+                    )
             chapterDirs.forEach { it.delete() }
             cache.removeChapters(filteredChapters, manga)
             if (cache.getDownloadCount(manga, true) == 0) { // Delete manga directory if empty
@@ -280,9 +298,7 @@ class DownloadManager(val context: Context) {
     /**
      * return the list of all manga folders
      */
-    fun getMangaFolders(source: Source): List<UniFile> {
-        return provider.findSourceDir(source)?.listFiles()?.toList() ?: emptyList()
-    }
+    fun getMangaFolders(source: Source): List<UniFile> = provider.findSourceDir(source)?.listFiles()?.toList() ?: emptyList()
 
     /**
      * Deletes the directories of chapters that were read or have no match
@@ -291,7 +307,13 @@ class DownloadManager(val context: Context) {
      * @param manga the manga of the chapters.
      * @param source the source of the chapters.
      */
-    fun cleanupChapters(allChapters: List<Chapter>, manga: Manga, source: Source, removeRead: Boolean, removeNonFavorite: Boolean): Int {
+    fun cleanupChapters(
+        allChapters: List<Chapter>,
+        manga: Manga,
+        source: Source,
+        removeRead: Boolean,
+        removeNonFavorite: Boolean,
+    ): Int {
         var cleaned = 0
 
         if (removeNonFavorite && !manga.favorite) {
@@ -334,7 +356,10 @@ class DownloadManager(val context: Context) {
      * @param manga the manga to delete.
      * @param source the source of the manga.
      */
-    fun deleteManga(manga: Manga, source: Source) {
+    fun deleteManga(
+        manga: Manga,
+        source: Source,
+    ) {
         downloader.clearQueue(manga, true)
         queue.remove(manga)
         provider.findMangaDir(manga, source)?.delete()
@@ -348,7 +373,10 @@ class DownloadManager(val context: Context) {
      * @param chapters the list of chapters to delete.
      * @param manga the manga of the chapters.
      */
-    fun enqueueDeleteChapters(chapters: List<Chapter>, manga: Manga) {
+    fun enqueueDeleteChapters(
+        chapters: List<Chapter>,
+        manga: Manga,
+    ) {
         pendingDeleter.addChapters(getChaptersToDelete(chapters, manga), manga)
     }
 
@@ -370,15 +398,22 @@ class DownloadManager(val context: Context) {
      * @param oldChapter the existing chapter with the old name.
      * @param newChapter the target chapter with the new name.
      */
-    fun renameChapter(source: Source, manga: Manga, oldChapter: Chapter, newChapter: Chapter) {
+    fun renameChapter(
+        source: Source,
+        manga: Manga,
+        oldChapter: Chapter,
+        newChapter: Chapter,
+    ) {
         val oldNames = provider.getValidChapterDirNames(oldChapter).map { listOf(it, "$it.cbz") }.flatten()
         var newName = provider.getChapterDirName(newChapter)
         val mangaDir = provider.getMangaDir(manga, source)
 
         // Assume there's only 1 version of the chapter name formats present
-        val oldDownload = oldNames.asSequence()
-            .mapNotNull { mangaDir.findFile(it) }
-            .firstOrNull() ?: return
+        val oldDownload =
+            oldNames
+                .asSequence()
+                .mapNotNull { mangaDir.findFile(it) }
+                .firstOrNull() ?: return
 
         if (oldDownload.isFile && oldDownload.name?.endsWith(".cbz") == true) {
             newName += ".cbz"
@@ -400,9 +435,13 @@ class DownloadManager(val context: Context) {
     }
 
     fun addListener(listener: DownloadQueue.DownloadListener) = queue.addListener(listener)
+
     fun removeListener(listener: DownloadQueue.DownloadListener) = queue.removeListener(listener)
 
-    private fun getChaptersToDelete(chapters: List<Chapter>, manga: Manga): List<Chapter> {
+    private fun getChaptersToDelete(
+        chapters: List<Chapter>,
+        manga: Manga,
+    ): List<Chapter> {
         // Retrieve the categories that are set to exclude from being deleted on read
         return if (!preferences.removeBookmarkedChapters().get()) {
             chapters.filterNot { it.bookmark }

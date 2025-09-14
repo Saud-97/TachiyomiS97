@@ -16,8 +16,9 @@ import java.util.zip.ZipFile
 /**
  * Wrapper over ZipFile to load files in epub format.
  */
-class EpubFile(file: File) : Closeable {
-
+class EpubFile(
+    file: File,
+) : Closeable {
     /**
      * Zip file of this epub.
      */
@@ -38,16 +39,12 @@ class EpubFile(file: File) : Closeable {
     /**
      * Returns an input stream for reading the contents of the specified zip file entry.
      */
-    fun getInputStream(entry: ZipEntry): InputStream {
-        return zip.getInputStream(entry)
-    }
+    fun getInputStream(entry: ZipEntry): InputStream = zip.getInputStream(entry)
 
     /**
      * Returns the zip file entry for the specified name, or null if not found.
      */
-    fun getEntry(name: String): ZipEntry? {
-        return zip.getEntry(name)
-    }
+    fun getEntry(name: String): ZipEntry? = zip.getEntry(name)
 
     /**
      * Fills manga metadata using this epub file's metadata.
@@ -138,9 +135,11 @@ class EpubFile(file: File) : Closeable {
      * Returns all the pages from the epub.
      */
     private fun getPagesFromDocument(document: Document): List<String> {
-        val pages = document.select("manifest > item")
-            .filter { node -> "application/xhtml+xml" == node.attr("media-type") }
-            .associateBy { it.attr("id") }
+        val pages =
+            document
+                .select("manifest > item")
+                .filter { node -> "application/xhtml+xml" == node.attr("media-type") }
+                .associateBy { it.attr("id") }
 
         val spine = document.select("spine > itemref").map { it.attr("idref") }
         return spine.mapNotNull { pages[it] }.map { it.attr("href") }
@@ -149,7 +148,10 @@ class EpubFile(file: File) : Closeable {
     /**
      * Returns all the images contained in every page from the epub.
      */
-    private fun getImagesFromPages(pages: List<String>, packageHref: String): List<String> {
+    private fun getImagesFromPages(
+        pages: List<String>,
+        packageHref: String,
+    ): List<String> {
         val result = mutableListOf<String>()
         val basePath = getParentDirectory(packageHref)
         pages.forEach { page ->
@@ -185,7 +187,10 @@ class EpubFile(file: File) : Closeable {
     /**
      * Resolves a zip path from base and relative components and a path separator.
      */
-    private fun resolveZipPath(basePath: String, relativePath: String): String {
+    private fun resolveZipPath(
+        basePath: String,
+        relativePath: String,
+    ): String {
         if (relativePath.startsWith(pathSeparator)) {
             // Path is absolute, so return as-is.
             return relativePath

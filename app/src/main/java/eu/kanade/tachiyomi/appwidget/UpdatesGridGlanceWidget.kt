@@ -50,7 +50,11 @@ class UpdatesGridGlanceWidget : GlanceAppWidget() {
     private var data: List<Pair<Long, Bitmap?>>? = null
 
     override val sizeMode = SizeMode.Exact
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
+
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
         provideContent {
             // If app lock enabled, don't do anything
             if (preferences.useBiometrics().get()) {
@@ -73,10 +77,11 @@ class UpdatesGridGlanceWidget : GlanceAppWidget() {
             val ids = manager.getGlanceIds(this@UpdatesGridGlanceWidget::class.java)
             if (ids.isEmpty()) return@launchIO
 
-            val (rowCount, columnCount) = ids
-                .flatMap { manager.getAppWidgetSizes(it) }
-                .maxBy { it.height.value * it.width.value }
-                .calculateRowAndColumnCount()
+            val (rowCount, columnCount) =
+                ids
+                    .flatMap { manager.getAppWidgetSizes(it) }
+                    .maxBy { it.height.value * it.width.value }
+                    .calculateRowAndColumnCount()
             val processList = list ?: RecentsPresenter.getRecentManga(customAmount = min(50, rowCount * columnCount))
 
             data = prepareList(processList, rowCount * columnCount)
@@ -84,7 +89,10 @@ class UpdatesGridGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    private fun prepareList(processList: List<Pair<Manga, Long>>, take: Int): List<Pair<Long, Bitmap?>> {
+    private fun prepareList(
+        processList: List<Pair<Manga, Long>>,
+        take: Int,
+    ): List<Pair<Long, Bitmap?>> {
         // Resize to cover size
         val widthPx = CoverWidth.value.toInt().dpToPx
         val heightPx = CoverHeight.value.toInt().dpToPx
@@ -95,35 +103,44 @@ class UpdatesGridGlanceWidget : GlanceAppWidget() {
             .take(take)
             .map { it.first }
             .map { updatesView ->
-                val request = ImageRequest.Builder(app)
-                    .data(updatesView)
-                    .memoryCachePolicy(CachePolicy.DISABLED)
-                    .precision(Precision.EXACT)
-                    .size(widthPx, heightPx)
-                    .scale(Scale.FILL)
-                    .let {
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                            it.transformations(RoundedCornersTransformation(roundPx))
-                        } else {
-                            it // Handled by system
-                        }
-                    }
-                    .build()
-                Pair(updatesView.id!!, app.imageLoader.executeBlocking(request).drawable?.toBitmap())
+                val request =
+                    ImageRequest
+                        .Builder(app)
+                        .data(updatesView)
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .precision(Precision.EXACT)
+                        .size(widthPx, heightPx)
+                        .scale(Scale.FILL)
+                        .let {
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                                it.transformations(RoundedCornersTransformation(roundPx))
+                            } else {
+                                it // Handled by system
+                            }
+                        }.build()
+                Pair(
+                    updatesView.id!!,
+                    app.imageLoader
+                        .executeBlocking(request)
+                        .drawable
+                        ?.toBitmap(),
+                )
             }
     }
 
     companion object {
         val DateLimit: Calendar
-            get() = Calendar.getInstance().apply {
-                time = Date()
-                add(Calendar.MONTH, -3)
-            }
+            get() =
+                Calendar.getInstance().apply {
+                    time = Date()
+                    add(Calendar.MONTH, -3)
+                }
     }
 }
 
-val ContainerModifier = GlanceModifier
-    .fillMaxSize()
-    .background(ImageProvider(R.drawable.appwidget_background))
-    .appWidgetBackground()
-    .appWidgetBackgroundRadius()
+val ContainerModifier =
+    GlanceModifier
+        .fillMaxSize()
+        .background(ImageProvider(R.drawable.appwidget_background))
+        .appWidgetBackground()
+        .appWidgetBackgroundRadius()

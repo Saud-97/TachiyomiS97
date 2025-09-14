@@ -23,7 +23,6 @@ class ChapterHolder(
     view: View,
     private val adapter: MangaDetailsAdapter,
 ) : BaseChapterHolder(view, adapter) {
-
     private val binding = ChaptersItemBinding.bind(view)
     private var localSource = false
 
@@ -34,7 +33,10 @@ class ChapterHolder(
         }
     }
 
-    fun bind(item: ChapterItem, manga: Manga) {
+    fun bind(
+        item: ChapterItem,
+        manga: Manga,
+    ) {
         val chapter = item.chapter
         val isLocked = item.isLocked
         itemView.transitionName = "details chapter ${chapter.id ?: 0L} transition"
@@ -83,10 +85,11 @@ class ChapterHolder(
         )
         binding.chapterScanlator.text = statuses.joinToString(" • ")
 
-        val status = when {
-            adapter.isSelected(flexibleAdapterPosition) -> Download.State.CHECKED
-            else -> item.status
-        }
+        val status =
+            when {
+                adapter.isSelected(flexibleAdapterPosition) -> Download.State.CHECKED
+                else -> item.status
+            }
 
         notifyStatus(status, item.isLocked, item.progress)
         resetFrontView()
@@ -117,22 +120,19 @@ class ChapterHolder(
         animatorSet.start()
     }
 
-    private fun slideAnimation(from: Float, to: Float): ObjectAnimator {
-        return ObjectAnimator.ofFloat(binding.frontView, View.TRANSLATION_X, from, to)
+    private fun slideAnimation(
+        from: Float,
+        to: Float,
+    ): ObjectAnimator =
+        ObjectAnimator
+            .ofFloat(binding.frontView, View.TRANSLATION_X, from, to)
             .setDuration(300)
-    }
 
-    override fun getFrontView(): View {
-        return binding.frontView
-    }
+    override fun getFrontView(): View = binding.frontView
 
-    override fun getRearEndView(): View {
-        return binding.endView
-    }
+    override fun getRearEndView(): View = binding.endView
 
-    override fun getRearStartView(): View {
-        return binding.startView
-    }
+    override fun getRearStartView(): View = binding.startView
 
     private fun resetFrontView() {
         if (binding.frontView.translationX != 0f) {
@@ -143,12 +143,18 @@ class ChapterHolder(
         }
     }
 
-    fun notifyStatus(status: Download.State, locked: Boolean, progress: Int, animated: Boolean = false) = with(binding.downloadButton.downloadButton) {
+    fun notifyStatus(
+        status: Download.State,
+        locked: Boolean,
+        progress: Int,
+        animated: Boolean = false,
+    ) = with(binding.downloadButton.downloadButton) {
         adapter.delegate.accentColor()?.let {
             binding.startView.backgroundTintList = ColorStateList.valueOf(it)
-            binding.bookmark.imageTintList = ColorStateList.valueOf(
-                context.getResourceColor(android.R.attr.textColorPrimaryInverse),
-            )
+            binding.bookmark.imageTintList =
+                ColorStateList.valueOf(
+                    context.getResourceColor(android.R.attr.textColorPrimaryInverse),
+                )
             TextViewCompat.setCompoundDrawableTintList(
                 binding.chapterTitle,
                 ColorStateList.valueOf(it),

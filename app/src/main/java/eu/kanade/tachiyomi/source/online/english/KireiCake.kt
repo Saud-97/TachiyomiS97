@@ -8,20 +8,34 @@ import eu.kanade.tachiyomi.util.asJsoup
 import eu.kanade.tachiyomi.util.lang.capitalizeWords
 
 class KireiCake : FoolSlide("kireicake") {
-
     override suspend fun getManga(url: String): Manga? {
         val request = GET("${delegate!!.baseUrl}$url")
-        val document = network.client.newCall(request).await().asJsoup()
+        val document =
+            network.client
+                .newCall(request)
+                .await()
+                .asJsoup()
         val mangaDetailsInfoSelector = "div.info"
         return MangaImpl().apply {
             this.url = url
             source = delegate?.id ?: -1
-            title = document.select("$mangaDetailsInfoSelector li:has(b:contains(title))").first()
-                ?.ownText()?.substringAfter(":")?.trim()
-                ?: url.split("/").last().replace("_", " " + "").capitalizeWords()
+            title = document
+                .select("$mangaDetailsInfoSelector li:has(b:contains(title))")
+                .first()
+                ?.ownText()
+                ?.substringAfter(":")
+                ?.trim()
+                ?: url
+                    .split("/")
+                    .last()
+                    .replace("_", " " + "")
+                    .capitalizeWords()
             description =
-                document.select("$mangaDetailsInfoSelector li:has(b:contains(description))").first()
-                    ?.ownText()?.substringAfter(":")
+                document
+                    .select("$mangaDetailsInfoSelector li:has(b:contains(description))")
+                    .first()
+                    ?.ownText()
+                    ?.substringAfter(":")
             thumbnail_url = document.select("div.thumbnail img").firstOrNull()?.attr("abs:src")
         }
     }

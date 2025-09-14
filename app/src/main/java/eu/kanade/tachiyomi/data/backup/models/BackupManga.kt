@@ -40,10 +40,8 @@ data class BackupManga(
     @ProtoNumber(103) var viewer_flags: Int? = null,
     @ProtoNumber(104) var history: List<BackupHistory> = emptyList(),
     @ProtoNumber(105) var updateStrategy: UpdateStrategy = UpdateStrategy.ALWAYS_UPDATE,
-
     // SY specific values
     @ProtoNumber(602) var customStatus: Int = 0,
-
     // J2K specific values
     @ProtoNumber(800) var customTitle: String? = null,
     @ProtoNumber(801) var customArtist: String? = null,
@@ -52,8 +50,8 @@ data class BackupManga(
     @ProtoNumber(804) var customDescription: String? = null,
     @ProtoNumber(805) var customGenre: List<String>? = null,
 ) {
-    fun getMangaImpl(): MangaImpl {
-        return MangaImpl().apply {
+    fun getMangaImpl(): MangaImpl =
+        MangaImpl().apply {
             url = this@BackupManga.url
             title = this@BackupManga.title
             artist = this@BackupManga.artist
@@ -68,18 +66,16 @@ data class BackupManga(
             viewer_flags = (
                 this@BackupManga.viewer_flags
                     ?: this@BackupManga.viewer
-                ).takeIf { it != 0 }
+            ).takeIf { it != 0 }
                 ?: -1
             chapter_flags = this@BackupManga.chapterFlags
             update_strategy = this@BackupManga.updateStrategy
         }
-    }
 
-    fun getChaptersImpl(): List<ChapterImpl> {
-        return chapters.map {
+    fun getChaptersImpl(): List<ChapterImpl> =
+        chapters.map {
             it.toChapterImpl()
         }
-    }
 
     fun getCustomMangaInfo(): CustomMangaManager.MangaJson? {
         if (customTitle != null ||
@@ -102,15 +98,17 @@ data class BackupManga(
         return null
     }
 
-    fun getTrackingImpl(): List<TrackImpl> {
-        return tracking.map {
+    fun getTrackingImpl(): List<TrackImpl> =
+        tracking.map {
             it.getTrackingImpl()
         }
-    }
 
     companion object {
-        fun copyFrom(manga: Manga, customMangaManager: CustomMangaManager?): BackupManga {
-            return BackupManga(
+        fun copyFrom(
+            manga: Manga,
+            customMangaManager: CustomMangaManager?,
+        ): BackupManga =
+            BackupManga(
                 url = manga.url,
                 title = manga.originalTitle,
                 artist = manga.originalArtist,
@@ -136,6 +134,5 @@ data class BackupManga(
                     backupManga.customStatus = it.status
                 }
             }
-        }
     }
 }

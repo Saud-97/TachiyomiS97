@@ -12,7 +12,6 @@ open class ReaderPage(
     var bg: Drawable? = null,
     var bgType: Int? = null,
 ) : Page(index, url, imageUrl, null) {
-
     /** Value to check if this page is used to as if it was too wide */
     var shiftedPage: Boolean = false
 
@@ -36,6 +35,5 @@ open class ReaderPage(
     val isEndPage get() = endPageConfidence?.let { it > 0 && it > (startPageConfidence ?: 0) }
     val isStartPage get() = startPageConfidence?.let { it > 0 && it > (endPageConfidence ?: 0) }
 
-    fun isFromSamePage(page: ReaderPage): Boolean =
-        index == page.index && chapter.chapter.id == page.chapter.chapter.id
+    fun isFromSamePage(page: ReaderPage): Boolean = index == page.index && chapter.chapter.id == page.chapter.chapter.id
 }

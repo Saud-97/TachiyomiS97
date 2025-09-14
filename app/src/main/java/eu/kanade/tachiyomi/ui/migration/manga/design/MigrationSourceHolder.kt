@@ -7,15 +7,20 @@ import eu.kanade.tachiyomi.source.icon
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 
-class MigrationSourceHolder(view: View, val adapter: MigrationSourceAdapter) :
-    BaseFlexibleViewHolder(view, adapter) {
-
+class MigrationSourceHolder(
+    view: View,
+    val adapter: MigrationSourceAdapter,
+) : BaseFlexibleViewHolder(view, adapter) {
     private val binding = MigrationSourceItemBinding.bind(view)
+
     init {
         setDragHandleView(binding.reorder)
     }
 
-    fun bind(source: HttpSource, sourceEnabled: Boolean) {
+    fun bind(
+        source: HttpSource,
+        sourceEnabled: Boolean,
+    ) {
         binding.title.text = source.nameBasedOnEnabledLanguages(adapter.enabledLanguages, adapter.extensionManager)
         // Update circle letter image.
         itemView.post {

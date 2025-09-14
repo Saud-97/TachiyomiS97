@@ -83,24 +83,29 @@ class CrossFadeChangeHandler : AnimatorChangeHandler {
                 )
             }
         }
-        animatorSet.duration = if (isPush) {
-            200
-        } else {
-            from?.let {
-                val startX = from.width.toFloat() * 0.2f
-                ((startX - it.x) / startX) * 150f
-            }?.roundToLong() ?: 150
-        }
+        animatorSet.duration =
+            if (isPush) {
+                200
+            } else {
+                from
+                    ?.let {
+                        val startX = from.width.toFloat() * 0.2f
+                        ((startX - it.x) / startX) * 150f
+                    }?.roundToLong() ?: 150
+            }
         animatorSet.doOnCancel { to?.x = 0f }
         animatorSet.doOnEnd { to?.x = 0f }
-        if (!isPush && from?.x != null && from.x != 0f &&
+        if (!isPush &&
+            from?.x != null &&
+            from.x != 0f &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
         ) {
-            animatorSet.interpolator = if (MainActivity.backVelocity != 0f) {
-                DecelerateInterpolator(MainActivity.backVelocity)
-            } else {
-                LinearOutSlowInInterpolator()
-            }
+            animatorSet.interpolator =
+                if (MainActivity.backVelocity != 0f) {
+                    DecelerateInterpolator(MainActivity.backVelocity)
+                } else {
+                    LinearOutSlowInInterpolator()
+                }
         }
         return animatorSet
     }
@@ -109,6 +114,5 @@ class CrossFadeChangeHandler : AnimatorChangeHandler {
         from.translationX = 0f
     }
 
-    override fun copy(): ControllerChangeHandler =
-        CrossFadeChangeHandler(animationDuration, removesFromViewOnPush)
+    override fun copy(): ControllerChangeHandler = CrossFadeChangeHandler(animationDuration, removesFromViewOnPush)
 }

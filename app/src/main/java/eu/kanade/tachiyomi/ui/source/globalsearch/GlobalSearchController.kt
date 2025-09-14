@@ -47,7 +47,6 @@ open class GlobalSearchController(
     SearchControllerInterface,
     GlobalSearchAdapter.OnTitleClickListener,
     GlobalSearchCardAdapter.OnMangaClickListener {
-
     /**
      * Preferences helper.
      */
@@ -75,9 +74,7 @@ open class GlobalSearchController(
 
     override fun createBinding(inflater: LayoutInflater) = SourceGlobalSearchControllerBinding.inflate(inflater)
 
-    override fun getSearchTitle(): String? {
-        return customTitle ?: presenter.query
-    }
+    override fun getSearchTitle(): String? = customTitle ?: presenter.query
 
     override val presenter = GlobalSearchPresenter(initialQuery, extensionFilter)
 
@@ -107,38 +104,45 @@ open class GlobalSearchController(
      *
      * @param position clicked item containing manga information.
      */
-    override fun onMangaLongClick(position: Int, adapter: GlobalSearchCardAdapter) {
+    override fun onMangaLongClick(
+        position: Int,
+        adapter: GlobalSearchCardAdapter,
+    ) {
         val manga = adapter.getItem(position)?.manga ?: return
 
         val view = view ?: return
         val activity = activity ?: return
         snack?.dismiss()
-        snack = manga.addOrRemoveToFavorites(
-            presenter.db,
-            preferences,
-            view,
-            activity,
-            presenter.sourceManager,
-            this,
-            onMangaAdded = { migrationInfo ->
-                migrationInfo?.let { (source, stillFaved) ->
-                    val index = this.adapter
-                        ?.currentItems?.indexOfFirst { it.source.id == source } ?: return@let
-                    val item = this.adapter?.getItem(index) ?: return@let
-                    val oldMangaIndex = item.results?.indexOfFirst {
-                        it.manga.title.lowercase() == manga.title.lowercase()
-                    } ?: return@let
-                    val oldMangaItem = item.results.getOrNull(oldMangaIndex)
-                    oldMangaItem?.manga?.favorite = stillFaved
-                    val holder = binding.recycler.findViewHolderForAdapterPosition(index) as? GlobalSearchHolder
-                    holder?.updateManga(oldMangaIndex)
-                }
-                adapter.notifyItemChanged(position)
-                snack = view.snack(R.string.added_to_library)
-            },
-            onMangaMoved = { adapter.notifyItemChanged(position) },
-            onMangaDeleted = { presenter.confirmDeletion(manga) },
-        )
+        snack =
+            manga.addOrRemoveToFavorites(
+                presenter.db,
+                preferences,
+                view,
+                activity,
+                presenter.sourceManager,
+                this,
+                onMangaAdded = { migrationInfo ->
+                    migrationInfo?.let { (source, stillFaved) ->
+                        val index =
+                            this.adapter
+                                ?.currentItems
+                                ?.indexOfFirst { it.source.id == source } ?: return@let
+                        val item = this.adapter?.getItem(index) ?: return@let
+                        val oldMangaIndex =
+                            item.results?.indexOfFirst {
+                                it.manga.title.lowercase() == manga.title.lowercase()
+                            } ?: return@let
+                        val oldMangaItem = item.results.getOrNull(oldMangaIndex)
+                        oldMangaItem?.manga?.favorite = stillFaved
+                        val holder = binding.recycler.findViewHolderForAdapterPosition(index) as? GlobalSearchHolder
+                        holder?.updateManga(oldMangaIndex)
+                    }
+                    adapter.notifyItemChanged(position)
+                    snack = view.snack(R.string.added_to_library)
+                },
+                onMangaMoved = { adapter.notifyItemChanged(position) },
+                onMangaDeleted = { presenter.confirmDeletion(manga) },
+            )
         if (snack?.duration == Snackbar.LENGTH_INDEFINITE) {
             (activity as? MainActivity)?.setUndoSnackBar(snack)
         }
@@ -155,7 +159,10 @@ open class GlobalSearchController(
      * @param menu menu containing options.
      * @param inflater used to load the menu xml.
      */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         // Inflate menu.
         inflater.inflate(R.menu.catalogue_new_list, menu)
 
@@ -177,7 +184,10 @@ open class GlobalSearchController(
         }
     }
 
-    override fun onChangeStarted(handler: ControllerChangeHandler, type: ControllerChangeType) {
+    override fun onChangeStarted(
+        handler: ControllerChangeHandler,
+        type: ControllerChangeType,
+    ) {
         super.onChangeStarted(handler, type)
         if (type.isEnter && isControllerVisible) {
             val searchView = activityBinding?.searchToolbar?.searchView ?: return
@@ -218,8 +228,15 @@ open class GlobalSearchController(
         adapter = GlobalSearchAdapter(this)
 
         binding.recycler.updatePaddingRelative(
-            top = (toolbarHeight ?: 0) +
-                (activityBinding?.root?.rootWindowInsetsCompat?.getInsets(systemBars())?.top ?: 0),
+            top =
+                (toolbarHeight ?: 0) +
+                    (
+                        activityBinding
+                            ?.root
+                            ?.rootWindowInsetsCompat
+                            ?.getInsets(systemBars())
+                            ?.top ?: 0
+                    ),
         )
 
         // Create recycler and set adapter.
@@ -242,12 +259,18 @@ open class GlobalSearchController(
         super.onDestroyView(view)
     }
 
-    override fun onSaveViewState(view: View, outState: Bundle) {
+    override fun onSaveViewState(
+        view: View,
+        outState: Bundle,
+    ) {
         super.onSaveViewState(view, outState)
         adapter?.onSaveInstanceState(outState)
     }
 
-    override fun onRestoreViewState(view: View, savedViewState: Bundle) {
+    override fun onRestoreViewState(
+        view: View,
+        savedViewState: Bundle,
+    ) {
         super.onRestoreViewState(view, savedViewState)
         adapter?.onRestoreInstanceState(savedViewState)
     }
@@ -302,7 +325,10 @@ open class GlobalSearchController(
      *
      * @param manga the initialized manga.
      */
-    fun onMangaInitialized(source: CatalogueSource, manga: Manga) {
+    fun onMangaInitialized(
+        source: CatalogueSource,
+        manga: Manga,
+    ) {
         getHolder(source)?.setImage(manga)
         getHolder(source)?.setChaptersCount(manga)
     }

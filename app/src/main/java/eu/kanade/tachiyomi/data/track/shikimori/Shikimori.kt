@@ -13,8 +13,10 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 
-class Shikimori(private val context: Context, id: Int) : TrackService(id) {
-
+class Shikimori(
+    private val context: Context,
+    id: Int,
+) : TrackService(id) {
     companion object {
         const val READING = 1
         const val COMPLETED = 2
@@ -42,39 +44,39 @@ class Shikimori(private val context: Context, id: Int) : TrackService(id) {
 
     override fun getLogoColor() = Color.rgb(40, 40, 40)
 
-    override fun getStatusList(): List<Int> {
-        return listOf(READING, COMPLETED, ON_HOLD, DROPPED, PLAN_TO_READ, REREADING)
-    }
+    override fun getStatusList(): List<Int> = listOf(READING, COMPLETED, ON_HOLD, DROPPED, PLAN_TO_READ, REREADING)
 
     override fun isCompletedStatus(index: Int) = getStatusList()[index] == COMPLETED
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = PLAN_TO_READ
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            REREADING -> getString(R.string.rereading)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                REREADING -> getString(R.string.rereading)
+                else -> ""
+            }
         }
-    }
 
     override fun getGlobalStatus(status: Int): String = getStatus(status)
 
-    override fun getScoreList(): List<String> {
-        return IntRange(0, 10).map(Int::toString)
-    }
+    override fun getScoreList(): List<String> = IntRange(0, 10).map(Int::toString)
 
-    override fun displayScore(track: Track): String {
-        return track.score.toInt().toString()
-    }
+    override fun displayScore(track: Track): String = track.score.toInt().toString()
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead, setToComplete = true, mustReadToComplete = false)
         return api.updateLibManga(track, getUsername())
     }
@@ -85,6 +87,7 @@ class Shikimori(private val context: Context, id: Int) : TrackService(id) {
         updateNewTrackInfo(track)
         return api.addLibManga(track, getUsername())
     }
+
     override suspend fun bind(track: Track): Track {
         val remoteTrack = api.findLibManga(track, getUsername())
         return if (remoteTrack != null) {
@@ -112,10 +115,13 @@ class Shikimori(private val context: Context, id: Int) : TrackService(id) {
         return track
     }
 
-    override suspend fun login(username: String, password: String) = login(password)
+    override suspend fun login(
+        username: String,
+        password: String,
+    ) = login(password)
 
-    suspend fun login(code: String): Boolean {
-        return try {
+    suspend fun login(code: String): Boolean =
+        try {
             val oauth = api.accessToken(code)
             interceptor.newAuth(oauth)
             val user = api.getCurrentUser()
@@ -126,19 +132,17 @@ class Shikimori(private val context: Context, id: Int) : TrackService(id) {
             logout()
             false
         }
-    }
 
     fun saveToken(oauth: OAuth?) {
         trackPreferences.trackToken(this).set(json.encodeToString(oauth))
     }
 
-    fun restoreToken(): OAuth? {
-        return try {
+    fun restoreToken(): OAuth? =
+        try {
             json.decodeFromString<OAuth>(trackPreferences.trackToken(this).get())
         } catch (e: Exception) {
             null
         }
-    }
 
     override fun logout() {
         super.logout()

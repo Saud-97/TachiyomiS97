@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.ConcatAdapter
 import eu.kanade.tachiyomi.util.system.dpToPx
 import eu.kanade.tachiyomi.util.system.isLTR
 
-class ExtensionSettingsDividerItemDecoration(context: Context) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
-
+class ExtensionSettingsDividerItemDecoration(
+    context: Context,
+) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
     private val divider: Drawable
 
     init {
@@ -23,7 +24,11 @@ class ExtensionSettingsDividerItemDecoration(context: Context) : androidx.recycl
     }
 
     @SuppressLint("RestrictedApi")
-    override fun onDraw(c: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
+    override fun onDraw(
+        c: Canvas,
+        parent: androidx.recyclerview.widget.RecyclerView,
+        state: androidx.recyclerview.widget.RecyclerView.State,
+    ) {
         val childCount = parent.childCount
         for (i in 0 until childCount - 1) {
             val child = parent.getChildAt(i)

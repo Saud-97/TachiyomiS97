@@ -23,14 +23,14 @@ class SearchController(
     private var manga: Manga? = null,
     private var sources: List<CatalogueSource>? = null,
 ) : GlobalSearchController(
-    manga?.originalTitle,
-    bundle = bundleOf(
-        OLD_MANGA to manga?.id,
-        SOURCES to sources?.map { it.id }?.toLongArray(),
+        manga?.originalTitle,
+        bundle =
+            bundleOf(
+                OLD_MANGA to manga?.id,
+                SOURCES to sources?.map { it.id }?.toLongArray(),
+            ),
     ),
-),
     BottomNavBarInterface {
-
     /**
      * Called when controller is initialized.
      */
@@ -63,7 +63,10 @@ class SearchController(
         }
     }
 
-    override fun onMangaLongClick(position: Int, adapter: GlobalSearchCardAdapter) {
+    override fun onMangaLongClick(
+        position: Int,
+        adapter: GlobalSearchCardAdapter,
+    ) {
         // Call parent's default click listener
         val manga = adapter.getItem(position)?.manga ?: return
         super.onMangaClick(manga)
@@ -75,7 +78,10 @@ class SearchController(
      * @param menu menu containing options.
      * @param inflater used to load the menu xml.
      */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         // Inflate menu.
         inflater.inflate(R.menu.catalogue_new_list, menu)
 
@@ -87,8 +93,9 @@ class SearchController(
     }
 
     override fun canChangeTabs(block: () -> Unit): Boolean {
-        val migrationListController = router.getControllerWithTag(MigrationListController.TAG)
-            as? BottomNavBarInterface
+        val migrationListController =
+            router.getControllerWithTag(MigrationListController.TAG)
+                as? BottomNavBarInterface
         if (migrationListController != null) return migrationListController.canChangeTabs(block)
         return true
     }

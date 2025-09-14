@@ -15,19 +15,17 @@ import eu.kanade.tachiyomi.source.LocalSource
  * @param source Instance of [CatalogueSource] containing source information.
  * @param header The header for this item.
  */
-class SourceItem(val source: CatalogueSource, header: LangItem? = null, val isPinned: Boolean? = null) :
-    AbstractSectionableItem<SourceHolder, LangItem>(header) {
-
+class SourceItem(
+    val source: CatalogueSource,
+    header: LangItem? = null,
+    val isPinned: Boolean? = null,
+) : AbstractSectionableItem<SourceHolder, LangItem>(header) {
     /**
      * Returns the layout resource of this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.source_item
-    }
+    override fun getLayoutRes(): Int = R.layout.source_item
 
-    override fun isSwipeable(): Boolean {
-        return source.id != LocalSource.ID && header != null && header.code != SourcePresenter.LAST_USED_KEY
-    }
+    override fun isSwipeable(): Boolean = source.id != LocalSource.ID && header != null && header.code != SourcePresenter.LAST_USED_KEY
 
     /**
      * Creates a new view holder for this item.
@@ -35,9 +33,7 @@ class SourceItem(val source: CatalogueSource, header: LangItem? = null, val isPi
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): SourceHolder {
-        return SourceHolder(view, adapter as SourceAdapter)
-    }
+    ): SourceHolder = SourceHolder(view, adapter as SourceAdapter)
 
     /**
      * Binds this item to the given view holder.

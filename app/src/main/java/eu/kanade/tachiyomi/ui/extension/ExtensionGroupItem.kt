@@ -13,21 +13,24 @@ import eu.kanade.tachiyomi.R
  * @param name The header name.
  * @param size The number of items in the group.
  */
-data class ExtensionGroupItem(val name: String, val size: Int, var canUpdate: Boolean? = null, var installedSorting: Int? = null) : AbstractHeaderItem<ExtensionGroupHolder>() {
-
+data class ExtensionGroupItem(
+    val name: String,
+    val size: Int,
+    var canUpdate: Boolean? = null,
+    var installedSorting: Int? = null,
+) : AbstractHeaderItem<ExtensionGroupHolder>() {
     /**
      * Returns the layout resource of this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.extension_card_header
-    }
+    override fun getLayoutRes(): Int = R.layout.extension_card_header
 
     /**
      * Creates a new view holder for this item.
      */
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): ExtensionGroupHolder {
-        return ExtensionGroupHolder(view, adapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): ExtensionGroupHolder = ExtensionGroupHolder(view, adapter)
 
     /**
      * Binds this item to the given view holder.
@@ -49,7 +52,5 @@ data class ExtensionGroupItem(val name: String, val size: Int, var canUpdate: Bo
         return false
     }
 
-    override fun hashCode(): Int {
-        return name.hashCode()
-    }
+    override fun hashCode(): Int = name.hashCode()
 }

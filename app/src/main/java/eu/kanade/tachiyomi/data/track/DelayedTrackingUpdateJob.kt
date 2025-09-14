@@ -18,24 +18,30 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.concurrent.TimeUnit
 
-class DelayedTrackingUpdateJob(context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
+class DelayedTrackingUpdateJob(
+    context: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         val preferences = Injekt.get<PreferencesHelper>()
         val db = Injekt.get<DatabaseHelper>()
         val trackManager = Injekt.get<TrackManager>()
-        val trackings = preferences.trackingsToAddOnline().get().toMutableSet().mapNotNull {
-            val items = it.split(":")
-            if (items.size != 3) {
-                null
-            } else {
-                val mangaId = items[0].toLongOrNull() ?: return@mapNotNull null
-                val trackId = items[1].toIntOrNull() ?: return@mapNotNull null
-                val chapterNumber = items[2].toFloatOrNull() ?: return@mapNotNull null
-                mangaId to (trackId to chapterNumber)
-            }
-        }.groupBy { it.first }
+        val trackings =
+            preferences
+                .trackingsToAddOnline()
+                .get()
+                .toMutableSet()
+                .mapNotNull {
+                    val items = it.split(":")
+                    if (items.size != 3) {
+                        null
+                    } else {
+                        val mangaId = items[0].toLongOrNull() ?: return@mapNotNull null
+                        val trackId = items[1].toIntOrNull() ?: return@mapNotNull null
+                        val chapterNumber = items[2].toFloatOrNull() ?: return@mapNotNull null
+                        mangaId to (trackId to chapterNumber)
+                    }
+                }.groupBy { it.first }
         withContext(Dispatchers.IO) {
             trackings.forEach {
                 val mangaId = it.key
@@ -67,13 +73,15 @@ class DelayedTrackingUpdateJob(context: Context, workerParams: WorkerParameters)
         fun setupTask(context: Context) {
             val constraints =
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-            val request = OneTimeWorkRequestBuilder<DelayedTrackingUpdateJob>()
-                .setConstraints(constraints)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20, TimeUnit.SECONDS)
-                .addTag(TAG)
-                .build()
+            val request =
+                OneTimeWorkRequestBuilder<DelayedTrackingUpdateJob>()
+                    .setConstraints(constraints)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20, TimeUnit.SECONDS)
+                    .addTag(TAG)
+                    .build()
 
-            WorkManager.getInstance(context)
+            WorkManager
+                .getInstance(context)
                 .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, request)
         }
     }

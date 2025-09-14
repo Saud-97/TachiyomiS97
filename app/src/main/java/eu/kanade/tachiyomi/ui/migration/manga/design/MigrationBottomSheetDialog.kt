@@ -34,13 +34,13 @@ class MigrationBottomSheetDialog(
     activity: Activity,
     private val listener: StartMigrationListener,
 ) : E2EBottomSheetDialog<MigrationBottomSheetBinding>(activity) {
-
     /**
      * Preferences helper.
      */
     private val preferences by injectLazy<PreferencesHelper>()
 
     override fun createBinding(inflater: LayoutInflater) = MigrationBottomSheetBinding.inflate(inflater)
+
     init {
         if (activity.resources.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             binding.sourceGroup.orientation = LinearLayout.HORIZONTAL
@@ -138,7 +138,11 @@ class MigrationBottomSheetDialog(
     }
 
     private fun setFlags() {
-        val enabledBoxes = binding.gridFlagsLayout.children.toList().filterIsInstance<CheckBox>().map { it.isChecked }
+        val enabledBoxes =
+            binding.gridFlagsLayout.children
+                .toList()
+                .filterIsInstance<CheckBox>()
+                .map { it.isChecked }
         val flags = MigrationFlags.getFlagsFromPositions(enabledBoxes.toTypedArray())
         preferences.migrateFlags().set(flags)
     }

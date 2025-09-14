@@ -32,7 +32,6 @@ class HttpPageLoader(
     private val chapterCache: ChapterCache = Injekt.get(),
     private val preferences: PreferencesHelper = Injekt.get(),
 ) : PageLoader() {
-
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
@@ -48,8 +47,7 @@ class HttpPageLoader(
                 while (true) {
                     emit(runInterruptible { queue.take() }.page)
                 }
-            }
-                .filter { it.status == Page.State.QUEUE }
+            }.filter { it.status == Page.State.QUEUE }
                 .collect {
                     _loadPage(it)
                 }
@@ -86,14 +84,15 @@ class HttpPageLoader(
      * otherwise fallbacks to network.
      */
     override suspend fun getPages(): List<ReaderPage> {
-        val pages = try {
-            chapterCache.getPageListFromCache(chapter.chapter)
-        } catch (e: Throwable) {
-            if (e is CancellationException) {
-                throw e
+        val pages =
+            try {
+                chapterCache.getPageListFromCache(chapter.chapter)
+            } catch (e: Throwable) {
+                if (e is CancellationException) {
+                    throw e
+                }
+                source.getPageList(chapter.chapter)
             }
-            source.getPageList(chapter.chapter)
-        }
         return pages.mapIndexed { index, page ->
             // Don't trust sources and use our own indexing
             ReaderPage(index, page.url, page.imageUrl)
@@ -139,7 +138,10 @@ class HttpPageLoader(
      * Preloads the given [amount] of pages after the [currentPage] with a lower priority.
      * @return a list of [PriorityPage] that were added to the [queue]
      */
-    private fun preloadNextPages(currentPage: ReaderPage, amount: Int): List<PriorityPage> {
+    private fun preloadNextPages(
+        currentPage: ReaderPage,
+        amount: Int,
+    ): List<PriorityPage> {
         val pageIndex = currentPage.index
         val pages = currentPage.chapter.pages ?: return emptyList()
         if (pageIndex == pages.lastIndex) return emptyList()

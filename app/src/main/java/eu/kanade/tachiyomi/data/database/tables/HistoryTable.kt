@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.database.tables
 
 object HistoryTable {
-
     /**
      * Table name
      */

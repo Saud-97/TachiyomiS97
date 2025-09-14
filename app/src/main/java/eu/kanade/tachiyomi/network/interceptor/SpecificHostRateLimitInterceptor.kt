@@ -36,7 +36,6 @@ class SpecificHostRateLimitInterceptor(
     period: Long,
     unit: TimeUnit,
 ) : Interceptor {
-
     private val requestQueue = ArrayList<Long>(permits)
     private val rateLimitMillis = unit.toMillis(period)
     private val host = httpUrl.host
@@ -51,18 +50,19 @@ class SpecificHostRateLimitInterceptor(
 
         synchronized(requestQueue) {
             val now = SystemClock.elapsedRealtime()
-            val waitTime = if (requestQueue.size < permits) {
-                0
-            } else {
-                val oldestReq = requestQueue[0]
-                val newestReq = requestQueue[permits - 1]
-
-                if (newestReq - oldestReq > rateLimitMillis) {
+            val waitTime =
+                if (requestQueue.size < permits) {
                     0
                 } else {
-                    oldestReq + rateLimitMillis - now // Remaining time
+                    val oldestReq = requestQueue[0]
+                    val newestReq = requestQueue[permits - 1]
+
+                    if (newestReq - oldestReq > rateLimitMillis) {
+                        0
+                    } else {
+                        oldestReq + rateLimitMillis - now // Remaining time
+                    }
                 }
-            }
 
             // Final check
             if (chain.call().isCanceled()) {

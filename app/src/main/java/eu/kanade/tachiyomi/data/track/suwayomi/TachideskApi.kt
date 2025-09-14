@@ -27,15 +27,18 @@ class TachideskApi {
     private val json: Json by injectLazy()
     private val network by injectLazy<NetworkHelper>()
     val client: OkHttpClient =
-        network.client.newBuilder()
+        network.client
+            .newBuilder()
             .dns(Dns.SYSTEM) // don't use DNS over HTTPS as it breaks IP addressing
             .build()
-    fun headersBuilder(): Headers.Builder = Headers.Builder().apply {
-        if (basePassword.isNotEmpty() && baseLogin.isNotEmpty()) {
-            val credentials = Credentials.basic(baseLogin, basePassword)
-            add("Authorization", credentials)
+
+    fun headersBuilder(): Headers.Builder =
+        Headers.Builder().apply {
+            if (basePassword.isNotEmpty() && baseLogin.isNotEmpty()) {
+                val credentials = Credentials.basic(baseLogin, basePassword)
+                add("Authorization", credentials)
+            }
         }
-    }
 
     val headers: Headers by lazy { headersBuilder().build() }
 
@@ -43,52 +46,59 @@ class TachideskApi {
     private val baseLogin by lazy { getPrefBaseLogin() }
     private val basePassword by lazy { getPrefBasePassword() }
 
-    suspend fun getTrackSearch(trackUrl: String): TrackSearch = withIOContext {
-        val url = try {
-            // test if getting api url or manga id
-            val mangaId = trackUrl.toLong()
-            "$baseUrl/api/v1/manga/$mangaId"
-        } catch (e: NumberFormatException) {
-            trackUrl
-        }
+    suspend fun getTrackSearch(trackUrl: String): TrackSearch =
+        withIOContext {
+            val url =
+                try {
+                    // test if getting api url or manga id
+                    val mangaId = trackUrl.toLong()
+                    "$baseUrl/api/v1/manga/$mangaId"
+                } catch (e: NumberFormatException) {
+                    trackUrl
+                }
 
-        val manga = with(json) {
-            client.newCall(GET("$url/full", headers)).awaitSuccess().parseAs<MangaDataClass>()
-        }
+            val manga =
+                with(json) {
+                    client.newCall(GET("$url/full", headers)).awaitSuccess().parseAs<MangaDataClass>()
+                }
 
-        TrackSearch.create(TrackManager.SUWAYOMI).apply {
-            title = manga.title
-            cover_url = "$url/thumbnail"
-            summary = manga.description.orEmpty()
-            tracking_url = url
-            total_chapters = manga.chapterCount.toInt()
-            publishing_status = manga.status
-            last_chapter_read = manga.lastChapterRead?.chapterNumber ?: 0F
-            status = when (manga.unreadCount) {
-                manga.chapterCount -> Suwayomi.UNREAD
-                0L -> Suwayomi.COMPLETED
-                else -> Suwayomi.READING
+            TrackSearch.create(TrackManager.SUWAYOMI).apply {
+                title = manga.title
+                cover_url = "$url/thumbnail"
+                summary = manga.description.orEmpty()
+                tracking_url = url
+                total_chapters = manga.chapterCount.toInt()
+                publishing_status = manga.status
+                last_chapter_read = manga.lastChapterRead?.chapterNumber ?: 0F
+                status =
+                    when (manga.unreadCount) {
+                        manga.chapterCount -> Suwayomi.UNREAD
+                        0L -> Suwayomi.COMPLETED
+                        else -> Suwayomi.READING
+                    }
             }
         }
-    }
 
     suspend fun updateProgress(track: Track): Track {
         val url = track.tracking_url
-        val chapters = with(json) {
-            client.newCall(GET("$url/chapters", headers)).awaitSuccess().parseAs<List<ChapterDataClass>>()
-        }
+        val chapters =
+            with(json) {
+                client.newCall(GET("$url/chapters", headers)).awaitSuccess().parseAs<List<ChapterDataClass>>()
+            }
         val lastChapterIndex = chapters.first { it.chapterNumber == track.last_chapter_read }.index
 
-        client.newCall(
-            PUT(
-                "$url/chapter/$lastChapterIndex",
-                headers,
-                FormBody.Builder(Charset.forName("utf8"))
-                    .add("markPrevRead", "true")
-                    .add("read", "true")
-                    .build(),
-            ),
-        ).awaitSuccess()
+        client
+            .newCall(
+                PUT(
+                    "$url/chapter/$lastChapterIndex",
+                    headers,
+                    FormBody
+                        .Builder(Charset.forName("utf8"))
+                        .add("markPrevRead", "true")
+                        .add("read", "true")
+                        .build(),
+                ),
+            ).awaitSuccess()
 
         return getTrackSearch(track.tracking_url)
     }
@@ -113,6 +123,8 @@ class TachideskApi {
     }
 
     private fun getPrefBaseUrl(): String = preferences.getString(ADDRESS_TITLE, ADDRESS_DEFAULT)!!
+
     private fun getPrefBaseLogin(): String = preferences.getString(LOGIN_TITLE, LOGIN_DEFAULT)!!
+
     private fun getPrefBasePassword(): String = preferences.getString(PASSWORD_TITLE, PASSWORD_DEFAULT)!!
 }

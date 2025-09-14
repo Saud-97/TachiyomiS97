@@ -25,7 +25,6 @@ import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 
 open class WebViewActivity : BaseWebViewActivity() {
-
     private val sourceManager by injectLazy<SourceManager>()
     private var bundle: Bundle? = null
     private val network: NetworkHelper by injectLazy()
@@ -41,7 +40,12 @@ open class WebViewActivity : BaseWebViewActivity() {
         const val URL_KEY = "url_key"
         const val TITLE_KEY = "title_key"
 
-        fun newIntent(context: Context, url: String, sourceId: Long? = null, title: String? = null): Intent {
+        fun newIntent(
+            context: Context,
+            url: String,
+            sourceId: Long? = null,
+            title: String? = null,
+        ): Intent {
             val intent = Intent(context, WebViewActivity::class.java)
             intent.putExtra(SOURCE_KEY, sourceId)
             intent.putExtra(URL_KEY, url)
@@ -77,46 +81,60 @@ open class WebViewActivity : BaseWebViewActivity() {
                 binding.webview.settings.userAgentString = it
             }
 
-            binding.webview.webViewClient = object : WebViewClientCompat() {
-                override fun shouldOverrideUrlCompat(view: WebView, url: String): Boolean {
-                    // Don't attempt to open blobs as webpages
-                    if (url.startsWith("blob:http")) {
-                        return false
+            binding.webview.webViewClient =
+                object : WebViewClientCompat() {
+                    override fun shouldOverrideUrlCompat(
+                        view: WebView,
+                        url: String,
+                    ): Boolean {
+                        // Don't attempt to open blobs as webpages
+                        if (url.startsWith("blob:http")) {
+                            return false
+                        }
+
+                        // Continue with request, but with custom headers
+                        view.loadUrl(url, headers)
+                        return true
                     }
 
-                    // Continue with request, but with custom headers
-                    view.loadUrl(url, headers)
-                    return true
-                }
+                    override fun onPageFinished(
+                        view: WebView?,
+                        url: String?,
+                    ) {
+                        super.onPageFinished(view, url)
+                        invalidateOptionsMenu()
+                        binding.swipeRefresh.isEnabled = true
+                        binding.swipeRefresh.isRefreshing = false
+                    }
 
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-                    invalidateOptionsMenu()
-                    binding.swipeRefresh.isEnabled = true
-                    binding.swipeRefresh.isRefreshing = false
-                }
-
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    super.onPageStarted(view, url, favicon)
-                    invalidateOptionsMenu()
-                }
-
-                override fun onPageCommitVisible(view: WebView?, url: String?) {
-                    super.onPageCommitVisible(view, url)
-                    binding.webview.scrollTo(0, 0)
-                }
-
-                override fun doUpdateVisitedHistory(
-                    view: WebView?,
-                    url: String?,
-                    isReload: Boolean,
-                ) {
-                    super.doUpdateVisitedHistory(view, url, isReload)
-                    if (!isReload) {
+                    override fun onPageStarted(
+                        view: WebView?,
+                        url: String?,
+                        favicon: Bitmap?,
+                    ) {
+                        super.onPageStarted(view, url, favicon)
                         invalidateOptionsMenu()
                     }
+
+                    override fun onPageCommitVisible(
+                        view: WebView?,
+                        url: String?,
+                    ) {
+                        super.onPageCommitVisible(view, url)
+                        binding.webview.scrollTo(0, 0)
+                    }
+
+                    override fun doUpdateVisitedHistory(
+                        view: WebView?,
+                        url: String?,
+                        isReload: Boolean,
+                    ) {
+                        super.doUpdateVisitedHistory(view, url, isReload)
+                        if (!isReload) {
+                            invalidateOptionsMenu()
+                        }
+                    }
                 }
-            }
 
             binding.webview.loadUrl(url, headers)
         }
@@ -151,9 +169,12 @@ open class WebViewActivity : BaseWebViewActivity() {
         val translucentWhite = ColorUtils.setAlphaComponent(tintColor, 127)
         backItem.icon?.setTint(if (binding.webview.canGoBack()) tintColor else translucentWhite)
         forwardItem?.icon?.setTint(if (binding.webview.canGoForward()) tintColor else translucentWhite)
-        val extensionCanOpenUrl = binding.webview.canGoBack() &&
-            binding.webview.url?.let { extensionIntentForText(it) != null } ?: false
-        binding.toolbar.menu.findItem(R.id.action_open_in_app)?.isVisible = extensionCanOpenUrl
+        val extensionCanOpenUrl =
+            binding.webview.canGoBack() &&
+                binding.webview.url?.let { extensionIntentForText(it) != null } ?: false
+        binding.toolbar.menu
+            .findItem(R.id.action_open_in_app)
+            ?.isVisible = extensionCanOpenUrl
         reEnableBackPressedCallBack()
         return super.onPrepareOptionsMenu(menu)
     }
@@ -192,10 +213,11 @@ open class WebViewActivity : BaseWebViewActivity() {
 
     private fun shareWebpage() {
         try {
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, binding.webview.url)
-            }
+            val intent =
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, binding.webview.url)
+                }
             startActivity(Intent.createChooser(intent, getString(R.string.share)))
         } catch (e: Exception) {
             toast(e.message)

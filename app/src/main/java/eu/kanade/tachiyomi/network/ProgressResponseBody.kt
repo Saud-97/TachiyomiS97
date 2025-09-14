@@ -9,30 +9,29 @@ import okio.Source
 import okio.buffer
 import java.io.IOException
 
-class ProgressResponseBody(private val responseBody: ResponseBody, private val progressListener: ProgressListener) : ResponseBody() {
-
+class ProgressResponseBody(
+    private val responseBody: ResponseBody,
+    private val progressListener: ProgressListener,
+) : ResponseBody() {
     private val bufferedSource: BufferedSource by lazy {
         source(responseBody.source()).buffer()
     }
 
-    override fun contentType(): MediaType? {
-        return responseBody.contentType()
-    }
+    override fun contentType(): MediaType? = responseBody.contentType()
 
-    override fun contentLength(): Long {
-        return responseBody.contentLength()
-    }
+    override fun contentLength(): Long = responseBody.contentLength()
 
-    override fun source(): BufferedSource {
-        return bufferedSource
-    }
+    override fun source(): BufferedSource = bufferedSource
 
     private fun source(source: Source): Source {
         return object : ForwardingSource(source) {
             var totalBytesRead = 0L
 
             @Throws(IOException::class)
-            override fun read(sink: Buffer, byteCount: Long): Long {
+            override fun read(
+                sink: Buffer,
+                byteCount: Long,
+            ): Long {
                 val bytesRead = super.read(sink, byteCount)
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
                 totalBytesRead += if (bytesRead != -1L) bytesRead else 0

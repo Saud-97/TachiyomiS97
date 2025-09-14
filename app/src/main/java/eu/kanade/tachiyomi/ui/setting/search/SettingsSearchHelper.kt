@@ -29,18 +29,19 @@ object SettingsSearchHelper {
     /**
      * All subclasses of `SettingsController` should be listed here, in order to have their preferences searchable.
      */
-    private val settingControllersList: List<KClass<out SettingsController>> = listOf(
-        SettingsAdvancedController::class,
-        SettingsBackupController::class,
-        SettingsBrowseController::class,
-        SettingsDownloadController::class,
-        SettingsGeneralController::class,
-        SettingsAppearanceController::class,
-        SettingsSecurityController::class,
-        SettingsLibraryController::class,
-        SettingsReaderController::class,
-        SettingsTrackingController::class,
-    )
+    private val settingControllersList: List<KClass<out SettingsController>> =
+        listOf(
+            SettingsAdvancedController::class,
+            SettingsBackupController::class,
+            SettingsBrowseController::class,
+            SettingsDownloadController::class,
+            SettingsGeneralController::class,
+            SettingsAppearanceController::class,
+            SettingsSecurityController::class,
+            SettingsLibraryController::class,
+            SettingsReaderController::class,
+            SettingsTrackingController::class,
+        )
 
     /**
      * Must be called to populate `prefSearchResultList`
@@ -105,7 +106,12 @@ object SettingsSearchHelper {
                 // Is an actual preference
                 val title = pref.title.toString()
                 // ListPreferences occasionally run into ArrayIndexOutOfBoundsException issues
-                val summary = try { pref.summary?.toString() ?: "" } catch (e: Throwable) { "" }
+                val summary =
+                    try {
+                        pref.summary?.toString() ?: ""
+                    } catch (e: Throwable) {
+                        ""
+                    }
 
                 prefSearchResultList.add(
                     SettingsSearchResult(
@@ -120,15 +126,18 @@ object SettingsSearchHelper {
         }
     }
 
-    private fun addLocalizedBreadcrumb(path: String, node: String, resources: Resources?): String {
-        return if ((resources ?: Resources.getSystem()).isLTR) {
+    private fun addLocalizedBreadcrumb(
+        path: String,
+        node: String,
+        resources: Resources?,
+    ): String =
+        if ((resources ?: Resources.getSystem()).isLTR) {
             // This locale reads left to right.
             "$path > $node"
         } else {
             // This locale reads right to left.
             "$node < $path"
         }
-    }
 
     data class SettingsSearchResult(
         val key: String?,

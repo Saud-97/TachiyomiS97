@@ -14,29 +14,33 @@ import eu.kanade.tachiyomi.util.system.LocaleHelper
 import eu.kanade.tachiyomi.util.system.materialAlertDialog
 import eu.kanade.tachiyomi.util.view.inflate
 
-class ExtensionDetailsHeaderAdapter(private val presenter: ExtensionDetailsPresenter) :
-    RecyclerView.Adapter<ExtensionDetailsHeaderAdapter.HeaderViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HeaderViewHolder {
+class ExtensionDetailsHeaderAdapter(
+    private val presenter: ExtensionDetailsPresenter,
+) : RecyclerView.Adapter<ExtensionDetailsHeaderAdapter.HeaderViewHolder>() {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): HeaderViewHolder {
         val view = parent.inflate(R.layout.extension_detail_header)
         return HeaderViewHolder(view)
     }
 
     override fun getItemCount(): Int = 1
 
-    override fun onBindViewHolder(holder: HeaderViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: HeaderViewHolder,
+        position: Int,
+    ) {
         holder.bind()
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return R.layout.extension_detail_header
-    }
+    override fun getItemViewType(position: Int): Int = R.layout.extension_detail_header
 
-    override fun getItemId(position: Int): Long {
-        return presenter.pkgName.hashCode().toLong()
-    }
+    override fun getItemId(position: Int): Long = presenter.pkgName.hashCode().toLong()
 
-    inner class HeaderViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class HeaderViewHolder(
+        private val view: View,
+    ) : RecyclerView.ViewHolder(view) {
         fun bind() {
             val binding = ExtensionDetailHeaderBinding.bind(view)
             val extension = presenter.extension ?: return
@@ -53,20 +57,21 @@ class ExtensionDetailsHeaderAdapter(private val presenter: ExtensionDetailsPrese
                 if (extension.isShared) {
                     presenter.uninstallExtension()
                 } else {
-                    context.materialAlertDialog()
+                    context
+                        .materialAlertDialog()
                         .setTitle(extension.name)
                         .setPositiveButton(R.string.remove) { _, _ ->
                             presenter.uninstallExtension()
-                        }
-                        .setNegativeButton(android.R.string.cancel, null)
+                        }.setNegativeButton(android.R.string.cancel, null)
                         .show()
                 }
             }
 
             binding.extensionAppInfoButton.setOnClickListener {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", presenter.pkgName, null)
-                }
+                val intent =
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", presenter.pkgName, null)
+                    }
                 it.context.startActivity(intent)
             }
 

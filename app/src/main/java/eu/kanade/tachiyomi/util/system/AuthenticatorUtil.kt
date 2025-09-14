@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.Executor
 
 object AuthenticatorUtil {
-
     /**
      * A check to avoid double authentication on older APIs when confirming settings changes since
      * the biometric prompt is launched in a separate activity outside of the app.
@@ -32,18 +31,22 @@ object AuthenticatorUtil {
     ) {
         isAuthenticating = true
         val executor: Executor = ContextCompat.getMainExecutor(this)
-        val biometricPrompt = BiometricPrompt(
-            this,
-            executor,
-            callback,
-        )
+        val biometricPrompt =
+            BiometricPrompt(
+                this,
+                executor,
+                callback,
+            )
 
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_WEAK)
-            .setConfirmationRequired(confirmationRequired)
-            .build()
+        val promptInfo =
+            BiometricPrompt.PromptInfo
+                .Builder()
+                .setTitle(title)
+                .setSubtitle(subtitle)
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_WEAK,
+                ).setConfirmationRequired(confirmationRequired)
+                .build()
 
         biometricPrompt.authenticate(promptInfo)
     }
@@ -63,7 +66,10 @@ object AuthenticatorUtil {
      */
     abstract class AuthenticationCallback : BiometricPrompt.AuthenticationCallback() {
         @CallSuper
-        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+        override fun onAuthenticationError(
+            errorCode: Int,
+            errString: CharSequence,
+        ) {
             isAuthenticating = false
         }
 

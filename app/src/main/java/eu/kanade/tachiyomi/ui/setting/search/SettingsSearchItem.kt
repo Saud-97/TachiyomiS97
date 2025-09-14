@@ -17,12 +17,8 @@ class SettingsSearchItem(
     val settingsSearchResult: SettingsSearchHelper.SettingsSearchResult,
     val results: List<SettingsSearchItem>?,
     val searchResult: String,
-) :
-    AbstractFlexibleItem<SettingsSearchHolder>() {
-
-    override fun getLayoutRes(): Int {
-        return R.layout.settings_search_controller_card
-    }
+) : AbstractFlexibleItem<SettingsSearchHolder>() {
+    override fun getLayoutRes(): Int = R.layout.settings_search_controller_card
 
     /**
      * Create view holder (see [SettingsSearchAdapter].
@@ -32,9 +28,7 @@ class SettingsSearchItem(
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): SettingsSearchHolder {
-        return SettingsSearchHolder(view, adapter as SettingsSearchAdapter)
-    }
+    ): SettingsSearchHolder = SettingsSearchHolder(view, adapter as SettingsSearchAdapter)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -52,7 +46,5 @@ class SettingsSearchItem(
         return false
     }
 
-    override fun hashCode(): Int {
-        return settingsSearchResult.hashCode()
-    }
+    override fun hashCode(): Int = settingsSearchResult.hashCode()
 }

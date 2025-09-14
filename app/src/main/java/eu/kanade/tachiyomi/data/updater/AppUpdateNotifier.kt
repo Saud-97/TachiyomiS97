@@ -21,8 +21,9 @@ import eu.kanade.tachiyomi.util.system.notificationManager
  *
  * @param context context of application.
  */
-internal class AppUpdateNotifier(private val context: Context) {
-
+internal class AppUpdateNotifier(
+    private val context: Context,
+) {
     /**
      * Builder to manage notifications.
      */
@@ -84,13 +85,19 @@ internal class AppUpdateNotifier(private val context: Context) {
 
     private fun NotificationCompat.Builder.addReleasePageAction() {
         releasePageUrl?.let { releaseUrl ->
-            val releaseIntent = Intent(Intent.ACTION_VIEW, releaseUrl.toUri()).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
+            val releaseIntent =
+                Intent(Intent.ACTION_VIEW, releaseUrl.toUri()).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
             addAction(
                 R.drawable.ic_new_releases_24dp,
                 context.getString(R.string.release_page),
-                PendingIntent.getActivity(context, releaseUrl.hashCode(), releaseIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE),
+                PendingIntent.getActivity(
+                    context,
+                    releaseUrl.hashCode(),
+                    releaseIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                ),
             )
         }
     }
@@ -193,12 +200,13 @@ internal class AppUpdateNotifier(private val context: Context) {
             setAutoCancel(true)
             setOngoing(false)
             setProgress(0, 0, false)
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                context.packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+            val pendingIntent =
+                PendingIntent.getActivity(
+                    context,
+                    0,
+                    context.packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             setContentIntent(pendingIntent)
             clearActions()
             addAction(

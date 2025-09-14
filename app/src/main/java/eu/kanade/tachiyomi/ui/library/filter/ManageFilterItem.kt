@@ -13,14 +13,13 @@ import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 /**
  * Category item for a recycler view.
  */
-class ManageFilterItem(val char: Char) : AbstractFlexibleItem<ManageFilterItem.Holder>() {
-
+class ManageFilterItem(
+    val char: Char,
+) : AbstractFlexibleItem<ManageFilterItem.Holder>() {
     /**
      * Returns the layout resource for this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.categories_item
-    }
+    override fun getLayoutRes(): Int = R.layout.categories_item
 
     /**
      * Returns a new view holder for this item.
@@ -31,9 +30,7 @@ class ManageFilterItem(val char: Char) : AbstractFlexibleItem<ManageFilterItem.H
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): Holder {
-        return Holder(view, adapter)
-    }
+    ): Holder = Holder(view, adapter)
 
     /**
      * Binds the given view holder with this item.
@@ -55,9 +52,7 @@ class ManageFilterItem(val char: Char) : AbstractFlexibleItem<ManageFilterItem.H
     /**
      * Returns true if this item is draggable.
      */
-    override fun isDraggable(): Boolean {
-        return true
-    }
+    override fun isDraggable(): Boolean = true
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -67,14 +62,14 @@ class ManageFilterItem(val char: Char) : AbstractFlexibleItem<ManageFilterItem.H
         return false
     }
 
-    override fun hashCode(): Int {
-        return char.hashCode()
-    }
+    override fun hashCode(): Int = char.hashCode()
 
-    class Holder(val view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>) :
-        BaseFlexibleViewHolder(view, adapter, true) {
-
+    class Holder(
+        val view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ) : BaseFlexibleViewHolder(view, adapter, true) {
         private val binding = CategoriesItemBinding.bind(view)
+
         init {
             binding.image.isVisible = false
             binding.editButton.isVisible = false

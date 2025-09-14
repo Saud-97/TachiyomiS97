@@ -11,9 +11,10 @@ import eu.kanade.tachiyomi.ui.base.holder.BaseFlexibleViewHolder
 import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.view.compatToolTipText
 
-class SourceHolder(view: View, val adapter: SourceAdapter) :
-    BaseFlexibleViewHolder(view, adapter) {
-
+class SourceHolder(
+    view: View,
+    val adapter: SourceAdapter,
+) : BaseFlexibleViewHolder(view, adapter) {
     val binding = SourceItemBinding.bind(view)
 
     init {
@@ -37,15 +38,16 @@ class SourceHolder(view: View, val adapter: SourceAdapter) :
         binding.title.text = sourceName
 
         binding.sourcePin.apply {
-            imageTintList = ColorStateList.valueOf(
-                context.getResourceColor(
-                    if (isPinned) {
-                        R.attr.colorSecondary
-                    } else {
-                        android.R.attr.textColorSecondary
-                    },
-                ),
-            )
+            imageTintList =
+                ColorStateList.valueOf(
+                    context.getResourceColor(
+                        if (isPinned) {
+                            R.attr.colorSecondary
+                        } else {
+                            android.R.attr.textColorSecondary
+                        },
+                    ),
+                )
             compatToolTipText = context.getString(if (isPinned) R.string.unpin else R.string.pin)
             setImageResource(
                 if (isPinned) {
@@ -68,15 +70,9 @@ class SourceHolder(view: View, val adapter: SourceAdapter) :
         binding.sourceLatest.isVisible = source.supportsLatest
     }
 
-    override fun getFrontView(): View {
-        return binding.card
-    }
+    override fun getFrontView(): View = binding.card
 
-    override fun getRearStartView(): View {
-        return binding.startView
-    }
+    override fun getRearStartView(): View = binding.startView
 
-    override fun getRearEndView(): View {
-        return binding.endView
-    }
+    override fun getRearEndView(): View = binding.endView
 }

@@ -19,7 +19,6 @@ import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 
 internal class ExtensionApi {
-
     private val json: Json by injectLazy()
     private val networkService: NetworkHelper by injectLazy()
     private val preferences: PreferencesHelper by injectLazy()
@@ -40,11 +39,12 @@ internal class ExtensionApi {
         }
     }
 
-    private suspend fun getExtensions(repoBaseUrl: String): List<Extension.Available> {
-        return try {
-            val response = networkService.client
-                .newCall(GET("$repoBaseUrl/index.min.json"))
-                .awaitSuccess()
+    private suspend fun getExtensions(repoBaseUrl: String): List<Extension.Available> =
+        try {
+            val response =
+                networkService.client
+                    .newCall(GET("$repoBaseUrl/index.min.json"))
+                    .awaitSuccess()
 
             with(json) {
                 response
@@ -55,18 +55,22 @@ internal class ExtensionApi {
             Timber.e(e, "Failed to get extensions from $repoBaseUrl")
             emptyList()
         }
-    }
 
-    suspend fun checkForUpdates(context: Context, prefetchedExtensions: List<Extension.Available>? = null): List<Extension.Available> {
-        return withIOContext {
+    suspend fun checkForUpdates(
+        context: Context,
+        prefetchedExtensions: List<Extension.Available>? = null,
+    ): List<Extension.Available> =
+        withIOContext {
             val extensions = prefetchedExtensions ?: findExtensions()
 
             val extensionManager: ExtensionManager = Injekt.get()
-            val installedExtensions = extensionManager.installedExtensionsFlow.value.ifEmpty {
-                ExtensionLoader.loadExtensionAsync(context)
-                    .filterIsInstance<LoadResult.Success>()
-                    .map { it.extension }
-            }
+            val installedExtensions =
+                extensionManager.installedExtensionsFlow.value.ifEmpty {
+                    ExtensionLoader
+                        .loadExtensionAsync(context)
+                        .filterIsInstance<LoadResult.Success>()
+                        .map { it.extension }
+                }
 
             val extensionsWithUpdate = mutableListOf<Extension.Available>()
             for (installedExt in installedExtensions) {
@@ -82,15 +86,13 @@ internal class ExtensionApi {
 
             extensionsWithUpdate
         }
-    }
 
-    private fun List<ExtensionJsonObject>.toExtensions(repoUrl: String): List<Extension.Available> {
-        return this
+    private fun List<ExtensionJsonObject>.toExtensions(repoUrl: String): List<Extension.Available> =
+        this
             .filter {
                 val libVersion = it.extractLibVersion()
                 libVersion >= ExtensionLoader.LIB_VERSION_MIN && libVersion <= ExtensionLoader.LIB_VERSION_MAX
-            }
-            .map {
+            }.map {
                 Extension.Available(
                     name = it.name.substringAfter("Tachiyomi: "),
                     pkgName = it.pkg,
@@ -105,15 +107,10 @@ internal class ExtensionApi {
                     repoUrl = repoUrl,
                 )
             }
-    }
 
-    fun getApkUrl(extension: ExtensionManager.ExtensionInfo): String {
-        return "${extension.repoUrl}/apk/${extension.apkName}"
-    }
+    fun getApkUrl(extension: ExtensionManager.ExtensionInfo): String = "${extension.repoUrl}/apk/${extension.apkName}"
 
-    private fun ExtensionJsonObject.extractLibVersion(): Double {
-        return version.substringBeforeLast('.').toDouble()
-    }
+    private fun ExtensionJsonObject.extractLibVersion(): Double = version.substringBeforeLast('.').toDouble()
 }
 
 @Serializable

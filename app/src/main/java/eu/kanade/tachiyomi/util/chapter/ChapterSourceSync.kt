@@ -36,16 +36,17 @@ fun syncChaptersWithSource(
     // Chapters from db.
     val dbChapters = db.getChapters(manga).executeAsBlocking()
 
-    val sourceChapters = rawSourceChapters
-        .distinctBy { it.url }
-        .mapIndexed { i, sChapter ->
-            Chapter.create().apply {
-                copyFrom(sChapter)
-                name = with(ChapterSanitizer) { sChapter.name.sanitize(manga.title) }
-                manga_id = manga.id
-                source_order = i
+    val sourceChapters =
+        rawSourceChapters
+            .distinctBy { it.url }
+            .mapIndexed { i, sChapter ->
+                Chapter.create().apply {
+                    copyFrom(sChapter)
+                    name = with(ChapterSanitizer) { sChapter.name.sanitize(manga.title) }
+                    manga_id = manga.id
+                    source_order = i
+                }
             }
-        }
 
     // Chapters from the source not in db.
     val toAdd = mutableListOf<Chapter>()
@@ -92,11 +93,12 @@ fun syncChaptersWithSource(
     }
 
     // Chapters from the db not in the source.
-    val toDelete = dbChapters.filterNot { dbChapter ->
-        sourceChapters.any { sourceChapter ->
-            dbChapter.url == sourceChapter.url
+    val toDelete =
+        dbChapters.filterNot { dbChapter ->
+            sourceChapters.any { sourceChapter ->
+                dbChapter.url == sourceChapter.url
+            }
         }
-    }
 
     // Return if there's nothing to add, delete or change, avoid unnecessary db transactions.
     if (toAdd.isEmpty() && toDelete.isEmpty() && toChange.isEmpty()) {
@@ -137,8 +139,10 @@ fun syncChaptersWithSource(
                         chapter.read = true
                     }
                     // Try to to use the fetch date it originally had to not pollute 'Updates' tab
-                    toDelete.filter { it.chapter_number == chapter.chapter_number }
-                        .minByOrNull { it.date_fetch }?.let {
+                    toDelete
+                        .filter { it.chapter_number == chapter.chapter_number }
+                        .minByOrNull { it.date_fetch }
+                        ?.let {
                             chapter.date_fetch = it.date_fetch
                         }
 
@@ -159,8 +163,11 @@ fun syncChaptersWithSource(
         db.fixChaptersSourceOrder(sourceChapters).executeAsBlocking()
 
         // Set this manga as updated since chapters were changed
-        val newestChapterDate = db.getChapters(manga).executeAsBlocking()
-            .maxOfOrNull { it.date_upload } ?: 0L
+        val newestChapterDate =
+            db
+                .getChapters(manga)
+                .executeAsBlocking()
+                .maxOfOrNull { it.date_upload } ?: 0L
         if (newestChapterDate == 0L) {
             if (toAdd.isNotEmpty()) {
                 manga.last_update = Date().time
@@ -178,10 +185,12 @@ fun syncChaptersWithSource(
 }
 
 // checks if the chapter in db needs updated
-private fun shouldUpdateDbChapter(dbChapter: Chapter, sourceChapter: Chapter): Boolean {
-    return dbChapter.scanlator != sourceChapter.scanlator ||
+private fun shouldUpdateDbChapter(
+    dbChapter: Chapter,
+    sourceChapter: Chapter,
+): Boolean =
+    dbChapter.scanlator != sourceChapter.scanlator ||
         dbChapter.name != sourceChapter.name ||
         dbChapter.date_upload != sourceChapter.date_upload ||
         dbChapter.chapter_number != sourceChapter.chapter_number ||
         dbChapter.source_order != sourceChapter.source_order
-}

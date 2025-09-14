@@ -11,11 +11,13 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign
 
-class LibraryGestureDetector(private val controller: LibraryController) : GestureDetector
-.SimpleOnGestureListener() {
-
+class LibraryGestureDetector(
+    private val controller: LibraryController,
+) : GestureDetector
+        .SimpleOnGestureListener() {
     private var startingX = 0f
     private var startingY = 0f
+
     override fun onDown(e: MotionEvent): Boolean {
         startingX = e.x
         startingY = e.y
@@ -45,7 +47,10 @@ class LibraryGestureDetector(private val controller: LibraryController) : Gestur
         val diffY = e2.y - startingY
         val diffX = e2.x - startingX
         val hopperFrame = controller.binding.categoryHopperFrame
-        val animator = controller.binding.categoryHopperFrame.animate().setDuration(150L)
+        val animator =
+            controller.binding.categoryHopperFrame
+                .animate()
+                .setDuration(150L)
         animator.translationX(0f)
         animator.withEndAction {
             hopperFrame.translationX = 0f
@@ -57,7 +62,8 @@ class LibraryGestureDetector(private val controller: LibraryController) : Gestur
             if (diffY <= 0) {
                 controller.showSheet()
             } else {
-                controller.binding.filterBottomSheet.filterBottomSheet.sheetBehavior?.hide()
+                controller.binding.filterBottomSheet.filterBottomSheet.sheetBehavior
+                    ?.hide()
             }
         } else if (abs(diffX) >= abs(diffY) &&
             abs(diffX) > SWIPE_THRESHOLD * 5 &&
@@ -66,49 +72,51 @@ class LibraryGestureDetector(private val controller: LibraryController) : Gestur
         ) {
             val hopperGravity = (controller.binding.categoryHopperFrame.layoutParams as CoordinatorLayout.LayoutParams).gravity
             if (diffX <= 0) {
-                animator.translationX(
-                    if (hopperGravity == Gravity.TOP or Gravity.LEFT) {
-                        0f
-                    } else {
-                        (-(controller.view!!.width - controller.binding.categoryHopperFrame.width) / 2).toFloat()
-                    },
-                ).withEndAction {
-                    hopperFrame.updateLayoutParams<CoordinatorLayout.LayoutParams> {
-                        gravity =
-                            Gravity.TOP or (
-                            if (gravity == Gravity.TOP or Gravity.RIGHT) {
-                                controller.preferences.hopperGravity().set(1)
-                                Gravity.CENTER
-                            } else {
-                                controller.preferences.hopperGravity().set(0)
-                                Gravity.LEFT
-                            }
-                            )
+                animator
+                    .translationX(
+                        if (hopperGravity == Gravity.TOP or Gravity.LEFT) {
+                            0f
+                        } else {
+                            (-(controller.view!!.width - controller.binding.categoryHopperFrame.width) / 2).toFloat()
+                        },
+                    ).withEndAction {
+                        hopperFrame.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                            gravity =
+                                Gravity.TOP or (
+                                    if (gravity == Gravity.TOP or Gravity.RIGHT) {
+                                        controller.preferences.hopperGravity().set(1)
+                                        Gravity.CENTER
+                                    } else {
+                                        controller.preferences.hopperGravity().set(0)
+                                        Gravity.LEFT
+                                    }
+                                )
+                        }
+                        savePrefs()
                     }
-                    savePrefs()
-                }
             } else {
-                animator.translationX(
-                    if (hopperGravity == Gravity.TOP or Gravity.RIGHT) {
-                        0f
-                    } else {
-                        ((controller.view!!.width - hopperFrame.width) / 2).toFloat()
-                    },
-                ).withEndAction {
-                    hopperFrame.updateLayoutParams<CoordinatorLayout.LayoutParams> {
-                        gravity =
-                            Gravity.TOP or (
-                            if (gravity == Gravity.TOP or Gravity.LEFT) {
-                                controller.preferences.hopperGravity().set(1)
-                                Gravity.CENTER
-                            } else {
-                                controller.preferences.hopperGravity().set(2)
-                                Gravity.RIGHT
-                            }
-                            )
+                animator
+                    .translationX(
+                        if (hopperGravity == Gravity.TOP or Gravity.RIGHT) {
+                            0f
+                        } else {
+                            ((controller.view!!.width - hopperFrame.width) / 2).toFloat()
+                        },
+                    ).withEndAction {
+                        hopperFrame.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                            gravity =
+                                Gravity.TOP or (
+                                    if (gravity == Gravity.TOP or Gravity.LEFT) {
+                                        controller.preferences.hopperGravity().set(1)
+                                        Gravity.CENTER
+                                    } else {
+                                        controller.preferences.hopperGravity().set(2)
+                                        Gravity.RIGHT
+                                    }
+                                )
+                        }
+                        savePrefs()
                     }
-                    savePrefs()
-                }
             }
             result = true
         }

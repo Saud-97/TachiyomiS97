@@ -17,14 +17,19 @@ class RepoPresenter(
     private val controller: RepoController,
     private val preferences: PreferencesHelper = Injekt.get(),
 ) : BaseCoroutinePresenter<RepoController>() {
-
     private var scope = CoroutineScope(Job() + Dispatchers.Default)
 
     /**
      * List containing repos.
      */
     private var repos: Set<String>
-        get() = preferences.extensionRepos().get().map { "$it/index.min.json" }.sorted().toSet()
+        get() =
+            preferences
+                .extensionRepos()
+                .get()
+                .map { "$it/index.min.json" }
+                .sorted()
+                .toSet()
         set(value) = preferences.extensionRepos().set(value.map { it.removeSuffix("/index.min.json") }.toSet())
 
     /**
@@ -38,17 +43,15 @@ class RepoPresenter(
         }
     }
 
-    fun getReposWithCreate(): List<RepoItem> {
-        return (listOf(CREATE_REPO_ITEM) + repos).map(::RepoItem)
-    }
+    fun getReposWithCreate(): List<RepoItem> = (listOf(CREATE_REPO_ITEM) + repos).map(::RepoItem)
 
-    fun getRepoUrl(repo: String): String {
-        return githubRepoRegex.find(repo)
+    fun getRepoUrl(repo: String): String =
+        githubRepoRegex
+            .find(repo)
             ?.let {
                 val (user, repoName) = it.destructured
                 "https://github.com/$user/$repoName"
             } ?: repo
-    }
 
     /**
      * Creates and adds a new repo to the database.
@@ -86,7 +89,10 @@ class RepoPresenter(
      * @param repo The repo to rename.
      * @param name The new name of the repo.
      */
-    fun renameRepo(repo: String, name: String): Boolean {
+    fun renameRepo(
+        repo: String,
+        name: String,
+    ): Boolean {
         if (!repo.equals(name, true)) {
             if (isInvalidRepo(name)) return false
             repos -= repo
@@ -108,9 +114,7 @@ class RepoPresenter(
     /**
      * Returns true if a repo with the given name already exists.
      */
-    private fun repoExists(name: String): Boolean {
-        return repos.any { it.equals(name, true) }
-    }
+    private fun repoExists(name: String): Boolean = repos.any { it.equals(name, true) }
 
     companion object {
         private val repoRegex = """^https://.*/index\.min\.json$""".toRegex()

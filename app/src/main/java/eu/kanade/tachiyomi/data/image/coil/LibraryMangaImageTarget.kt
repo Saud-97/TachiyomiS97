@@ -19,7 +19,6 @@ class LibraryMangaImageTarget(
     override val view: ImageView,
     val manga: Manga,
 ) : ImageViewTarget(view) {
-
     private val coverCache: CoverCache by injectLazy()
 
     override fun onError(error: Drawable?) {
@@ -34,7 +33,8 @@ class LibraryMangaImageTarget(
                     BitmapFactory.decodeFile(file.path, options)
                     if (options.outWidth == -1 || options.outHeight == -1) {
                         file.delete()
-                        view.context.imageLoader.memoryCache?.remove(MemoryCache.Key(manga.key()))
+                        view.context.imageLoader.memoryCache
+                            ?.remove(MemoryCache.Key(manga.key()))
                     }
                 }
             }
@@ -48,12 +48,14 @@ inline fun ImageView.loadManga(
     imageLoader: ImageLoader = context.imageLoader,
     builder: ImageRequest.Builder.() -> Unit = {},
 ): Disposable {
-    val request = ImageRequest.Builder(context)
-        .data(manga)
-        .target(LibraryMangaImageTarget(this, manga))
-        .apply(builder)
-        .memoryCacheKey(manga.key())
-        .build()
+    val request =
+        ImageRequest
+            .Builder(context)
+            .data(manga)
+            .target(LibraryMangaImageTarget(this, manga))
+            .apply(builder)
+            .memoryCacheKey(manga.key())
+            .build()
     return imageLoader.enqueue(request)
 }
 
@@ -66,12 +68,15 @@ fun Palette.getBestColor(): Int? {
     val mutedSaturationLimit = if (mutedPopulation > vibPopulation * 3f) 0.1f else 0.25f
     return when {
         (dominantSwatch?.hsl?.get(1) ?: 0f) >= .25f &&
-            domLum <= .8f && domLum > .2f -> dominantSwatch?.rgb
+            domLum <= .8f &&
+            domLum > .2f -> dominantSwatch?.rgb
         vibPopulation >= mutedPopulation * 0.75f -> vibrantSwatch?.rgb
         mutedPopulation > vibPopulation * 1.5f &&
             (mutedSwatch?.hsl?.get(1) ?: 0f) > mutedSaturationLimit -> mutedSwatch?.rgb
-        else -> arrayListOf(vibrantSwatch, lightVibrantSwatch, darkVibrantSwatch).maxByOrNull {
-            if (it === vibrantSwatch) (it?.population ?: -1) * 3 else it?.population ?: -1
-        }?.rgb
+        else ->
+            arrayListOf(vibrantSwatch, lightVibrantSwatch, darkVibrantSwatch)
+                .maxByOrNull {
+                    if (it === vibrantSwatch) (it?.population ?: -1) * 3 else it?.population ?: -1
+                }?.rgb
     }
 }

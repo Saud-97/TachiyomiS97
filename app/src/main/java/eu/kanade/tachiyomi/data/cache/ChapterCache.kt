@@ -35,8 +35,9 @@ import kotlin.math.roundToLong
  * @param context the application context.
  * @constructor creates an instance of the chapter cache.
  */
-class ChapterCache(private val context: Context) {
-
+class ChapterCache(
+    private val context: Context,
+) {
     companion object {
         /** Name of cache directory.  */
         const val PARAMETER_CACHE_DIRECTORY = "chapter_disk_cache"
@@ -80,26 +81,26 @@ class ChapterCache(private val context: Context) {
         get() = Formatter.formatFileSize(context, realSize)
 
     init {
-        preferences.preloadSize().asFlow()
+        preferences
+            .preloadSize()
+            .asFlow()
             .drop(1)
             .onEach {
                 // Save old cache for destruction later
                 val oldCache = diskCache
                 diskCache = setupDiskCache(it)
                 oldCache.close()
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
     }
 
-    private fun setupDiskCache(cacheSize: Int): DiskLruCache {
-        return DiskLruCache.open(
+    private fun setupDiskCache(cacheSize: Int): DiskLruCache =
+        DiskLruCache.open(
             File(context.cacheDir, PARAMETER_CACHE_DIRECTORY),
             PARAMETER_APP_VERSION,
             PARAMETER_VALUE_COUNT,
             // 4 pages = 115MB, 6 = ~150MB, 10 = ~200MB, 20 = ~300MB
             (PARAMETER_CACHE_SIZE * cacheSize.toFloat().pow(0.6f)).roundToLong(),
         )
-    }
 
     /**
      * Remove file from cache.
@@ -145,7 +146,10 @@ class ChapterCache(private val context: Context) {
      * @param chapter the chapter.
      * @param pages list of pages.
      */
-    fun putPageListToCache(chapter: Chapter, pages: List<Page>) {
+    fun putPageListToCache(
+        chapter: Chapter,
+        pages: List<Page>,
+    ) {
         // Convert list of pages to json string.
         val cachedValue = json.encodeToString(pages)
 
@@ -179,13 +183,12 @@ class ChapterCache(private val context: Context) {
      * @param imageUrl url of image.
      * @return true if in cache otherwise false.
      */
-    fun isImageInCache(imageUrl: String): Boolean {
-        return try {
+    fun isImageInCache(imageUrl: String): Boolean =
+        try {
             diskCache.get(DiskUtil.hashKeyForDisk(imageUrl)).use { it != null }
         } catch (e: IOException) {
             false
         }
-    }
 
     /**
      * Get image file from url.
@@ -207,7 +210,10 @@ class ChapterCache(private val context: Context) {
      * @throws IOException image error.
      */
     @Throws(IOException::class)
-    fun putImageToCache(imageUrl: String, response: Response) {
+    fun putImageToCache(
+        imageUrl: String,
+        response: Response,
+    ) {
         // Initialize editor (edits the values for an entry).
         var editor: DiskLruCache.Editor? = null
 
@@ -227,7 +233,5 @@ class ChapterCache(private val context: Context) {
         }
     }
 
-    private fun getKey(chapter: Chapter): String {
-        return "${chapter.manga_id}${chapter.url}"
-    }
+    private fun getKey(chapter: Chapter): String = "${chapter.manga_id}${chapter.url}"
 }

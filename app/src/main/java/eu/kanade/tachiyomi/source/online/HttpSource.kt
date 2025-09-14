@@ -32,7 +32,6 @@ import java.security.MessageDigest
  */
 @Suppress("unused")
 abstract class HttpSource : CatalogueSource {
-
     /**
      * Network service.
      */
@@ -89,7 +88,11 @@ abstract class HttpSource : CatalogueSource {
      * @return a unique ID for the source
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    protected fun generateId(name: String, lang: String, versionId: Int): Long {
+    protected fun generateId(
+        name: String,
+        lang: String,
+        versionId: Int,
+    ): Long {
         val key = "${name.lowercase()}/$lang/$versionId"
         val bytes = MessageDigest.getInstance("MD5").digest(key.toByteArray())
         return (0..7).map { bytes[it].toLong() and 0xff shl 8 * (7 - it) }.reduce(Long::or) and Long.MAX_VALUE
@@ -98,9 +101,10 @@ abstract class HttpSource : CatalogueSource {
     /**
      * Headers builder for requests. Implementations can override this method for custom headers.
      */
-    protected open fun headersBuilder() = Headers.Builder().apply {
-        add("User-Agent", network.defaultUserAgent)
-    }
+    protected open fun headersBuilder() =
+        Headers.Builder().apply {
+            add("User-Agent", network.defaultUserAgent)
+        }
 
     /**
      * Visible name of the source.
@@ -113,13 +117,13 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param page the page number to retrieve.
      */
-    override fun fetchPopularManga(page: Int): Observable<MangasPage> {
-        return client.newCall(popularMangaRequest(page))
+    override fun fetchPopularManga(page: Int): Observable<MangasPage> =
+        client
+            .newCall(popularMangaRequest(page))
             .asObservableSuccess()
             .map { response ->
                 popularMangaParse(response)
             }
-    }
 
     fun getExtension(extensionManager: ExtensionManager? = null): Extension.Installed? =
         (extensionManager ?: Injekt.get()).installedExtensionsFlow.value.find { it.sources.contains(this) }
@@ -153,20 +157,19 @@ abstract class HttpSource : CatalogueSource {
         page: Int,
         query: String,
         filters: FilterList,
-    ): Observable<MangasPage> {
-        return Observable.defer {
-            try {
-                client.newCall(searchMangaRequest(page, query, filters)).asObservableSuccess()
-            } catch (e: NoClassDefFoundError) {
-                // RxJava doesn't handle Errors, which tends to happen during global searches
-                // if an old extension using non-existent classes is still around
-                throw RuntimeException(e)
-            }
-        }
-            .map { response ->
+    ): Observable<MangasPage> =
+        Observable
+            .defer {
+                try {
+                    client.newCall(searchMangaRequest(page, query, filters)).asObservableSuccess()
+                } catch (e: NoClassDefFoundError) {
+                    // RxJava doesn't handle Errors, which tends to happen during global searches
+                    // if an old extension using non-existent classes is still around
+                    throw RuntimeException(e)
+                }
+            }.map { response ->
                 searchMangaParse(response)
             }
-    }
 
     /**
      * Returns the request for the search manga given the page.
@@ -193,13 +196,13 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param page the page number to retrieve.
      */
-    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> {
-        return client.newCall(latestUpdatesRequest(page))
+    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> =
+        client
+            .newCall(latestUpdatesRequest(page))
             .asObservableSuccess()
             .map { response ->
                 latestUpdatesParse(response)
             }
-    }
 
     /**
      * Returns the request for latest manga given the page.
@@ -223,18 +226,16 @@ abstract class HttpSource : CatalogueSource {
      * @return the updated manga.
      */
     @Suppress("DEPRECATION")
-    override suspend fun getMangaDetails(manga: SManga): SManga {
-        return fetchMangaDetails(manga).awaitSingle()
-    }
+    override suspend fun getMangaDetails(manga: SManga): SManga = fetchMangaDetails(manga).awaitSingle()
 
     @Deprecated("Use the non-RxJava API instead", replaceWith = ReplaceWith("getMangaDetails"))
-    override fun fetchMangaDetails(manga: SManga): Observable<SManga> {
-        return client.newCall(mangaDetailsRequest(manga))
+    override fun fetchMangaDetails(manga: SManga): Observable<SManga> =
+        client
+            .newCall(mangaDetailsRequest(manga))
             .asObservableSuccess()
             .map { response ->
                 mangaDetailsParse(response).apply { initialized = true }
             }
-    }
 
     /**
      * Returns the request for the details of a manga. Override only if it's needed to change the
@@ -242,9 +243,7 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param manga the manga to be updated.
      */
-    open fun mangaDetailsRequest(manga: SManga): Request {
-        return GET(baseUrl + manga.url, headers)
-    }
+    open fun mangaDetailsRequest(manga: SManga): Request = GET(baseUrl + manga.url, headers)
 
     /**
      * Parses the response from the site and returns the details of a manga.
@@ -271,9 +270,10 @@ abstract class HttpSource : CatalogueSource {
     }
 
     @Deprecated("Use the non-RxJava API instead", replaceWith = ReplaceWith("getChapterList"))
-    override fun fetchChapterList(manga: SManga): Observable<List<SChapter>> {
-        return if (manga.status != SManga.LICENSED) {
-            client.newCall(chapterListRequest(manga))
+    override fun fetchChapterList(manga: SManga): Observable<List<SChapter>> =
+        if (manga.status != SManga.LICENSED) {
+            client
+                .newCall(chapterListRequest(manga))
                 .asObservableSuccess()
                 .map { response ->
                     chapterListParse(response)
@@ -281,7 +281,6 @@ abstract class HttpSource : CatalogueSource {
         } else {
             Observable.error(LicensedMangaChaptersException())
         }
-    }
 
     /**
      * Returns the request for updating the chapter list. Override only if it's needed to override
@@ -289,9 +288,7 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param manga the manga to look for chapters.
      */
-    protected open fun chapterListRequest(manga: SManga): Request {
-        return GET(baseUrl + manga.url, headers)
-    }
+    protected open fun chapterListRequest(manga: SManga): Request = GET(baseUrl + manga.url, headers)
 
     /**
      * Parses the response from the site and returns a list of chapters.
@@ -308,18 +305,16 @@ abstract class HttpSource : CatalogueSource {
      * @return the pages for the chapter.
      */
     @Suppress("DEPRECATION")
-    override suspend fun getPageList(chapter: SChapter): List<Page> {
-        return fetchPageList(chapter).awaitSingle()
-    }
+    override suspend fun getPageList(chapter: SChapter): List<Page> = fetchPageList(chapter).awaitSingle()
 
     @Deprecated("Use the non-RxJava API instead", replaceWith = ReplaceWith("getPageList"))
-    override fun fetchPageList(chapter: SChapter): Observable<List<Page>> {
-        return client.newCall(pageListRequest(chapter))
+    override fun fetchPageList(chapter: SChapter): Observable<List<Page>> =
+        client
+            .newCall(pageListRequest(chapter))
             .asObservableSuccess()
             .map { response ->
                 pageListParse(response)
             }
-    }
 
     /**
      * Returns the request for getting the page list. Override only if it's needed to override the
@@ -327,9 +322,7 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param chapter the chapter whose page list has to be fetched.
      */
-    protected open fun pageListRequest(chapter: SChapter): Request {
-        return GET(baseUrl + chapter.url, headers)
-    }
+    protected open fun pageListRequest(chapter: SChapter): Request = GET(baseUrl + chapter.url, headers)
 
     /**
      * Parses the response from the site and returns a list of pages.
@@ -346,16 +339,14 @@ abstract class HttpSource : CatalogueSource {
      * @param page the page whose source image has to be fetched.
      */
     @Suppress("DEPRECATION")
-    open suspend fun getImageUrl(page: Page): String {
-        return fetchImageUrl(page).awaitSingle()
-    }
+    open suspend fun getImageUrl(page: Page): String = fetchImageUrl(page).awaitSingle()
 
     @Deprecated("Use the non-RxJava API instead", replaceWith = ReplaceWith("getImageUrl"))
-    open fun fetchImageUrl(page: Page): Observable<String> {
-        return client.newCall(imageUrlRequest(page))
+    open fun fetchImageUrl(page: Page): Observable<String> =
+        client
+            .newCall(imageUrlRequest(page))
             .asObservableSuccess()
             .map { imageUrlParse(it) }
-    }
 
     /**
      * Returns the request for getting the url to the source image. Override only if it's needed to
@@ -363,9 +354,7 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param page the chapter whose page list has to be fetched
      */
-    protected open fun imageUrlRequest(page: Page): Request {
-        return GET(page.url, headers)
-    }
+    protected open fun imageUrlRequest(page: Page): Request = GET(page.url, headers)
 
     /**
      * Parses the response from the site and returns the absolute url to the source image.
@@ -381,10 +370,10 @@ abstract class HttpSource : CatalogueSource {
      * @since extensions-lib 1.5
      * @param page the page whose source image has to be downloaded.
      */
-    open suspend fun getImage(page: Page): Response {
-        return client.newCachelessCallWithProgress(imageRequest(page), page)
+    open suspend fun getImage(page: Page): Response =
+        client
+            .newCachelessCallWithProgress(imageRequest(page), page)
             .awaitSuccess()
-    }
 
     /**
      * Returns the request for getting the source image. Override only if it's needed to override
@@ -392,9 +381,7 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param page the chapter whose page list has to be fetched
      */
-    protected open fun imageRequest(page: Page): Request {
-        return GET(page.imageUrl!!, headers)
-    }
+    protected open fun imageRequest(page: Page): Request = GET(page.imageUrl!!, headers)
 
     /**
      * Assigns the url of the chapter without the scheme and domain. It saves some redundancy from
@@ -421,8 +408,8 @@ abstract class HttpSource : CatalogueSource {
      *
      * @param orig the full url.
      */
-    private fun getUrlWithoutDomain(orig: String): String {
-        return try {
+    private fun getUrlWithoutDomain(orig: String): String =
+        try {
             val uri = URI(orig.replace(" ", "%20"))
             var out = uri.path
             if (uri.query != null) {
@@ -435,7 +422,6 @@ abstract class HttpSource : CatalogueSource {
         } catch (e: URISyntaxException) {
             orig
         }
-    }
 
     /**
      * Returns the url of the provided manga
@@ -444,9 +430,7 @@ abstract class HttpSource : CatalogueSource {
      * @param manga the manga
      * @return url of the manga
      */
-    open fun getMangaUrl(manga: SManga): String {
-        return mangaDetailsRequest(manga).url.toString()
-    }
+    open fun getMangaUrl(manga: SManga): String = mangaDetailsRequest(manga).url.toString()
 
     /**
      * Returns the url of the provided chapter, default is empty to use workaround when possible
@@ -455,11 +439,12 @@ abstract class HttpSource : CatalogueSource {
      * @param chapter the chapter
      * @return url of the chapter
      */
-    open fun getChapterUrl(chapter: SChapter): String {
-        return ""
-    }
+    open fun getChapterUrl(chapter: SChapter): String = ""
 
-    fun getChapterUrl(manga: SManga?, chapter: SChapter): String? {
+    fun getChapterUrl(
+        manga: SManga?,
+        chapter: SChapter,
+    ): String? {
         manga ?: return null
 
         val chapterUrl = chapter.url.getUrlWithoutDomain()
@@ -472,14 +457,20 @@ abstract class HttpSource : CatalogueSource {
     }
 
     /** Helper method to handle guya-like sources */
-    private fun fullChapterUrl(mangaUrl: String, chapterUrl: String, chapter: SChapter): String {
+    private fun fullChapterUrl(
+        mangaUrl: String,
+        chapterUrl: String,
+        chapter: SChapter,
+    ): String {
         val lowerUrl = baseUrl.lowercase()
         return when {
             chapter.url.startsWith("http") -> {
                 chapter.url
             }
-            lowerUrl.contains("guya") || lowerUrl.contains("danke") ||
-                lowerUrl.contains("hachirumi") || lowerUrl.contains("mahoushoujobu") ||
+            lowerUrl.contains("guya") ||
+                lowerUrl.contains("danke") ||
+                lowerUrl.contains("hachirumi") ||
+                lowerUrl.contains("mahoushoujobu") ||
                 (lowerUrl.contains("cubari") && !mangaUrl.contains("imgur")) -> {
                 // cubari links would have double / without the trim end
                 mangaUrl.trimEnd('/') + "/" + chapter.chapter_number.fmt().replace(".", "-")
@@ -488,13 +479,12 @@ abstract class HttpSource : CatalogueSource {
         }
     }
 
-    private fun Float.fmt(): String {
-        return if (this == toLong().toFloat()) {
+    private fun Float.fmt(): String =
+        if (this == toLong().toFloat()) {
             String.format("%d", toLong())
         } else {
             String.format("%s", this)
         }
-    }
 
     /**
      * Called before inserting a new chapter into database. Use it if you need to override chapter
@@ -503,7 +493,10 @@ abstract class HttpSource : CatalogueSource {
      * @param chapter the chapter to be added.
      * @param manga the manga of the chapter.
      */
-    open fun prepareNewChapter(chapter: SChapter, manga: SManga) {}
+    open fun prepareNewChapter(
+        chapter: SChapter,
+        manga: SManga,
+    ) {}
 
     /**
      * Returns the list of filters for the source.

@@ -41,7 +41,6 @@ class SetCategoriesSheet(
     private val addingToLibrary: Boolean,
     val onMangaAdded: (() -> Unit) = { },
 ) : E2EBottomSheetDialog<SetCategoriesSheetBinding>(activity) {
-
     constructor(
         activity: Activity,
         manga: Manga,
@@ -53,13 +52,14 @@ class SetCategoriesSheet(
         activity,
         listOf(manga),
         categories,
-        categories.map {
-            if (it.id in preselected) {
-                TriStateCheckBox.State.CHECKED
-            } else {
-                TriStateCheckBox.State.UNCHECKED
-            }
-        }.toTypedArray(),
+        categories
+            .map {
+                if (it.id in preselected) {
+                    TriStateCheckBox.State.CHECKED
+                } else {
+                    TriStateCheckBox.State.UNCHECKED
+                }
+            }.toTypedArray(),
         addingToLibrary,
         onMangaAdded,
     )
@@ -71,12 +71,14 @@ class SetCategoriesSheet(
     private val preferences: PreferencesHelper by injectLazy()
     override var recyclerView: RecyclerView? = binding.categoryRecyclerView
 
-    private val preCheckedCategories = categories.mapIndexedNotNull { index, category ->
-        category.takeIf { preselected[index] == TriStateCheckBox.State.CHECKED }
-    }
-    private val preIndeterminateCategories = categories.mapIndexedNotNull { index, category ->
-        category.takeIf { preselected[index] == TriStateCheckBox.State.IGNORE }
-    }
+    private val preCheckedCategories =
+        categories.mapIndexedNotNull { index, category ->
+            category.takeIf { preselected[index] == TriStateCheckBox.State.CHECKED }
+        }
+    private val preIndeterminateCategories =
+        categories.mapIndexedNotNull { index, category ->
+            category.takeIf { preselected[index] == TriStateCheckBox.State.IGNORE }
+        }
     private val selectedCategories = preIndeterminateCategories + preCheckedCategories
 
     private val selectedItems: Set<AddCategoryItem>
@@ -91,30 +93,35 @@ class SetCategoriesSheet(
     private val uncheckedItems: Set<AddCategoryItem>
         get() = itemAdapter.adapterItems.filter { !it.isSelected }.toSet()
 
-    override fun createBinding(inflater: LayoutInflater) =
-        SetCategoriesSheetBinding.inflate(inflater)
+    override fun createBinding(inflater: LayoutInflater) = SetCategoriesSheetBinding.inflate(inflater)
 
     init {
-        binding.toolbarTitle.text = context.getString(
-            if (addingToLibrary) R.string.add_x_to else R.string.move_x_to,
-            if (listManga.size == 1) {
-                listManga.first().seriesType(context)
-            } else {
-                context.getString(R.string.selection).lowercase(Locale.ROOT)
-            },
-        )
+        binding.toolbarTitle.text =
+            context.getString(
+                if (addingToLibrary) R.string.add_x_to else R.string.move_x_to,
+                if (listManga.size == 1) {
+                    listManga.first().seriesType(context)
+                } else {
+                    context.getString(R.string.selection).lowercase(Locale.ROOT)
+                },
+            )
 
         setOnShowListener {
             updateBottomButtons()
         }
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                override fun onSlide(
+                    bottomSheet: View,
+                    slideOffset: Float,
+                ) {
                     updateBottomButtons()
                 }
 
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                override fun onStateChanged(
+                    bottomSheet: View,
+                    newState: Int,
+                ) {
                     updateBottomButtons()
                 }
             },
@@ -153,54 +160,63 @@ class SetCategoriesSheet(
     }
 
     private fun setCategoriesButtons() {
-        val addingMore = checkedItems.isNotEmpty() &&
-            selectedCategories.isNotEmpty() &&
-            selectedItems.map { it.category }
-                .containsAll(selectedCategories) &&
-            checkedItems.size > preCheckedCategories.size
-        val nothingChanged = itemAdapter.adapterItems.map { it.state }
-            .toTypedArray()
-            .contentEquals(preselected)
-        val removing = selectedItems.isNotEmpty() && (
-            // Check that selected items has the previous delta items
-            (
-                selectedCategories.containsAll(indeterminateItems.map { it.category }) &&
-                    preIndeterminateCategories.size > indeterminateItems.size
-                ) ||
-                // or check that checked items has the previous checked items
+        val addingMore =
+            checkedItems.isNotEmpty() &&
+                selectedCategories.isNotEmpty() &&
+                selectedItems
+                    .map { it.category }
+                    .containsAll(selectedCategories) &&
+                checkedItems.size > preCheckedCategories.size
+        val nothingChanged =
+            itemAdapter.adapterItems
+                .map { it.state }
+                .toTypedArray()
+                .contentEquals(preselected)
+        val removing =
+            selectedItems.isNotEmpty() &&
                 (
-                    preCheckedCategories.containsAll(checkedItems.map { it.category }) &&
-                        preCheckedCategories.size > checkedItems.size
-                    )
-            ) &&
-            // Additional checks in case a delta item is now fully checked
-            preCheckedCategories.size >= checkedItems.size &&
-            preIndeterminateCategories.size >= indeterminateItems.size
+                    // Check that selected items has the previous delta items
+                    (
+                        selectedCategories.containsAll(indeterminateItems.map { it.category }) &&
+                            preIndeterminateCategories.size > indeterminateItems.size
+                    ) ||
+                        // or check that checked items has the previous checked items
+                        (
+                            preCheckedCategories.containsAll(checkedItems.map { it.category }) &&
+                                preCheckedCategories.size > checkedItems.size
+                        )
+                ) &&
+                // Additional checks in case a delta item is now fully checked
+                preCheckedCategories.size >= checkedItems.size &&
+                preIndeterminateCategories.size >= indeterminateItems.size
 
-        val items = when {
-            addingToLibrary -> checkedItems.map { it.category }
-            addingMore -> checkedItems.map { it.category }.subtract(preCheckedCategories.toSet())
-            removing -> selectedCategories.subtract(selectedItems.map { it.category }.toSet())
-            nothingChanged -> selectedItems.map { it.category }
-            else -> checkedItems.map { it.category }
-        }
-        binding.addToCategoriesButton.text = context.getString(
+        val items =
             when {
-                addingToLibrary || (addingMore && !nothingChanged) -> R.string.add_to_
-                removing -> R.string.remove_from_
-                nothingChanged -> R.string.keep_in_
-                else -> R.string.move_to_
-            },
-            when (items.size) {
-                0 -> context.getString(R.string.default_category).lowercase(Locale.ROOT)
-                1 -> items.firstOrNull()?.name ?: ""
-                else -> context.resources.getQuantityString(
-                    R.plurals.category_plural,
-                    items.size,
-                    items.size,
-                )
-            },
-        )
+                addingToLibrary -> checkedItems.map { it.category }
+                addingMore -> checkedItems.map { it.category }.subtract(preCheckedCategories.toSet())
+                removing -> selectedCategories.subtract(selectedItems.map { it.category }.toSet())
+                nothingChanged -> selectedItems.map { it.category }
+                else -> checkedItems.map { it.category }
+            }
+        binding.addToCategoriesButton.text =
+            context.getString(
+                when {
+                    addingToLibrary || (addingMore && !nothingChanged) -> R.string.add_to_
+                    removing -> R.string.remove_from_
+                    nothingChanged -> R.string.keep_in_
+                    else -> R.string.move_to_
+                },
+                when (items.size) {
+                    0 -> context.getString(R.string.default_category).lowercase(Locale.ROOT)
+                    1 -> items.firstOrNull()?.name ?: ""
+                    else ->
+                        context.resources.getQuantityString(
+                            R.plurals.category_plural,
+                            items.size,
+                            items.size,
+                        )
+                },
+            )
     }
 
     override fun onStart() {
@@ -226,8 +242,10 @@ class SetCategoriesSheet(
         super.onCreate(savedInstanceState)
         val headerHeight = (activity as? MainActivity)?.toolbarHeight ?: 0
         binding.buttonLayout.updatePaddingRelative(
-            bottom = activity.window.decorView.rootWindowInsetsCompat
-                ?.getInsets(systemBars())?.bottom ?: 0,
+            bottom =
+                activity.window.decorView.rootWindowInsetsCompat
+                    ?.getInsets(systemBars())
+                    ?.bottom ?: 0,
         )
 
         binding.buttonLayout.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -270,11 +288,18 @@ class SetCategoriesSheet(
 
         val addCategories = checkedItems.map(AddCategoryItem::category)
         val removeCategories = uncheckedItems.map(AddCategoryItem::category)
-        val mangaCategories = listManga.map { manga ->
-            val categories = db.getCategoriesForManga(manga).executeAsBlocking()
-                .subtract(removeCategories.toSet()).plus(addCategories).distinct()
-            categories.map { MangaCategory.create(manga, it) }
-        }.flatten()
+        val mangaCategories =
+            listManga
+                .map { manga ->
+                    val categories =
+                        db
+                            .getCategoriesForManga(manga)
+                            .executeAsBlocking()
+                            .subtract(removeCategories.toSet())
+                            .plus(addCategories)
+                            .distinct()
+                    categories.map { MangaCategory.create(manga, it) }
+                }.flatten()
         if (addCategories.isNotEmpty() || listManga.size == 1) {
             Category.lastCategoriesAddedTo =
                 addCategories.mapNotNull { it.id }.toSet().ifEmpty { setOf(0) }

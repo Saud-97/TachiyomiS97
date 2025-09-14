@@ -124,9 +124,7 @@ fun View.snack(
     resource: Int,
     length: Int = Snackbar.LENGTH_SHORT,
     f: (Snackbar.() -> Unit)? = null,
-): Snackbar {
-    return snack(context.getString(resource), length, f)
-}
+): Snackbar = snack(context.getString(resource), length, f)
 
 fun Snackbar.getText(): CharSequence {
     val textView: TextView = view.findViewById(com.google.android.material.R.id.snackbar_text)
@@ -134,10 +132,16 @@ fun Snackbar.getText(): CharSequence {
 }
 
 object RecyclerWindowInsetsListener : View.OnApplyWindowInsetsListener {
-    override fun onApplyWindowInsets(v: View, insets: WindowInsets): WindowInsets {
+    override fun onApplyWindowInsets(
+        v: View,
+        insets: WindowInsets,
+    ): WindowInsets {
         v.updatePaddingRelative(
-            bottom = WindowInsetsCompat.toWindowInsetsCompat(insets)
-                .getInsets(systemBars()).bottom,
+            bottom =
+                WindowInsetsCompat
+                    .toWindowInsetsCompat(insets)
+                    .getInsets(systemBars())
+                    .bottom,
         )
         return insets
     }
@@ -184,6 +188,7 @@ fun View.applyBottomAnimatedInsets(
                 rootWindowInsetsCompat?.let { insets -> setInsets(insets) }
                 return super.onStart(animation, bounds)
             }
+
             override fun onProgress(
                 insets: WindowInsetsCompat,
                 runningAnimations: List<WindowInsetsAnimationCompat>,
@@ -200,8 +205,13 @@ fun View.applyBottomAnimatedInsets(
     )
 }
 
-class ControllerViewWindowInsetsListener(private val topHeight: Int) : OnApplyWindowInsetsListener {
-    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+class ControllerViewWindowInsetsListener(
+    private val topHeight: Int,
+) : OnApplyWindowInsetsListener {
+    override fun onApplyWindowInsets(
+        v: View,
+        insets: WindowInsetsCompat,
+    ): WindowInsetsCompat {
         v.updateLayoutParams<FrameLayout.LayoutParams> {
             topMargin = insets.getInsets(systemBars()).top + topHeight
         }
@@ -263,14 +273,15 @@ fun View.requestApplyInsetsWhenAttached() {
     }
 }
 
-private fun createStateForView(view: View) = ViewPaddingState(
-    view.paddingLeft,
-    view.paddingTop,
-    view.paddingRight,
-    view.paddingBottom,
-    view.paddingStart,
-    view.paddingEnd,
-)
+private fun createStateForView(view: View) =
+    ViewPaddingState(
+        view.paddingLeft,
+        view.paddingTop,
+        view.paddingRight,
+        view.paddingBottom,
+        view.paddingStart,
+        view.paddingEnd,
+    )
 
 data class ViewPaddingState(
     val left: Int,
@@ -281,14 +292,18 @@ data class ViewPaddingState(
     val end: Int,
 )
 
-fun setBottomEdge(view: View, activity: Activity) {
+fun setBottomEdge(
+    view: View,
+    activity: Activity,
+) {
     val marginB = view.marginBottom
     view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
         bottomMargin = marginB +
             (
-                activity.window.decorView.rootWindowInsetsCompat?.getInsets(systemBars())
+                activity.window.decorView.rootWindowInsetsCompat
+                    ?.getInsets(systemBars())
                     ?.bottom ?: 0
-                )
+            )
     }
 }
 
@@ -298,13 +313,16 @@ fun SwipeRefreshLayout.setStyle() {
 }
 
 fun MaterialButton.resetStrokeColor() {
-    strokeColor = ColorStateList.valueOf(
-        ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.colorOnSurface), 31),
-    )
+    strokeColor =
+        ColorStateList.valueOf(
+            ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.colorOnSurface), 31),
+        )
 }
 
 @SuppressLint("RestrictedApi")
-fun NavigationBarView.getItemView(@IdRes id: Int): NavigationBarItemView? {
+fun NavigationBarView.getItemView(
+    @IdRes id: Int,
+): NavigationBarItemView? {
     val order = (menu as MenuBuilder).findItemIndex(id)
     return (getChildAt(0) as NavigationBarMenuView).getChildAt(order) as? NavigationBarItemView
 }
@@ -313,14 +331,14 @@ fun RecyclerView.smoothScrollToTop() {
     val linearLayoutManager = layoutManager as? LinearLayoutManager
     val staggeredLayoutManager = layoutManager as? StaggeredGridLayoutManagerAccurateOffset
     if (linearLayoutManager != null || staggeredLayoutManager != null) {
-        val smoothScroller: SmoothScroller = object : LinearSmoothScroller(context) {
-            override fun getVerticalSnapPreference(): Int {
-                return SNAP_TO_START
+        val smoothScroller: SmoothScroller =
+            object : LinearSmoothScroller(context) {
+                override fun getVerticalSnapPreference(): Int = SNAP_TO_START
             }
-        }
         smoothScroller.targetPosition = 0
-        val firstItemPos = linearLayoutManager?.findFirstVisibleItemPosition()
-            ?: staggeredLayoutManager?.findFirstVisibleItemPosition() ?: 0
+        val firstItemPos =
+            linearLayoutManager?.findFirstVisibleItemPosition()
+                ?: staggeredLayoutManager?.findFirstVisibleItemPosition() ?: 0
         if (firstItemPos > 15) {
             scrollToPosition(15)
             post {
@@ -365,20 +383,23 @@ inline fun View.popupMenu(
     }
 
     if (selectedItemId != null) {
-        val blendedAccent = ColorUtils.blendARGB(
-            context.getResourceColor(R.attr.colorSecondary),
-            context.getResourceColor(R.attr.colorOnBackground),
-            0.5f,
-        )
+        val blendedAccent =
+            ColorUtils.blendARGB(
+                context.getResourceColor(R.attr.colorSecondary),
+                context.getResourceColor(R.attr.colorOnBackground),
+                0.5f,
+            )
         (popup.menu as? MenuBuilder)?.setOptionalIconsVisible(true)
         val emptyIcon = ContextCompat.getDrawable(context, R.drawable.ic_blank_24dp)
         popup.menu.forEach { item ->
-            item.icon = when (item.itemId) {
-                selectedItemId -> ContextCompat.getDrawable(context, R.drawable.ic_check_24dp)?.mutate()?.apply {
-                    setTint(blendedAccent)
+            item.icon =
+                when (item.itemId) {
+                    selectedItemId ->
+                        ContextCompat.getDrawable(context, R.drawable.ic_check_24dp)?.mutate()?.apply {
+                            setTint(blendedAccent)
+                        }
+                    else -> emptyIcon
                 }
-                else -> emptyIcon
-            }
             if (item.itemId == selectedItemId) {
                 item.title = item.title?.tintText(blendedAccent)
             }
@@ -397,8 +418,9 @@ inline fun View.popupMenu(
 fun MaterialCardView.makeShapeCorners(
     @Dimension topStart: Float = 0f,
     @Dimension bottomEnd: Float = 0f,
-): ShapeAppearanceModel {
-    return shapeAppearanceModel.toBuilder()
+): ShapeAppearanceModel =
+    shapeAppearanceModel
+        .toBuilder()
         .apply {
             if (context.resources.isLTR) {
                 setTopLeftCorner(CornerFamily.ROUNDED, topStart)
@@ -411,9 +433,7 @@ fun MaterialCardView.makeShapeCorners(
                 setBottomRightCorner(CornerFamily.ROUNDED, if (topStart > 0) 4f.dpToPx else 0f)
                 setTopRightCorner(CornerFamily.ROUNDED, topStart)
             }
-        }
-        .build()
-}
+        }.build()
 
 fun setCards(
     showOutline: Boolean,
@@ -434,16 +454,12 @@ var View.backgroundColor: Int?
 /**
  * Returns this ViewGroup's first descendant of specified class
  */
-inline fun <reified T> ViewGroup.findChild(): T? {
-    return children.find { it is T } as? T
-}
+inline fun <reified T> ViewGroup.findChild(): T? = children.find { it is T } as? T
 
 /**
  * Returns this ViewGroup's first descendant of specified class
  */
-inline fun <reified T> ViewGroup.findDescendant(): T? {
-    return descendants.find { it is T } as? T
-}
+inline fun <reified T> ViewGroup.findDescendant(): T? = descendants.find { it is T } as? T
 
 fun Dialog.blurBehindWindow(
     window: Window?,
@@ -457,24 +473,29 @@ fun Dialog.blurBehindWindow(
         supportsBlur = true
     }
     var registered = true
-    val powerSaverChangeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && window?.windowManager?.isCrossWindowBlurEnabled == true) {
-                return
-            }
-            val canBlur = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                !this@blurBehindWindow.context.powerManager.isPowerSaveMode
-            window?.setDimAmount(if (canBlur) 0.45f else 0.77f)
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-            if (canBlur) {
-                window?.decorView?.setRenderEffect(
-                    RenderEffect.createBlurEffect(20f, 20f, Shader.TileMode.CLAMP),
-                )
-            } else {
-                window?.decorView?.setRenderEffect(null)
+    val powerSaverChangeReceiver: BroadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?,
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && window?.windowManager?.isCrossWindowBlurEnabled == true) {
+                    return
+                }
+                val canBlur =
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                        !this@blurBehindWindow.context.powerManager.isPowerSaveMode
+                window?.setDimAmount(if (canBlur) 0.45f else 0.77f)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+                if (canBlur) {
+                    window?.decorView?.setRenderEffect(
+                        RenderEffect.createBlurEffect(20f, 20f, Shader.TileMode.CLAMP),
+                    )
+                } else {
+                    window?.decorView?.setRenderEffect(null)
+                }
             }
         }
-    }
     val filter = IntentFilter()
     filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
     ContextCompat.registerReceiver(context, powerSaverChangeReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
@@ -518,16 +539,18 @@ fun View.updateGradiantBGRadius(
 ) {
     (background as? GradientDrawable)?.let { drawable ->
         val hasRail = resources.configuration.screenWidthDp >= 720
-        val lerpL = MathUtils.lerp(
-            ogRadius,
-            if (hasRail && resources.isLTR) 0f else deviceRadius.first,
-            max(0f, progress),
-        )
-        val lerpR = MathUtils.lerp(
-            ogRadius,
-            if (hasRail && !resources.isLTR) 0f else deviceRadius.second,
-            max(0f, progress),
-        )
+        val lerpL =
+            MathUtils.lerp(
+                ogRadius,
+                if (hasRail && resources.isLTR) 0f else deviceRadius.first,
+                max(0f, progress),
+            )
+        val lerpR =
+            MathUtils.lerp(
+                ogRadius,
+                if (hasRail && !resources.isLTR) 0f else deviceRadius.second,
+                max(0f, progress),
+            )
         drawable.shape = GradientDrawable.RECTANGLE
         drawable.cornerRadii = floatArrayOf(lerpL, lerpL, lerpR, lerpR, 0f, 0f, 0f, 0f)
         background = drawable
@@ -562,7 +585,8 @@ fun View.animateBlur(
                 setRenderEffect(
                     RenderEffect.createBlurEffect(amount, amount, Shader.TileMode.CLAMP),
                 )
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }
         if (removeBlurAtEnd) {
             addListener(

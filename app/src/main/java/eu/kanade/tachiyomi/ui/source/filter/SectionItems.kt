@@ -3,8 +3,10 @@ package eu.kanade.tachiyomi.ui.source.filter
 import eu.davidea.flexibleadapter.items.ISectionable
 import eu.kanade.tachiyomi.source.model.Filter
 
-class TriStateSectionItem(filter: Filter.TriState) : TriStateItem(filter), ISectionable<TriStateItem.Holder, GroupItem> {
-
+class TriStateSectionItem(
+    filter: Filter.TriState,
+) : TriStateItem(filter),
+    ISectionable<TriStateItem.Holder, GroupItem> {
     private var head: GroupItem? = null
 
     override fun getHeader(): GroupItem? = head
@@ -19,13 +21,13 @@ class TriStateSectionItem(filter: Filter.TriState) : TriStateItem(filter), ISect
         return filter == (other as TriStateSectionItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 }
 
-class TextSectionItem(filter: Filter.Text) : TextItem(filter), ISectionable<TextItem.Holder, GroupItem> {
-
+class TextSectionItem(
+    filter: Filter.Text,
+) : TextItem(filter),
+    ISectionable<TextItem.Holder, GroupItem> {
     private var head: GroupItem? = null
 
     override fun getHeader(): GroupItem? = head
@@ -40,13 +42,13 @@ class TextSectionItem(filter: Filter.Text) : TextItem(filter), ISectionable<Text
         return filter == (other as TextSectionItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 }
 
-class CheckboxSectionItem(filter: Filter.CheckBox) : CheckboxItem(filter), ISectionable<CheckboxItem.Holder, GroupItem> {
-
+class CheckboxSectionItem(
+    filter: Filter.CheckBox,
+) : CheckboxItem(filter),
+    ISectionable<CheckboxItem.Holder, GroupItem> {
     private var head: GroupItem? = null
 
     override fun getHeader(): GroupItem? = head
@@ -61,13 +63,13 @@ class CheckboxSectionItem(filter: Filter.CheckBox) : CheckboxItem(filter), ISect
         return filter == (other as CheckboxSectionItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 }
 
-class SelectSectionItem(filter: Filter.Select<*>) : SelectItem(filter), ISectionable<SelectItem.Holder, GroupItem> {
-
+class SelectSectionItem(
+    filter: Filter.Select<*>,
+) : SelectItem(filter),
+    ISectionable<SelectItem.Holder, GroupItem> {
     private var head: GroupItem? = null
 
     override fun getHeader(): GroupItem? = head
@@ -82,7 +84,5 @@ class SelectSectionItem(filter: Filter.Select<*>) : SelectItem(filter), ISection
         return filter == (other as SelectSectionItem).filter
     }
 
-    override fun hashCode(): Int {
-        return filter.hashCode()
-    }
+    override fun hashCode(): Int = filter.hashCode()
 }

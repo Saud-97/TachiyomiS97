@@ -16,23 +16,27 @@ import eu.kanade.tachiyomi.util.system.spToPx
 import eu.kanade.tachiyomi.util.system.timeSpanFromNow
 import java.util.Date
 
-class DateItem(val date: Date, val addedString: Boolean = false) : AbstractHeaderItem<DateItem.Holder>() {
+class DateItem(
+    val date: Date,
+    val addedString: Boolean = false,
+) : AbstractHeaderItem<DateItem.Holder>() {
+    override fun getLayoutRes(): Int = R.layout.recent_chapters_section_item
 
-    override fun getLayoutRes(): Int {
-        return R.layout.recent_chapters_section_item
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): Holder = Holder(view, adapter as RecentMangaAdapter)
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): Holder {
-        return Holder(view, adapter as RecentMangaAdapter)
-    }
-
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>, holder: Holder, position: Int, payloads: MutableList<Any?>?) {
+    override fun bindViewHolder(
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+        holder: Holder,
+        position: Int,
+        payloads: MutableList<Any?>?,
+    ) {
         holder.bind(this)
     }
 
-    override fun isSwipeable(): Boolean {
-        return false
-    }
+    override fun isSwipeable(): Boolean = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -42,12 +46,12 @@ class DateItem(val date: Date, val addedString: Boolean = false) : AbstractHeade
         return false
     }
 
-    override fun hashCode(): Int {
-        return date.hashCode()
-    }
+    override fun hashCode(): Int = date.hashCode()
 
-    class Holder(view: View, val adapter: RecentMangaAdapter) : FlexibleViewHolder(view, adapter, true) {
-
+    class Holder(
+        view: View,
+        val adapter: RecentMangaAdapter,
+    ) : FlexibleViewHolder(view, adapter, true) {
         private val now = Date().time
 
         private val sectionText: TextView = view.findViewById(R.id.section_text)
@@ -60,16 +64,18 @@ class DateItem(val date: Date, val addedString: Boolean = false) : AbstractHeade
             lastUpdatedText.isVisible = false
             if (bindingAdapterPosition == 0) {
                 sectionText.updatePadding(
-                    top = if (adapter.lastUpdatedTime > 0L) {
-                        lastUpdatedText.isVisible = true
-                        lastUpdatedText.text = lastUpdatedText.context.timeSpanFromNow(
-                            R.string.updates_last_update_info,
-                            adapter.lastUpdatedTime,
-                        )
-                        18.spToPx + 8.dpToPx
-                    } else {
-                        4.dpToPx
-                    },
+                    top =
+                        if (adapter.lastUpdatedTime > 0L) {
+                            lastUpdatedText.isVisible = true
+                            lastUpdatedText.text =
+                                lastUpdatedText.context.timeSpanFromNow(
+                                    R.string.updates_last_update_info,
+                                    adapter.lastUpdatedTime,
+                                )
+                            18.spToPx + 8.dpToPx
+                        } else {
+                            4.dpToPx
+                        },
                 )
             } else {
                 sectionText.updatePadding(18.dpToPx)

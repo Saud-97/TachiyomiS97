@@ -52,11 +52,12 @@ class MangaChapterHistoryGetResolver : DefaultGetResolver<MangaChapterHistory>()
                 historyGetResolver.mapFromCursor(cursor)
             } else {
                 HistoryImpl().apply {
-                    last_read = try {
-                        cursor.getLong(cursor.getColumnIndex(HistoryTable.COL_LAST_READ))
-                    } catch (e: Exception) {
-                        0L
-                    }
+                    last_read =
+                        try {
+                            cursor.getLong(cursor.getColumnIndex(HistoryTable.COL_LAST_READ))
+                        } catch (e: Exception) {
+                            0L
+                        }
                 }
             }
 

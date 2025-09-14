@@ -9,8 +9,10 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign
 
-class LibraryCategoryGestureDetector(private val controller: LibraryController?) : GestureDetector
-.SimpleOnGestureListener() {
+class LibraryCategoryGestureDetector(
+    private val controller: LibraryController?,
+) : GestureDetector
+        .SimpleOnGestureListener() {
     var locked = false
     var cancelled = false
     private val poa = 1.7f
@@ -22,18 +24,19 @@ class LibraryCategoryGestureDetector(private val controller: LibraryController?)
         startingX = e.x
         startingY = e.y
         controller ?: return false
-        val startingOnLibraryView = listOf(
-            controller.activityBinding?.bottomNav,
-            controller.binding.filterBottomSheet.root,
-            controller.binding.categoryHopperFrame,
-            controller.activityBinding?.appBar,
-            controller.visibleHeaderHolder()?.itemView,
-        ).none {
-            it ?: return false
-            val viewRect = Rect()
-            it.getGlobalVisibleRect(viewRect)
-            viewRect.contains(e.x.toInt(), e.y.toInt())
-        }
+        val startingOnLibraryView =
+            listOf(
+                controller.activityBinding?.bottomNav,
+                controller.binding.filterBottomSheet.root,
+                controller.binding.categoryHopperFrame,
+                controller.activityBinding?.appBar,
+                controller.visibleHeaderHolder()?.itemView,
+            ).none {
+                it ?: return false
+                val viewRect = Rect()
+                it.getGlobalVisibleRect(viewRect)
+                viewRect.contains(e.x.toInt(), e.y.toInt())
+            }
         cancelled = !startingOnLibraryView
         return startingOnLibraryView
     }
@@ -89,7 +92,10 @@ class LibraryCategoryGestureDetector(private val controller: LibraryController?)
             result = true
         }
         if (!result || !moved) {
-            val animator = controller.binding.libraryGridRecycler.recycler.animate().setDuration(150L)
+            val animator =
+                controller.binding.libraryGridRecycler.recycler
+                    .animate()
+                    .setDuration(150L)
             animator.translationX(0f)
             animator.withEndAction { recycler.translationX = 0f }
             animator.start()

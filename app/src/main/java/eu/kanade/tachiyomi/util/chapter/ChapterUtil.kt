@@ -20,19 +20,18 @@ import java.text.DecimalFormatSymbols
 
 class ChapterUtil {
     companion object {
+        private val decimalFormat =
+            DecimalFormat(
+                "#.###",
+                DecimalFormatSymbols()
+                    .apply { decimalSeparator = '.' },
+            )
 
-        private val decimalFormat = DecimalFormat(
-            "#.###",
-            DecimalFormatSymbols()
-                .apply { decimalSeparator = '.' },
-        )
-
-        fun relativeDate(chapter: Chapter): String? {
-            return when (chapter.date_upload > 0) {
+        fun relativeDate(chapter: Chapter): String? =
+            when (chapter.date_upload > 0) {
                 true -> chapter.date_upload.timeSpanFromNow
                 false -> null
             }
-        }
 
         fun setTextViewForChapter(
             textView: TextView,
@@ -47,14 +46,18 @@ class ChapterUtil {
             }
         }
 
-        private fun setBookmark(textView: TextView, chapter: Chapter) {
+        private fun setBookmark(
+            textView: TextView,
+            chapter: Chapter,
+        ) {
             if (chapter.bookmark) {
                 val context = textView.context
-                val drawable = VectorDrawableCompat.create(
-                    textView.resources,
-                    R.drawable.ic_bookmark_24dp,
-                    context.theme,
-                )
+                val drawable =
+                    VectorDrawableCompat.create(
+                        textView.resources,
+                        R.drawable.ic_bookmark_24dp,
+                        context.theme,
+                    )
                 drawable?.setBounds(0, 0, textView.textSize.toInt(), textView.textSize.toInt())
                 textView.setCompoundDrawablesRelative(
                     drawable,
@@ -74,27 +77,34 @@ class ChapterUtil {
             }
         }
 
-        fun chapterColor(context: Context, chapter: Chapter, hideStatus: Boolean = false): Int {
-            return when {
+        fun chapterColor(
+            context: Context,
+            chapter: Chapter,
+            hideStatus: Boolean = false,
+        ): Int =
+            when {
                 hideStatus -> unreadColor(context)
                 chapter.read -> readColor(context)
                 else -> unreadColor(context)
             }
-        }
 
-        fun readColor(context: Context, chapter: Chapter): Int {
-            return when {
+        fun readColor(
+            context: Context,
+            chapter: Chapter,
+        ): Int =
+            when {
                 chapter.read -> readColor(context)
                 else -> unreadColor(context)
             }
-        }
 
-        fun bookmarkColor(context: Context, chapter: Chapter): Int {
-            return when {
+        fun bookmarkColor(
+            context: Context,
+            chapter: Chapter,
+        ): Int =
+            when {
                 chapter.bookmark -> bookmarkedColor(context)
                 else -> readColor(context)
             }
-        }
 
         private fun readColor(context: Context): Int = context.contextCompatColor(R.color.read_chapter)
 
@@ -149,9 +159,7 @@ class ChapterUtil {
             return false
         }
 
-        fun hasTensOfChapters(chapters: List<ChapterItem>): Boolean {
-            return chapters.size > 20
-        }
+        fun hasTensOfChapters(chapters: List<ChapterItem>): Boolean = chapters.size > 20
 
         const val scanlatorSeparator = " & "
 
@@ -160,17 +168,18 @@ class ChapterUtil {
             return scanlators.split(scanlatorSeparator).distinct()
         }
 
-        fun getScanlatorString(scanlators: Set<String>): String {
-            return scanlators.toList().sorted().joinToString(scanlatorSeparator)
-        }
+        fun getScanlatorString(scanlators: Set<String>): String = scanlators.toList().sorted().joinToString(scanlatorSeparator)
 
-        fun Chapter.preferredChapterName(context: Context, manga: Manga, preferences: PreferencesHelper): String {
-            return if (manga.hideChapterTitle(preferences) && isRecognizedNumber) {
+        fun Chapter.preferredChapterName(
+            context: Context,
+            manga: Manga,
+            preferences: PreferencesHelper,
+        ): String =
+            if (manga.hideChapterTitle(preferences) && isRecognizedNumber) {
                 val number = decimalFormat.format(chapter_number.toDouble())
                 context.getString(R.string.chapter_, number)
             } else {
                 name
             }
-        }
     }
 }

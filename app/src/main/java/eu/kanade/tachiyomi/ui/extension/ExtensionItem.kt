@@ -22,9 +22,7 @@ data class ExtensionItem(
     val header: ExtensionGroupItem? = null,
     val installStep: InstallStep? = null,
     val session: PackageInstaller.SessionInfo? = null,
-) :
-    AbstractSectionableItem<ExtensionHolder, ExtensionGroupItem>(header) {
-
+) : AbstractSectionableItem<ExtensionHolder, ExtensionGroupItem>(header) {
     constructor(
         extension: Extension,
         header: ExtensionGroupItem? = null,
@@ -37,16 +35,15 @@ data class ExtensionItem(
     /**
      * Returns the layout resource of this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.extension_card_item
-    }
+    override fun getLayoutRes(): Int = R.layout.extension_card_item
 
     /**
      * Creates a new view holder for this item.
      */
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): ExtensionHolder {
-        return ExtensionHolder(view, adapter as ExtensionAdapter)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): ExtensionHolder = ExtensionHolder(view, adapter as ExtensionAdapter)
 
     /**
      * Binds this item to the given view holder.
@@ -70,7 +67,5 @@ data class ExtensionItem(
         return extension.pkgName == (other as ExtensionItem).extension.pkgName
     }
 
-    override fun hashCode(): Int {
-        return extension.pkgName.hashCode()
-    }
+    override fun hashCode(): Int = extension.pkgName.hashCode()
 }

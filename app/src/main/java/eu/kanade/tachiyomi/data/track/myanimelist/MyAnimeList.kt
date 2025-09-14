@@ -14,8 +14,10 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 
-class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
-
+class MyAnimeList(
+    private val context: Context,
+    id: Int,
+) : TrackService(id) {
     private val json: Json by injectLazy()
     private val interceptor by lazy { MyAnimeListInterceptor(this, getPassword()) }
     private val api by lazy { MyAnimeListApi(client, interceptor) }
@@ -31,45 +33,43 @@ class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
 
     override fun getLogoColor() = Color.rgb(46, 82, 162)
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            READING -> getString(R.string.reading)
-            PLAN_TO_READ -> getString(R.string.plan_to_read)
-            COMPLETED -> getString(R.string.completed)
-            ON_HOLD -> getString(R.string.on_hold)
-            DROPPED -> getString(R.string.dropped)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                READING -> getString(R.string.reading)
+                PLAN_TO_READ -> getString(R.string.plan_to_read)
+                COMPLETED -> getString(R.string.completed)
+                ON_HOLD -> getString(R.string.on_hold)
+                DROPPED -> getString(R.string.dropped)
+                else -> ""
+            }
         }
-    }
 
-    override fun getStatusList(): List<Int> {
-        return listOf(READING, COMPLETED, ON_HOLD, DROPPED, PLAN_TO_READ)
-    }
+    override fun getStatusList(): List<Int> = listOf(READING, COMPLETED, ON_HOLD, DROPPED, PLAN_TO_READ)
 
     override fun isCompletedStatus(index: Int) = getStatusList()[index] == COMPLETED
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = PLAN_TO_READ
 
-    override fun getScoreList(): List<String> {
-        return IntRange(0, 10).map(Int::toString)
-    }
+    override fun getScoreList(): List<String> = IntRange(0, 10).map(Int::toString)
 
-    override fun displayScore(track: Track): String {
-        return track.score.toInt().toString()
-    }
+    override fun displayScore(track: Track): String = track.score.toInt().toString()
 
     override suspend fun add(track: Track): Track {
         track.status = READING
@@ -78,7 +78,10 @@ class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
         return api.updateItem(track)
     }
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead)
         return api.updateItem(track)
     }
@@ -96,9 +99,7 @@ class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
 
     override fun canRemoveFromService(): Boolean = true
 
-    override suspend fun removeFromService(track: Track): Boolean {
-        return api.remove(track)
-    }
+    override suspend fun removeFromService(track: Track): Boolean = api.remove(track)
 
     override suspend fun search(query: String): List<TrackSearch> {
         if (query.startsWith(SEARCH_ID_PREFIX)) {
@@ -116,14 +117,15 @@ class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
         return api.search(query)
     }
 
-    override suspend fun refresh(track: Track): Track {
-        return api.findListItem(track) ?: add(track)
-    }
+    override suspend fun refresh(track: Track): Track = api.findListItem(track) ?: add(track)
 
-    override suspend fun login(username: String, password: String) = login(password)
+    override suspend fun login(
+        username: String,
+        password: String,
+    ) = login(password)
 
-    suspend fun login(authCode: String): Boolean {
-        return try {
+    suspend fun login(authCode: String): Boolean =
+        try {
             val oauth = api.getAccessToken(authCode)
             interceptor.setAuth(oauth)
             val username = api.getCurrentUser()
@@ -134,7 +136,6 @@ class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
             logout()
             false
         }
-    }
 
     override fun logout() {
         super.logout()
@@ -146,13 +147,13 @@ class MyAnimeList(private val context: Context, id: Int) : TrackService(id) {
         trackPreferences.trackToken(this).set(json.encodeToString(oAuth))
     }
 
-    fun loadOAuth(): OAuth? {
-        return try {
+    fun loadOAuth(): OAuth? =
+        try {
             json.decodeFromString<OAuth>(trackPreferences.trackToken(this).get())
         } catch (e: Exception) {
             null
         }
-    }
+
     companion object {
         const val READING = 1
         const val COMPLETED = 2

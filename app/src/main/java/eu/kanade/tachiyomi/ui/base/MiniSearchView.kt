@@ -19,63 +19,66 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
-class MiniSearchView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
-    SearchView(context, attrs) {
+class MiniSearchView
+    @JvmOverloads
+    constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+    ) : SearchView(context, attrs) {
+        private var scope: CoroutineScope? = null
+        private val searchTextView: SearchAutoComplete? = findViewById(androidx.appcompat.R.id.search_src_text)
 
-    private var scope: CoroutineScope? = null
-    private val searchTextView: SearchAutoComplete? = findViewById(androidx.appcompat.R.id.search_src_text)
+        init {
+            searchTextView?.setTextAppearance(android.R.style.TextAppearance_Material_Body1)
+            val actionColorAlpha =
+                ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.actionBarTintColor), 200)
+            searchTextView?.setTextColor(actionColorAlpha)
+            searchTextView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            searchTextView?.setHintTextColor(actionColorAlpha)
 
-    init {
-        searchTextView?.setTextAppearance(android.R.style.TextAppearance_Material_Body1)
-        val actionColorAlpha =
-            ColorUtils.setAlphaComponent(context.getResourceColor(R.attr.actionBarTintColor), 200)
-        searchTextView?.setTextColor(actionColorAlpha)
-        searchTextView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-        searchTextView?.setHintTextColor(actionColorAlpha)
-
-        val clearButton = findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-        clearButton?.imageTintList = ColorStateList.valueOf(context.getResourceColor(R.attr.actionBarTintColor))
-
-        val searchPlateView = findViewById<View>(androidx.appcompat.R.id.search_plate)
-        searchPlateView?.setBackgroundColor(Color.TRANSPARENT)
-
-        setIconifiedByDefault(false)
-
-        val searchMagIconImageView = findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
-        searchMagIconImageView?.layoutParams = LinearLayout.LayoutParams(0, 0)
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-        searchTextView?.setIncognito(scope!!)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        scope?.cancel()
-        scope = null
-    }
-
-    override fun onActionViewExpanded() {
-        super.onActionViewExpanded()
-        layoutParams?.let {
-            val params = it
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT
-            layoutParams = params
-        }
-        requestLayout()
-    }
-
-    fun addSearchModifierIcon(imageViewFactory: (Context) -> ImageView): ImageView? {
-        return findViewById<LinearLayout>(androidx.appcompat.R.id.search_plate)?.let { searchPlateView ->
-            val imageView = imageViewFactory(searchPlateView.context)
             val clearButton = findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-            imageView.layoutParams = clearButton?.layoutParams
-            searchPlateView.addView(imageView, 1)
-            return imageView
-        }
-    }
+            clearButton?.imageTintList = ColorStateList.valueOf(context.getResourceColor(R.attr.actionBarTintColor))
 
-    fun removeSearchModifierIcon(view: ImageView) = findViewById<LinearLayout>(androidx.appcompat.R.id.search_plate)?.removeView(view)
-}
+            val searchPlateView = findViewById<View>(androidx.appcompat.R.id.search_plate)
+            searchPlateView?.setBackgroundColor(Color.TRANSPARENT)
+
+            setIconifiedByDefault(false)
+
+            val searchMagIconImageView = findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
+            searchMagIconImageView?.layoutParams = LinearLayout.LayoutParams(0, 0)
+        }
+
+        override fun onAttachedToWindow() {
+            super.onAttachedToWindow()
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+            searchTextView?.setIncognito(scope!!)
+        }
+
+        override fun onDetachedFromWindow() {
+            super.onDetachedFromWindow()
+            scope?.cancel()
+            scope = null
+        }
+
+        override fun onActionViewExpanded() {
+            super.onActionViewExpanded()
+            layoutParams?.let {
+                val params = it
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT
+                layoutParams = params
+            }
+            requestLayout()
+        }
+
+        fun addSearchModifierIcon(imageViewFactory: (Context) -> ImageView): ImageView? {
+            return findViewById<LinearLayout>(androidx.appcompat.R.id.search_plate)?.let { searchPlateView ->
+                val imageView = imageViewFactory(searchPlateView.context)
+                val clearButton = findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+                imageView.layoutParams = clearButton?.layoutParams
+                searchPlateView.addView(imageView, 1)
+                return imageView
+            }
+        }
+
+        fun removeSearchModifierIcon(view: ImageView) = findViewById<LinearLayout>(androidx.appcompat.R.id.search_plate)?.removeView(view)
+    }

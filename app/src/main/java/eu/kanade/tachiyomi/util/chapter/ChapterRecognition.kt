@@ -37,7 +37,10 @@ object ChapterRecognition {
      */
     private val unwantedWhiteSpace = Regex("""(\s)(extra|special|omake)""")
 
-    fun parseChapterNumber(chapter: SChapter, manga: SManga) {
+    fun parseChapterNumber(
+        chapter: SChapter,
+        manga: SManga,
+    ) {
         // If chapter number is known return.
         if (chapter.chapter_number == -2f || chapter.chapter_number > -1f) {
             return
@@ -96,7 +99,10 @@ object ChapterRecognition {
      * @param chapter chapter object
      * @return true if volume is found
      */
-    private fun updateChapter(match: MatchResult?, chapter: SChapter): Boolean {
+    private fun updateChapter(
+        match: MatchResult?,
+        chapter: SChapter,
+    ): Boolean {
         match?.let {
             val initial = it.groups[1]?.value?.toFloat()!!
             val subChapterDecimal = it.groups[2]?.value
@@ -114,7 +120,10 @@ object ChapterRecognition {
      * @param alpha alpha value of regex
      * @return decimal/alpha float value
      */
-    private fun checkForDecimal(decimal: String?, alpha: String?): Float {
+    private fun checkForDecimal(
+        decimal: String?,
+        alpha: String?,
+    ): Float {
         if (!decimal.isNullOrEmpty()) {
             return decimal.toFloat()
         }
@@ -146,7 +155,5 @@ object ChapterRecognition {
     /**
      * x.a -> x.1, x.b -> x.2, etc
      */
-    private fun parseAlphaPostFix(alpha: Char): Float {
-        return ("0." + (alpha.code - 96).toString()).toFloat()
-    }
+    private fun parseAlphaPostFix(alpha: Char): Float = ("0." + (alpha.code - 96).toString()).toFloat()
 }

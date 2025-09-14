@@ -44,7 +44,6 @@ class WebtoonPageHolder(
     private val frame: ReaderPageImageView,
     viewer: WebtoonViewer,
 ) : WebtoonBaseHolder(frame, viewer) {
-
     /**
      * Loading progress bar to indicate the current progress.
      */
@@ -103,11 +102,12 @@ class WebtoonPageHolder(
     }
 
     private fun refreshLayoutParams() {
-        frame.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-            val margin = Resources.getSystem().displayMetrics.widthPixels * (viewer.config.sidePadding / 100f)
-            marginEnd = margin.toInt()
-            marginStart = margin.toInt()
-        }
+        frame.layoutParams =
+            FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                val margin = Resources.getSystem().displayMetrics.widthPixels * (viewer.config.sidePadding / 100f)
+                marginEnd = margin.toInt()
+                marginStart = margin.toInt()
+            }
         if (viewer.hasMargins) {
             frame.updatePaddingRelative(bottom = 15.dpToPx)
         }
@@ -151,9 +151,10 @@ class WebtoonPageHolder(
         cancelProgressJob()
 
         val page = page ?: return
-        progressJob = scope.launch {
-            page.progressFlow.collectLatest { value -> progressBar.setProgress(value) }
-        }
+        progressJob =
+            scope.launch {
+                page.progressFlow.collectLatest { value -> progressBar.setProgress(value) }
+            }
     }
 
     /**
@@ -232,19 +233,20 @@ class WebtoonPageHolder(
 
         val streamFn = page?.stream ?: return
 
-        val (openStream, isAnimated) = try {
-            withIOContext {
-                val stream = streamFn().buffered(16)
-                val openStream = process(stream)
+        val (openStream, isAnimated) =
+            try {
+                withIOContext {
+                    val stream = streamFn().buffered(16)
+                    val openStream = process(stream)
 
-                val isAnimated = ImageUtil.isAnimatedAndSupported(stream)
-                Pair(openStream, isAnimated)
+                    val isAnimated = ImageUtil.isAnimatedAndSupported(stream)
+                    Pair(openStream, isAnimated)
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+                setError()
+                return
             }
-        } catch (e: Exception) {
-            Timber.e(e)
-            setError()
-            return
-        }
         withUIContext {
             frame.setImage(
                 openStream,
@@ -252,9 +254,14 @@ class WebtoonPageHolder(
                 ReaderPageImageView.Config(
                     zoomDuration = viewer.config.doubleTapAnimDuration,
                     minimumScaleType = SubsamplingScaleImageView.SCALE_TYPE_FIT_WIDTH,
-                    cropBorders = viewer.config.run {
-                        if (viewer.hasMargins) { verticalCropBorders } else { webtoonCropBorders }
-                    },
+                    cropBorders =
+                        viewer.config.run {
+                            if (viewer.hasMargins) {
+                                verticalCropBorders
+                            } else {
+                                webtoonCropBorders
+                            }
+                        },
                 ),
             )
         }
@@ -308,13 +315,15 @@ class WebtoonPageHolder(
         progressContainer = FrameLayout(context)
         frame.addView(progressContainer, MATCH_PARENT, parentHeight)
 
-        val progress = ReaderProgressBar(context).apply {
-            val size = 48.dpToPx
-            layoutParams = FrameLayout.LayoutParams(size, size).apply {
-                gravity = Gravity.CENTER_HORIZONTAL
-                setMargins(0, parentHeight / 4, 0, 0)
+        val progress =
+            ReaderProgressBar(context).apply {
+                val size = 48.dpToPx
+                layoutParams =
+                    FrameLayout.LayoutParams(size, size).apply {
+                        gravity = Gravity.CENTER_HORIZONTAL
+                        setMargins(0, parentHeight / 4, 0, 0)
+                    }
             }
-        }
         progressContainer.addView(progress)
         return progress
     }
@@ -326,11 +335,12 @@ class WebtoonPageHolder(
                 page?.let { it.chapter.pageLoader?.retryPage(it) }
             }
         }
-        val imageUrl = if (withOpenInWebView) {
-            page?.imageUrl
-        } else {
-            viewer.activity.viewModel.getChapterUrl(page?.chapter?.chapter)
-        }
+        val imageUrl =
+            if (withOpenInWebView) {
+                page?.imageUrl
+            } else {
+                viewer.activity.viewModel.getChapterUrl(page?.chapter?.chapter)
+            }
         return errorLayout!!.configureView(imageUrl)
     }
 

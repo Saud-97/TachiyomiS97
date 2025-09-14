@@ -35,11 +35,12 @@ abstract class BaseMigrationPresenter<T : BaseMigrationInterface>(
         presenterScope.launch {
             val favs = db.getFavoriteMangas().executeOnIO()
             sourceItems = findSourcesWithManga(favs)
-            mangaItems = HashMap(
-                sourceItems.associate {
-                    it.source.id to libraryToMigrationItem(favs, it.source.id)
-                },
-            )
+            mangaItems =
+                HashMap(
+                    sourceItems.associate {
+                        it.source.id to libraryToMigrationItem(favs, it.source.id)
+                    },
+                )
             withContext(Dispatchers.Main) {
                 if (selectedSource != null) {
                     view?.setMigrationManga(selectedSource!!.first, mangaItems[selectedSource!!.second])
@@ -56,7 +57,11 @@ abstract class BaseMigrationPresenter<T : BaseMigrationInterface>(
         val sortOrder = PreferenceValues.MigrationSourceOrder.fromPreference(preferences)
         val extensions = extensionManager.installedExtensionsFlow.value
         val obsoleteSources =
-            extensions.filter { it.isObsolete }.map { it.sources }.flatten().map { it.id }
+            extensions
+                .filter { it.isObsolete }
+                .map { it.sources }
+                .flatten()
+                .map { it.id }
 
         return sourceGroup
             .mapNotNull { if (it.key != LocalSource.ID) sourceManager.getOrStub(it.key) to it.value.size else null }
@@ -73,8 +78,7 @@ abstract class BaseMigrationPresenter<T : BaseMigrationInterface>(
                     },
                     { it.first.name },
                 ),
-            )
-            .map {
+            ).map {
                 SourceItem(
                     it.first,
                     header,
@@ -85,21 +89,28 @@ abstract class BaseMigrationPresenter<T : BaseMigrationInterface>(
             }
     }
 
-    private fun libraryToMigrationItem(library: List<Manga>, sourceId: Long): List<MangaItem> {
-        return library.filter { it.source == sourceId }.map(::MangaItem)
-    }
+    private fun libraryToMigrationItem(
+        library: List<Manga>,
+        sourceId: Long,
+    ): List<MangaItem> =
+        library
+            .filter {
+                it.source == sourceId
+            }.map(::MangaItem)
 
     protected suspend fun firstTimeMigration() {
         val favs = db.getFavoriteMangas().executeOnIO()
         sourceItems = findSourcesWithManga(favs)
-        mangaItems = HashMap(
-            sourceItems.associate {
-                it.source.id to libraryToMigrationItem(
-                    favs,
-                    it.source.id,
-                )
-            },
-        )
+        mangaItems =
+            HashMap(
+                sourceItems.associate {
+                    it.source.id to
+                        libraryToMigrationItem(
+                            favs,
+                            it.source.id,
+                        )
+                },
+            )
         withContext(Dispatchers.Main) {
             if (selectedSource != null) {
                 view?.setMigrationManga(selectedSource!!.first, mangaItems[selectedSource!!.second])
@@ -125,6 +136,10 @@ abstract class BaseMigrationPresenter<T : BaseMigrationInterface>(
 }
 
 interface BaseMigrationInterface {
-    fun setMigrationManga(title: String, manga: List<MangaItem>?)
+    fun setMigrationManga(
+        title: String,
+        manga: List<MangaItem>?,
+    )
+
     fun setMigrationSources(sources: List<SourceItem>)
 }

@@ -15,34 +15,38 @@ import uy.kohesive.injekt.injectLazy
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-class BackupNotifier(private val context: Context) {
-
+class BackupNotifier(
+    private val context: Context,
+) {
     private val preferences: PreferencesHelper by injectLazy()
 
-    private val progressNotificationBuilder = context.notificationBuilder(Notifications.CHANNEL_BACKUP_RESTORE_PROGRESS) {
-        setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
-        setSmallIcon(R.drawable.ic_tachij2k_notification)
-        setAutoCancel(false)
-        setOngoing(true)
-    }
+    private val progressNotificationBuilder =
+        context.notificationBuilder(Notifications.CHANNEL_BACKUP_RESTORE_PROGRESS) {
+            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+            setSmallIcon(R.drawable.ic_tachij2k_notification)
+            setAutoCancel(false)
+            setOngoing(true)
+        }
 
-    private val completeNotificationBuilder = context.notificationBuilder(Notifications.CHANNEL_BACKUP_RESTORE_COMPLETE) {
-        setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
-        setSmallIcon(R.drawable.ic_tachij2k_notification)
-        setAutoCancel(false)
-    }
+    private val completeNotificationBuilder =
+        context.notificationBuilder(Notifications.CHANNEL_BACKUP_RESTORE_COMPLETE) {
+            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+            setSmallIcon(R.drawable.ic_tachij2k_notification)
+            setAutoCancel(false)
+        }
 
     private fun NotificationCompat.Builder.show(id: Int) {
         context.notificationManager.notify(id, build())
     }
 
     fun showBackupProgress() {
-        val builder = with(progressNotificationBuilder) {
-            setContentTitle(context.getString(R.string.creating_backup))
+        val builder =
+            with(progressNotificationBuilder) {
+                setContentTitle(context.getString(R.string.creating_backup))
 
-            setProgress(0, 0, true)
-            setOnlyAlertOnce(true)
-        }
+                setProgress(0, 0, true)
+                setOnlyAlertOnce(true)
+            }
 
         builder.show(Notifications.ID_BACKUP_PROGRESS)
     }
@@ -78,26 +82,31 @@ class BackupNotifier(private val context: Context) {
         }
     }
 
-    fun showRestoreProgress(content: String = "", progress: Int = 0, maxAmount: Int = 100): NotificationCompat.Builder {
-        val builder = with(progressNotificationBuilder) {
-            setContentTitle(context.getString(R.string.restoring_backup))
+    fun showRestoreProgress(
+        content: String = "",
+        progress: Int = 0,
+        maxAmount: Int = 100,
+    ): NotificationCompat.Builder {
+        val builder =
+            with(progressNotificationBuilder) {
+                setContentTitle(context.getString(R.string.restoring_backup))
 
-            if (!preferences.hideNotificationContent()) {
-                setContentText(content)
+                if (!preferences.hideNotificationContent()) {
+                    setContentText(content)
+                }
+
+                setProgress(maxAmount, progress, progress == -1)
+                setOnlyAlertOnce(true)
+
+                // Clear old actions if they exist
+                clearActions()
+
+                addAction(
+                    R.drawable.ic_close_24dp,
+                    context.getString(R.string.stop),
+                    NotificationReceiver.cancelRestorePendingBroadcast(context, Notifications.ID_RESTORE_PROGRESS),
+                )
             }
-
-            setProgress(maxAmount, progress, progress == -1)
-            setOnlyAlertOnce(true)
-
-            // Clear old actions if they exist
-            clearActions()
-
-            addAction(
-                R.drawable.ic_close_24dp,
-                context.getString(R.string.stop),
-                NotificationReceiver.cancelRestorePendingBroadcast(context, Notifications.ID_RESTORE_PROGRESS),
-            )
-        }
 
         if (progress != -1) {
             builder.show(Notifications.ID_RESTORE_PROGRESS)
@@ -117,16 +126,23 @@ class BackupNotifier(private val context: Context) {
         }
     }
 
-    fun showRestoreComplete(time: Long, errorCount: Int, path: String?, file: String?) {
+    fun showRestoreComplete(
+        time: Long,
+        errorCount: Int,
+        path: String?,
+        file: String?,
+    ) {
         context.notificationManager.cancel(Notifications.ID_RESTORE_PROGRESS)
 
-        val timeString = context.getString(
-            R.string.restore_duration,
-            TimeUnit.MILLISECONDS.toMinutes(time),
-            TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+        val timeString =
+            context.getString(
+                R.string.restore_duration,
                 TimeUnit.MILLISECONDS.toMinutes(time),
-            ),
-        )
+                TimeUnit.MILLISECONDS.toSeconds(time) -
+                    TimeUnit.MINUTES.toSeconds(
+                        TimeUnit.MILLISECONDS.toMinutes(time),
+                    ),
+            )
 
         with(completeNotificationBuilder) {
             setContentTitle(context.getString(R.string.restore_completed))

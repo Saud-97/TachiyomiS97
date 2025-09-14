@@ -10,14 +10,15 @@ import android.webkit.WebViewClient
 
 @Suppress("OverridingDeprecatedMember")
 abstract class WebViewClientCompat : WebViewClient() {
+    open fun shouldOverrideUrlCompat(
+        view: WebView,
+        url: String,
+    ): Boolean = false
 
-    open fun shouldOverrideUrlCompat(view: WebView, url: String): Boolean {
-        return false
-    }
-
-    open fun shouldInterceptRequestCompat(view: WebView, url: String): WebResourceResponse? {
-        return null
-    }
+    open fun shouldInterceptRequestCompat(
+        view: WebView,
+        url: String,
+    ): WebResourceResponse? = null
 
     open fun onReceivedErrorCompat(
         view: WebView,
@@ -32,27 +33,22 @@ abstract class WebViewClientCompat : WebViewClient() {
     final override fun shouldOverrideUrlLoading(
         view: WebView,
         request: WebResourceRequest,
-    ): Boolean {
-        return shouldOverrideUrlCompat(view, request.url.toString())
-    }
+    ): Boolean = shouldOverrideUrlCompat(view, request.url.toString())
 
-    final override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        return shouldOverrideUrlCompat(view, url)
-    }
+    final override fun shouldOverrideUrlLoading(
+        view: WebView,
+        url: String,
+    ): Boolean = shouldOverrideUrlCompat(view, url)
 
     final override fun shouldInterceptRequest(
         view: WebView,
         request: WebResourceRequest,
-    ): WebResourceResponse? {
-        return shouldInterceptRequestCompat(view, request.url.toString())
-    }
+    ): WebResourceResponse? = shouldInterceptRequestCompat(view, request.url.toString())
 
     final override fun shouldInterceptRequest(
         view: WebView,
         url: String,
-    ): WebResourceResponse? {
-        return shouldInterceptRequestCompat(view, url)
-    }
+    ): WebResourceResponse? = shouldInterceptRequestCompat(view, url)
 
     final override fun onReceivedError(
         view: WebView,

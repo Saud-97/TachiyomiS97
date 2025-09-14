@@ -38,7 +38,6 @@ import eu.kanade.tachiyomi.util.system.setDefaultSettings
 import eu.kanade.tachiyomi.util.view.setStyle
 
 open class BaseWebViewActivity : BaseActivity<WebviewActivityBinding>() {
-
     private var bundle: Bundle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,36 +72,40 @@ open class BaseWebViewActivity : BaseActivity<WebviewActivityBinding>() {
                 left = insets.getInsets(systemBars()).left,
                 right = insets.getInsets(systemBars()).right,
             )
-            WindowInsetsCompat.Builder(insets).setInsets(
-                systemBars(),
-                Insets.of(
-                    0,
-                    insets.getInsets(systemBars()).top,
-                    0,
-                    insets.getInsets(systemBars()).bottom,
-                ),
-            ).build()
+            WindowInsetsCompat
+                .Builder(insets)
+                .setInsets(
+                    systemBars(),
+                    Insets.of(
+                        0,
+                        insets.getInsets(systemBars()).top,
+                        0,
+                        insets.getInsets(systemBars()).bottom,
+                    ),
+                ).build()
         }
         binding.swipeRefresh.setStyle()
         binding.swipeRefresh.setOnRefreshListener {
             refreshPage()
         }
 
-        window.statusBarColor = ColorUtils.setAlphaComponent(
-            getResourceColor(R.attr.colorSurface),
-            255,
-        )
+        window.statusBarColor =
+            ColorUtils.setAlphaComponent(
+                getResourceColor(R.attr.colorSurface),
+                255,
+            )
 
         ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
             // if pure white theme on a device that does not support dark status bar
             /*if (getResourceColor(android.R.attr.statusBarColor) != Color.TRANSPARENT)
                 window.statusBarColor = Color.BLACK
             else window.statusBarColor = getResourceColor(R.attr.colorPrimary)*/
-            window.navigationBarColor = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                Color.BLACK
-            } else {
-                getResourceColor(R.attr.colorPrimaryVariant)
-            }
+            window.navigationBarColor =
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    Color.BLACK
+                } else {
+                    getResourceColor(R.attr.colorPrimaryVariant)
+                }
             v.setPadding(
                 insets.getInsets(systemBars()).left,
                 insets.getInsets(systemBars()).top,
@@ -119,23 +122,30 @@ open class BaseWebViewActivity : BaseActivity<WebviewActivityBinding>() {
 
         if (bundle == null) {
             binding.webview.setDefaultSettings()
-            binding.webview.webChromeClient = object : WebChromeClient() {
-                override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                    binding.progressBar.isVisible = true
-                    binding.progressBar.progress = newProgress
-                    if (newProgress == 100) {
-                        binding.progressBar.isInvisible = true
-                        invalidateOptionsMenu()
+            binding.webview.webChromeClient =
+                object : WebChromeClient() {
+                    override fun onProgressChanged(
+                        view: WebView?,
+                        newProgress: Int,
+                    ) {
+                        binding.progressBar.isVisible = true
+                        binding.progressBar.progress = newProgress
+                        if (newProgress == 100) {
+                            binding.progressBar.isInvisible = true
+                            invalidateOptionsMenu()
+                        }
+                        super.onProgressChanged(view, newProgress)
                     }
-                    super.onProgressChanged(view, newProgress)
-                }
 
-                override fun onReceivedTitle(view: WebView?, title: String?) {
-                    super.onReceivedTitle(view, title)
-                    this@BaseWebViewActivity.title = title
-                    binding.toolbar.subtitle = binding.webview.url
+                    override fun onReceivedTitle(
+                        view: WebView?,
+                        title: String?,
+                    ) {
+                        super.onReceivedTitle(view, title)
+                        this@BaseWebViewActivity.title = title
+                        binding.toolbar.subtitle = binding.webview.url
+                    }
                 }
-            }
             val marginB = binding.webview.marginBottom
             ViewCompat.setOnApplyWindowInsetsListener(binding.swipeRefresh) { v, insets ->
                 val bottomInset = insets.getInsets(systemBars()).bottom
@@ -150,7 +160,8 @@ open class BaseWebViewActivity : BaseActivity<WebviewActivityBinding>() {
             }
         }
 
-        preferences.incognitoMode()
+        preferences
+            .incognitoMode()
             .asImmediateFlowIn(lifecycleScope) {
                 SecureActivityDelegate.setSecure(this)
             }
@@ -182,13 +193,14 @@ open class BaseWebViewActivity : BaseActivity<WebviewActivityBinding>() {
         wic.isAppearanceLightStatusBars = themeValue.data == -1
         wic.isAppearanceLightNavigationBars = themeValue.data == -1
 
-        val attrs = theme.obtainStyledAttributes(
-            intArrayOf(
-                R.attr.colorSurface,
-                R.attr.actionBarTintColor,
-                R.attr.colorPrimaryVariant,
-            ),
-        )
+        val attrs =
+            theme.obtainStyledAttributes(
+                intArrayOf(
+                    R.attr.colorSurface,
+                    R.attr.actionBarTintColor,
+                    R.attr.colorPrimaryVariant,
+                ),
+            )
         val colorSurface = attrs.getColor(0, 0)
         val actionBarTintColor = attrs.getColor(1, 0)
         val colorPrimaryVariant = attrs.getColor(2, 0)

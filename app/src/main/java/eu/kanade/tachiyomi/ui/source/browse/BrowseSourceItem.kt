@@ -24,18 +24,18 @@ class BrowseSourceItem(
     private val catalogueAsList: Preference<Boolean>,
     private val catalogueListType: Preference<Int>,
     private val outlineOnCovers: Preference<Boolean>,
-) :
-    AbstractFlexibleItem<BrowseSourceHolder>() {
-
-    override fun getLayoutRes(): Int {
-        return if (catalogueAsList.get()) {
+) : AbstractFlexibleItem<BrowseSourceHolder>() {
+    override fun getLayoutRes(): Int =
+        if (catalogueAsList.get()) {
             R.layout.manga_list_item
         } else {
             R.layout.manga_grid_item
         }
-    }
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): BrowseSourceHolder {
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): BrowseSourceHolder {
         val parent = adapter.recyclerView
         return if (parent is AutofitRecyclerView && !catalogueAsList.get()) {
             val listType = catalogueListType.get()
@@ -50,10 +50,11 @@ class BrowseSourceItem(
                     )
                 }
                 binding.setBGAndFG(listType)
-                binding.constraintLayout.layoutParams = FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                )
+                binding.constraintLayout.layoutParams =
+                    FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    )
                 binding.coverThumbnail.maxHeight = Int.MAX_VALUE
                 binding.coverThumbnail.minimumHeight = 0
                 binding.constraintLayout.minHeight = 0
@@ -87,7 +88,5 @@ class BrowseSourceItem(
         return false
     }
 
-    override fun hashCode(): Int {
-        return manga.id!!.hashCode()
-    }
+    override fun hashCode(): Int = manga.id!!.hashCode()
 }

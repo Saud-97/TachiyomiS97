@@ -8,28 +8,24 @@ import eu.davidea.flexibleadapter.items.IFlexible
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Manga
 
-class MangaHeaderItem(val manga: Manga, var startExpanded: Boolean) :
-    AbstractFlexibleItem<MangaHeaderHolder>() {
-
+class MangaHeaderItem(
+    val manga: Manga,
+    var startExpanded: Boolean,
+) : AbstractFlexibleItem<MangaHeaderHolder>() {
     var isChapterHeader = false
     var isLocked = false
     var isTablet = false
 
-    override fun getLayoutRes(): Int {
-        return if (isChapterHeader) R.layout.chapter_header_item else R.layout.manga_header_item
-    }
+    override fun getLayoutRes(): Int = if (isChapterHeader) R.layout.chapter_header_item else R.layout.manga_header_item
 
-    override fun isSelectable(): Boolean {
-        return false
-    }
+    override fun isSelectable(): Boolean = false
 
-    override fun isSwipeable(): Boolean {
-        return false
-    }
+    override fun isSwipeable(): Boolean = false
 
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): MangaHeaderHolder {
-        return MangaHeaderHolder(view, adapter as MangaDetailsAdapter, startExpanded, isTablet)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): MangaHeaderHolder = MangaHeaderHolder(view, adapter as MangaDetailsAdapter, startExpanded, isTablet)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -44,11 +40,7 @@ class MangaHeaderItem(val manga: Manga, var startExpanded: Boolean) :
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return (this === other)
-    }
+    override fun equals(other: Any?): Boolean = (this === other)
 
-    override fun hashCode(): Int {
-        return -(manga.id).hashCode()
-    }
+    override fun hashCode(): Int = -(manga.id).hashCode()
 }

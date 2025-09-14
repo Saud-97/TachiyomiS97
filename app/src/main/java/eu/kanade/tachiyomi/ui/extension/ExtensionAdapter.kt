@@ -13,9 +13,9 @@ import uy.kohesive.injekt.injectLazy
  *
  * @param listener instance of [OnButtonClickListener].
  */
-class ExtensionAdapter(val listener: OnButtonClickListener) :
-    FlexibleAdapter<IFlexible<*>>(null, listener, true) {
-
+class ExtensionAdapter(
+    val listener: OnButtonClickListener,
+) : FlexibleAdapter<IFlexible<*>>(null, listener, true) {
     val preferences: PreferencesHelper by injectLazy()
 
     var installedSortOrder = preferences.installedExtensionsOrder().get()
@@ -32,8 +32,14 @@ class ExtensionAdapter(val listener: OnButtonClickListener) :
 
     interface OnButtonClickListener {
         fun onButtonClick(position: Int)
+
         fun onCancelClick(position: Int)
+
         fun onUpdateAllClicked(position: Int)
-        fun onExtSortClicked(view: TextView, position: Int)
+
+        fun onExtSortClicked(
+            view: TextView,
+            position: Int,
+        )
     }
 }

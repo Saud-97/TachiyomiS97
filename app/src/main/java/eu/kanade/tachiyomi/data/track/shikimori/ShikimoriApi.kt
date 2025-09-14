@@ -29,45 +29,58 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import uy.kohesive.injekt.injectLazy
 
-class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInterceptor) {
-
+class ShikimoriApi(
+    private val client: OkHttpClient,
+    interceptor: ShikimoriInterceptor,
+) {
     private val json: Json by injectLazy()
 
     private val authClient = client.newBuilder().addInterceptor(interceptor).build()
 
-    suspend fun addLibManga(track: Track, user_id: String): Track {
-        return withIOContext {
-            val payload = buildJsonObject {
-                putJsonObject("user_rate") {
-                    put("user_id", user_id)
-                    put("target_id", track.media_id)
-                    put("target_type", "Manga")
-                    put("chapters", track.last_chapter_read.toInt())
-                    put("score", track.score.toInt())
-                    put("status", track.toShikimoriStatus())
+    suspend fun addLibManga(
+        track: Track,
+        user_id: String,
+    ): Track =
+        withIOContext {
+            val payload =
+                buildJsonObject {
+                    putJsonObject("user_rate") {
+                        put("user_id", user_id)
+                        put("target_id", track.media_id)
+                        put("target_type", "Manga")
+                        put("chapters", track.last_chapter_read.toInt())
+                        put("score", track.score.toInt())
+                        put("status", track.toShikimoriStatus())
+                    }
                 }
-            }
-            authClient.newCall(
-                POST(
-                    "$apiUrl/v2/user_rates",
-                    body = payload.toString().toRequestBody(jsonMime),
-                ),
-            ).awaitSuccess()
+            authClient
+                .newCall(
+                    POST(
+                        "$apiUrl/v2/user_rates",
+                        body = payload.toString().toRequestBody(jsonMime),
+                    ),
+                ).awaitSuccess()
             track
         }
-    }
 
-    suspend fun updateLibManga(track: Track, user_id: String): Track = addLibManga(track, user_id)
+    suspend fun updateLibManga(
+        track: Track,
+        user_id: String,
+    ): Track = addLibManga(track, user_id)
 
-    suspend fun search(search: String): List<TrackSearch> {
-        return withIOContext {
-            val url = "$apiUrl/mangas".toUri().buildUpon()
-                .appendQueryParameter("order", "popularity")
-                .appendQueryParameter("search", search)
-                .appendQueryParameter("limit", "20")
-                .build()
+    suspend fun search(search: String): List<TrackSearch> =
+        withIOContext {
+            val url =
+                "$apiUrl/mangas"
+                    .toUri()
+                    .buildUpon()
+                    .appendQueryParameter("order", "popularity")
+                    .appendQueryParameter("search", search)
+                    .appendQueryParameter("limit", "20")
+                    .build()
             with(json) {
-                authClient.newCall(GET(url.toString()))
+                authClient
+                    .newCall(GET(url.toString()))
                     .awaitSuccess()
                     .parseAs<JsonArray>()
                     .let { response ->
@@ -77,13 +90,19 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
                     }
             }
         }
-    }
 
-    suspend fun remove(track: Track, user_id: String): Boolean {
-        return withIOContext {
+    suspend fun remove(
+        track: Track,
+        user_id: String,
+    ): Boolean =
+        withIOContext {
             try {
                 val rates = getUserRates(track, user_id)
-                val id = rates.last().jsonObject["id"]!!.jsonPrimitive.content
+                val id =
+                    rates
+                        .last()
+                        .jsonObject["id"]!!
+                        .jsonPrimitive.content
                 val url = "$apiUrl/v2/user_rates/$id"
                 authClient.newCall(DELETE(url)).awaitSuccess()
                 true
@@ -92,10 +111,9 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
                 false
             }
         }
-    }
 
-    private fun jsonToSearch(obj: JsonObject): TrackSearch {
-        return TrackSearch.create(TrackManager.SHIKIMORI).apply {
+    private fun jsonToSearch(obj: JsonObject): TrackSearch =
+        TrackSearch.create(TrackManager.SHIKIMORI).apply {
             media_id = obj["id"]!!.jsonPrimitive.long
             title = obj["name"]!!.jsonPrimitive.content
             total_chapters = obj["chapters"]!!.jsonPrimitive.int
@@ -106,10 +124,12 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
             publishing_type = obj["kind"]!!.jsonPrimitive.content
             start_date = obj["aired_on"]?.jsonPrimitive?.contentOrNull ?: ""
         }
-    }
 
-    private fun jsonToTrack(obj: JsonObject, mangas: JsonObject): Track {
-        return Track.create(TrackManager.SHIKIMORI).apply {
+    private fun jsonToTrack(
+        obj: JsonObject,
+        mangas: JsonObject,
+    ): Track =
+        Track.create(TrackManager.SHIKIMORI).apply {
             title = mangas["name"]!!.jsonPrimitive.content
             media_id = obj["id"]!!.jsonPrimitive.long
             total_chapters = mangas["chapters"]!!.jsonPrimitive.int
@@ -118,46 +138,61 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
             status = toTrackStatus(obj["status"]!!.jsonPrimitive.content)
             tracking_url = baseUrl + mangas["url"]!!.jsonPrimitive.content
         }
-    }
 
-    private fun getUserRates(track: Track, user_id: String): JsonArray {
-        val url = "$apiUrl/v2/user_rates".toUri().buildUpon()
-            .appendQueryParameter("user_id", user_id)
-            .appendQueryParameter("target_id", track.media_id.toString())
-            .appendQueryParameter("target_type", "Manga")
-            .build()
+    private fun getUserRates(
+        track: Track,
+        user_id: String,
+    ): JsonArray {
+        val url =
+            "$apiUrl/v2/user_rates"
+                .toUri()
+                .buildUpon()
+                .appendQueryParameter("user_id", user_id)
+                .appendQueryParameter("target_id", track.media_id.toString())
+                .appendQueryParameter("target_type", "Manga")
+                .build()
         return with(json) {
-            authClient.newCall(GET(url.toString()))
+            authClient
+                .newCall(GET(url.toString()))
                 .execute()
                 .parseAs()
         }
     }
 
-    suspend fun findLibManga(track: Track, user_id: String): Track? {
-        return withIOContext {
-            val urlMangas = "$apiUrl/mangas".toUri().buildUpon()
-                .appendPath(track.media_id.toString())
-                .build()
-            val mangas = with(json) {
-                authClient.newCall(GET(urlMangas.toString()))
-                    .awaitSuccess()
-                    .parseAs<JsonObject>()
-            }
+    suspend fun findLibManga(
+        track: Track,
+        user_id: String,
+    ): Track? =
+        withIOContext {
+            val urlMangas =
+                "$apiUrl/mangas"
+                    .toUri()
+                    .buildUpon()
+                    .appendPath(track.media_id.toString())
+                    .build()
+            val mangas =
+                with(json) {
+                    authClient
+                        .newCall(GET(urlMangas.toString()))
+                        .awaitSuccess()
+                        .parseAs<JsonObject>()
+                }
 
             val entry = getUserRates(track, user_id)
             if (entry.size > 1) {
                 throw Exception("Too much mangas in response")
             }
-            entry.map {
-                jsonToTrack(it.jsonObject, mangas)
-            }.firstOrNull()
+            entry
+                .map {
+                    jsonToTrack(it.jsonObject, mangas)
+                }.firstOrNull()
         }
-    }
 
-    suspend fun getCurrentUser(): Int {
-        return withIOContext {
+    suspend fun getCurrentUser(): Int =
+        withIOContext {
             with(json) {
-                authClient.newCall(GET("$apiUrl/users/whoami"))
+                authClient
+                    .newCall(GET("$apiUrl/users/whoami"))
                     .awaitSuccess()
                     .parseAs<JsonObject>()
                     .let {
@@ -165,28 +200,30 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
                     }
             }
         }
-    }
 
-    suspend fun accessToken(code: String): OAuth {
-        return withIOContext {
+    suspend fun accessToken(code: String): OAuth =
+        withIOContext {
             with(json) {
-                client.newCall(accessTokenRequest(code))
+                client
+                    .newCall(accessTokenRequest(code))
                     .awaitSuccess()
                     .parseAs()
             }
         }
-    }
 
-    private fun accessTokenRequest(code: String) = POST(
-        oauthUrl,
-        body = FormBody.Builder()
-            .add("grant_type", "authorization_code")
-            .add("client_id", clientId)
-            .add("client_secret", clientSecret)
-            .add("code", code)
-            .add("redirect_uri", redirectUrl)
-            .build(),
-    )
+    private fun accessTokenRequest(code: String) =
+        POST(
+            oauthUrl,
+            body =
+                FormBody
+                    .Builder()
+                    .add("grant_type", "authorization_code")
+                    .add("client_id", clientId)
+                    .add("client_secret", clientSecret)
+                    .add("code", code)
+                    .add("redirect_uri", redirectUrl)
+                    .build(),
+        )
 
     companion object {
         private const val clientId = "1aaf4cf232372708e98b5abc813d795b539c5a916dbbfe9ac61bf02a360832cc"
@@ -200,25 +237,28 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
         private const val redirectUrl = "tachiyomi://shikimori-auth"
         private const val baseMangaUrl = "$apiUrl/mangas"
 
-        fun mangaUrl(remoteId: Int): String {
-            return "$baseMangaUrl/$remoteId"
-        }
+        fun mangaUrl(remoteId: Int): String = "$baseMangaUrl/$remoteId"
 
         fun authUrl() =
-            loginUrl.toUri().buildUpon()
+            loginUrl
+                .toUri()
+                .buildUpon()
                 .appendQueryParameter("client_id", clientId)
                 .appendQueryParameter("redirect_uri", redirectUrl)
                 .appendQueryParameter("response_type", "code")
                 .build()
 
-        fun refreshTokenRequest(token: String) = POST(
-            oauthUrl,
-            body = FormBody.Builder()
-                .add("grant_type", "refresh_token")
-                .add("client_id", clientId)
-                .add("client_secret", clientSecret)
-                .add("refresh_token", token)
-                .build(),
-        )
+        fun refreshTokenRequest(token: String) =
+            POST(
+                oauthUrl,
+                body =
+                    FormBody
+                        .Builder()
+                        .add("grant_type", "refresh_token")
+                        .add("client_id", clientId)
+                        .add("client_secret", clientSecret)
+                        .add("refresh_token", token)
+                        .build(),
+            )
     }
 }

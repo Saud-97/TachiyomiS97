@@ -11,14 +11,17 @@ class SearchPresenter(
     private val manga: Manga,
     sources: List<CatalogueSource>? = null,
 ) : GlobalSearchPresenter(initialQuery, sourcesToUse = sources) {
-
     override fun getEnabledSources(): List<CatalogueSource> {
         // Put the source of the selected manga at the top
-        return super.getEnabledSources()
+        return super
+            .getEnabledSources()
             .sortedByDescending { it.id == manga.source }
     }
 
-    override fun createCatalogueSearchItem(source: CatalogueSource, results: List<GlobalSearchMangaItem>?): GlobalSearchItem {
+    override fun createCatalogueSearchItem(
+        source: CatalogueSource,
+        results: List<GlobalSearchMangaItem>?,
+    ): GlobalSearchItem {
         // Set the catalogue search item as highlighted if the source matches that of the selected manga
         return GlobalSearchItem(source, results, source.id == manga.source)
     }

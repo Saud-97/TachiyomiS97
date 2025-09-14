@@ -5,7 +5,6 @@ import android.os.Build
 import timber.log.Timber
 
 object DeviceUtil {
-
     val isMiui by lazy {
         getSystemProperty("ro.miui.ui.version.name")?.isNotEmpty() ?: false
     }
@@ -32,7 +31,8 @@ object DeviceUtil {
         }
 
         return try {
-            Class.forName("android.miui.AppOpsUtils")
+            Class
+                .forName("android.miui.AppOpsUtils")
                 .getDeclaredMethod("isXOptMode")
                 .invoke(null) as Boolean
         } catch (e: Exception) {
@@ -58,21 +58,22 @@ object DeviceUtil {
         }
     }
 
-    val invalidDefaultBrowsers = listOf(
-        "android",
-        "com.huawei.android.internal.app",
-        "com.zui.resolver",
-    )
+    val invalidDefaultBrowsers =
+        listOf(
+            "android",
+            "com.huawei.android.internal.app",
+            "com.zui.resolver",
+        )
 
     @SuppressLint("PrivateApi")
-    private fun getSystemProperty(key: String?): String? {
-        return try {
-            Class.forName("android.os.SystemProperties")
+    private fun getSystemProperty(key: String?): String? =
+        try {
+            Class
+                .forName("android.os.SystemProperties")
                 .getDeclaredMethod("get", String::class.java)
                 .invoke(null, key) as String
         } catch (e: Exception) {
             Timber.w(e, "Unable to use SystemProperties.get")
             null
         }
-    }
 }

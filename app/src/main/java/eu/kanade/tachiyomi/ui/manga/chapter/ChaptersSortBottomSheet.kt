@@ -23,22 +23,28 @@ import eu.kanade.tachiyomi.widget.E2EBottomSheetDialog
 import eu.kanade.tachiyomi.widget.SortTextView
 import kotlin.math.max
 
-class ChaptersSortBottomSheet(controller: MangaDetailsController) :
-    E2EBottomSheetDialog<ChapterSortBottomSheetBinding>(controller.activity!!) {
-
+class ChaptersSortBottomSheet(
+    controller: MangaDetailsController,
+) : E2EBottomSheetDialog<ChapterSortBottomSheetBinding>(controller.activity!!) {
     val activity = controller.activity!!
 
     private val presenter = controller.presenter
 
     override fun createBinding(inflater: LayoutInflater) = ChapterSortBottomSheetBinding.inflate(inflater)
+
     init {
-        val height = activity.window.decorView.rootWindowInsetsCompat
-            ?.getInsetsIgnoringVisibility(systemBars())?.bottom ?: 0
+        val height =
+            activity.window.decorView.rootWindowInsetsCompat
+                ?.getInsetsIgnoringVisibility(systemBars())
+                ?.bottom ?: 0
         sheetBehavior.peekHeight = 470.dpToPx + height
 
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, progress: Float) {
+                override fun onSlide(
+                    bottomSheet: View,
+                    progress: Float,
+                ) {
                     if (progress.isNaN()) {
                         binding.pill.alpha = 0f
                     } else {
@@ -46,7 +52,10 @@ class ChaptersSortBottomSheet(controller: MangaDetailsController) :
                     }
                 }
 
-                override fun onStateChanged(p0: View, state: Int) {
+                override fun onStateChanged(
+                    p0: View,
+                    state: Int,
+                ) {
                     if (state == BottomSheetBehavior.STATE_EXPANDED) {
                         sheetBehavior.skipCollapsed = true
                     }
@@ -85,17 +94,19 @@ class ChaptersSortBottomSheet(controller: MangaDetailsController) :
         binding.byUploadDate.state = SortTextView.State.NONE
         binding.bySource.state = SortTextView.State.NONE
 
-        val sortItem = when (presenter.sortingOrder()) {
-            Manga.CHAPTER_SORTING_NUMBER -> binding.byChapterNumber
-            Manga.CHAPTER_SORTING_UPLOAD_DATE -> binding.byUploadDate
-            else -> binding.bySource
-        }
+        val sortItem =
+            when (presenter.sortingOrder()) {
+                Manga.CHAPTER_SORTING_NUMBER -> binding.byChapterNumber
+                Manga.CHAPTER_SORTING_UPLOAD_DATE -> binding.byUploadDate
+                else -> binding.bySource
+            }
 
-        sortItem.state = if (presenter.sortDescending()) {
-            SortTextView.State.DESCENDING
-        } else {
-            SortTextView.State.ASCENDING
-        }
+        sortItem.state =
+            if (presenter.sortDescending()) {
+                SortTextView.State.DESCENDING
+            } else {
+                SortTextView.State.ASCENDING
+            }
 
         checkIfSortMatchesDefault()
         binding.byChapterNumber.setOnSortChangeListener(::sortChanged)
@@ -120,17 +131,19 @@ class ChaptersSortBottomSheet(controller: MangaDetailsController) :
             binding.byUploadDate.state = SortTextView.State.NONE
             binding.bySource.state = SortTextView.State.NONE
 
-            val sortItemNew = when (presenter.sortingOrder()) {
-                Manga.CHAPTER_SORTING_NUMBER -> binding.byChapterNumber
-                Manga.CHAPTER_SORTING_UPLOAD_DATE -> binding.byUploadDate
-                else -> binding.bySource
-            }
+            val sortItemNew =
+                when (presenter.sortingOrder()) {
+                    Manga.CHAPTER_SORTING_NUMBER -> binding.byChapterNumber
+                    Manga.CHAPTER_SORTING_UPLOAD_DATE -> binding.byUploadDate
+                    else -> binding.bySource
+                }
 
-            sortItemNew.state = if (presenter.sortDescending()) {
-                SortTextView.State.DESCENDING
-            } else {
-                SortTextView.State.ASCENDING
-            }
+            sortItemNew.state =
+                if (presenter.sortDescending()) {
+                    SortTextView.State.DESCENDING
+                } else {
+                    SortTextView.State.ASCENDING
+                }
             binding.setAsDefaultSort.isInvisible = true
             binding.resetAsDefaultSort.isInvisible = true
         }
@@ -162,13 +175,15 @@ class ChaptersSortBottomSheet(controller: MangaDetailsController) :
             val scanlators = presenter.allChapterScanlators.toList()
             val filteredScanlators =
                 (
-                    presenter.manga.filtered_scanlators?.let { ChapterUtil.getScanlators(it) }
+                    presenter.manga.filtered_scanlators
+                        ?.let { ChapterUtil.getScanlators(it) }
                         ?.toMutableSet()
                         ?: mutableSetOf()
-                    )
+                )
             val preselected = scanlators.map { it in filteredScanlators }.toBooleanArray()
             var alertDialog: AlertDialog? = null
-            activity.materialAlertDialog()
+            activity
+                .materialAlertDialog()
                 .setTitle(R.string.filter_groups)
                 .setNegativeStateItems(scanlators, preselected) { _, pos, checked ->
                     if (checked) {
@@ -178,15 +193,13 @@ class ChaptersSortBottomSheet(controller: MangaDetailsController) :
                     }
                     alertDialog?.getButton(BUTTON_POSITIVE)?.isEnabled =
                         scanlators.size != filteredScanlators.size
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+                }.setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.filter) { _, _ ->
                     presenter.setScanlatorFilter(filteredScanlators)
-                }
-                .setNeutralButton(R.string.reset) { _, _ ->
+                }.setNeutralButton(R.string.reset) { _, _ ->
                     presenter.setScanlatorFilter(emptySet())
-                }
-                .show().apply {
+                }.show()
+                .apply {
                     alertDialog = this
                     setOnCancelListener { alertDialog = null }
                     setOnDismissListener { alertDialog = null }
@@ -222,7 +235,10 @@ class ChaptersSortBottomSheet(controller: MangaDetailsController) :
         binding.resetAsDefaultSort.isInvisible = matches
     }
 
-    private fun sortChanged(sortTextView: SortTextView, state: SortTextView.State) {
+    private fun sortChanged(
+        sortTextView: SortTextView,
+        state: SortTextView.State,
+    ) {
         if (sortTextView != binding.byChapterNumber) {
             binding.byChapterNumber.state = SortTextView.State.NONE
         }

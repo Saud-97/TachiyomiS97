@@ -20,10 +20,10 @@ import okhttp3.Request
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-open class FoolSlide(override val domainName: String, private val urlModifier: String = "") :
-    DelegatedHttpSource
-    () {
-
+open class FoolSlide(
+    override val domainName: String,
+    private val urlModifier: String = "",
+) : DelegatedHttpSource() {
     override fun canOpenUrl(uri: Uri): Boolean = true
 
     override fun chapterUrl(uri: Uri): String? {
@@ -32,14 +32,19 @@ open class FoolSlide(override val domainName: String, private val urlModifier: S
         val lang = uri.pathSegments.getOrNull(2 + offset) ?: return null
         val volume = uri.pathSegments.getOrNull(3 + offset) ?: return null
         val chapterNumber = uri.pathSegments.getOrNull(4 + offset) ?: return null
-        val subChapterNumber = uri.pathSegments.getOrNull(5 + offset)?.toIntOrNull()?.toString()
-        return "$urlModifier/read/" + listOfNotNull(
-            mangaName,
-            lang,
-            volume,
-            chapterNumber,
-            subChapterNumber,
-        ).joinToString("/") + "/"
+        val subChapterNumber =
+            uri.pathSegments
+                .getOrNull(5 + offset)
+                ?.toIntOrNull()
+                ?.toString()
+        return "$urlModifier/read/" +
+            listOfNotNull(
+                mangaName,
+                lang,
+                volume,
+                chapterNumber,
+                subChapterNumber,
+            ).joinToString("/") + "/"
     }
 
     override fun pageNumber(uri: Uri): Int? {
@@ -62,24 +67,30 @@ open class FoolSlide(override val domainName: String, private val urlModifier: S
             val mangaUrl = "$urlModifier/series/$mangaName/"
             val sourceId = delegate?.id ?: return@withContext null
             val dbManga = db.getManga(mangaUrl, sourceId).executeAsBlocking()
-            val deferredManga = async {
-                dbManga ?: getManga(mangaUrl)
-            }
+            val deferredManga =
+                async {
+                    dbManga ?: getManga(mangaUrl)
+                }
             val chapterUrl = chapterUrl(uri)
             val deferredChapters = async { getChapters(mangaUrl) }
             val manga = deferredManga.await()
             val chapters = deferredChapters.await()
             val context = Injekt.get<PreferencesHelper>().context
-            val trueChapter = chapters?.find { it.url == chapterUrl }?.toChapter() ?: error(
-                context.getString(R.string.chapter_not_found),
-            )
+            val trueChapter =
+                chapters?.find { it.url == chapterUrl }?.toChapter() ?: error(
+                    context.getString(R.string.chapter_not_found),
+                )
             if (manga != null) Triple(trueChapter, manga, chapters) else null
         }
     }
 
     open suspend fun getManga(url: String): Manga? {
         val request = GET("${delegate!!.baseUrl}$url")
-        val document = network.client.newCall(allowAdult(request)).await().asJsoup()
+        val document =
+            network.client
+                .newCall(allowAdult(request))
+                .await()
+                .asJsoup()
         val mangaDetailsInfoSelector = "div.info"
         val infoElement = document.select(mangaDetailsInfoSelector).first()?.text() ?: return null
         return MangaImpl().apply {
@@ -89,7 +100,12 @@ open class FoolSlide(override val domainName: String, private val urlModifier: S
             author = infoElement.substringAfter("Author:").substringBefore("Artist:").trim()
             artist = infoElement.substringAfter("Artist:").substringBefore("Synopsis:").trim()
             description = infoElement.substringAfter("Synopsis:").trim()
-            thumbnail_url = document.select("div.thumbnail img").firstOrNull()?.attr("abs:src")?.trim()
+            thumbnail_url =
+                document
+                    .select("div.thumbnail img")
+                    .firstOrNull()
+                    ?.attr("abs:src")
+                    ?.trim()
         }
     }
 
@@ -98,12 +114,13 @@ open class FoolSlide(override val domainName: String, private val urlModifier: S
      */
     private fun allowAdult(request: Request) = allowAdult(request.url.toString())
 
-    private fun allowAdult(url: String): Request {
-        return POST(
+    private fun allowAdult(url: String): Request =
+        POST(
             url,
-            body = FormBody.Builder()
-                .add("adult", "true")
-                .build(),
+            body =
+                FormBody
+                    .Builder()
+                    .add("adult", "true")
+                    .build(),
         )
-    }
 }

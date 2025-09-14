@@ -22,13 +22,13 @@ import eu.kanade.tachiyomi.util.view.snack
 /**
  * Controller to manage the categories for the users' library.
  */
-class CategoryController(bundle: Bundle? = null) :
-    BaseController<CategoriesControllerBinding>(bundle),
+class CategoryController(
+    bundle: Bundle? = null,
+) : BaseController<CategoriesControllerBinding>(bundle),
     FlexibleAdapter.OnItemClickListener,
     FlexibleAdapter.OnItemMoveListener,
     SmallToolbarInterface,
     CategoryAdapter.CategoryItemListener {
-
     /**
      * Adapter containing category items.
      */
@@ -47,9 +47,7 @@ class CategoryController(bundle: Bundle? = null) :
     /**
      * Returns the toolbar title to show when this controller is attached.
      */
-    override fun getTitle(): String? {
-        return resources?.getString(R.string.edit_categories)
-    }
+    override fun getTitle(): String? = resources?.getString(R.string.edit_categories)
 
     override fun createBinding(inflater: LayoutInflater) = CategoriesControllerBinding.inflate(inflater)
 
@@ -108,12 +106,18 @@ class CategoryController(bundle: Bundle? = null) :
      * @param position The position of the clicked item.
      * @return true if this click should enable selection mode.
      */
-    override fun onItemClick(view: View?, position: Int): Boolean {
+    override fun onItemClick(
+        view: View?,
+        position: Int,
+    ): Boolean {
         adapter?.resetEditing(position)
         return true
     }
 
-    override fun onCategoryRename(position: Int, newName: String): Boolean {
+    override fun onCategoryRename(
+        position: Int,
+        newName: String,
+    ): Boolean {
         val category = adapter?.getItem(position)?.category ?: return false
         if (newName.isBlank()) {
             activity?.toast(R.string.category_cannot_be_blank)
@@ -126,13 +130,13 @@ class CategoryController(bundle: Bundle? = null) :
     }
 
     override fun onItemDelete(position: Int) {
-        activity!!.materialAlertDialog()
+        activity!!
+            .materialAlertDialog()
             .setTitle(R.string.confirm_category_deletion)
             .setMessage(R.string.confirm_category_deletion_message)
             .setPositiveButton(R.string.delete) { _, _ ->
                 deleteCategory(position)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -148,7 +152,10 @@ class CategoryController(bundle: Bundle? = null) :
                 }
                 addCallback(
                     object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        override fun onDismissed(
+                            transientBottomBar: Snackbar?,
+                            event: Int,
+                        ) {
                             super.onDismissed(transientBottomBar, event)
                             if (!undoing) confirmDelete()
                         }
@@ -176,13 +183,20 @@ class CategoryController(bundle: Bundle? = null) :
         snack = null
     }
 
-    override fun onActionStateChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {}
+    override fun onActionStateChanged(
+        viewHolder: RecyclerView.ViewHolder?,
+        actionState: Int,
+    ) {}
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int) {}
+    override fun onItemMove(
+        fromPosition: Int,
+        toPosition: Int,
+    ) {}
 
-    override fun shouldMoveItem(fromPosition: Int, toPosition: Int): Boolean {
-        return toPosition > 0
-    }
+    override fun shouldMoveItem(
+        fromPosition: Int,
+        toPosition: Int,
+    ): Boolean = toPosition > 0
 
     /**
      * Called from the presenter when a category with the given name already exists.

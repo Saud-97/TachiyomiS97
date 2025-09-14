@@ -41,7 +41,6 @@ class StatsDetailsPresenter(
     val trackManager: TrackManager = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
 ) : BaseCoroutinePresenter<StatsDetailsController>() {
-
     private val context
         get() = view?.view?.context ?: prefs.context
     var libraryMangas = getLibrary()
@@ -62,17 +61,19 @@ class StatsDetailsPresenter(
     var selectedCategory = mutableSetOf<Category>()
     var selectedStatsSort: StatsSort? = null
 
-    var startDate: Calendar = Calendar.getInstance().apply {
-        set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
-        set(Calendar.HOUR_OF_DAY, 0)
-        clear(Calendar.MINUTE)
-        clear(Calendar.SECOND)
-        clear(Calendar.MILLISECOND)
-    }
-    var endDate: Calendar = Calendar.getInstance().apply {
-        timeInMillis = startDate.timeInMillis - 1
-        add(Calendar.WEEK_OF_YEAR, 1)
-    }
+    var startDate: Calendar =
+        Calendar.getInstance().apply {
+            set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
+            set(Calendar.HOUR_OF_DAY, 0)
+            clear(Calendar.MINUTE)
+            clear(Calendar.SECOND)
+            clear(Calendar.MILLISECOND)
+        }
+    var endDate: Calendar =
+        Calendar.getInstance().apply {
+            timeInMillis = startDate.timeInMillis - 1
+            add(Calendar.WEEK_OF_YEAR, 1)
+        }
     private var daysRange = getDaysRange()
     var history = getMangaHistoryGroupedByDay()
     var historyByDayAndManga = emptyMap<Calendar, Map<Manga, List<History>>>()
@@ -102,7 +103,9 @@ class StatsDetailsPresenter(
     }
     val categoriesStats by lazy { defaultCategory + getCategories().toTypedArray() }
     val languagesStats by lazy {
-        prefs.enabledLanguages().get()
+        prefs
+            .enabledLanguages()
+            .get()
             .associateWith { lang -> LocaleHelper.getSourceDisplayName(lang, context) }
             .toSortedMap()
     }
@@ -231,12 +234,14 @@ class StatsDetailsPresenter(
                     meanScore = match.getMeanScoreRounded(),
                     chaptersRead = match.sumOf { it.read },
                     totalChapters = match.sumOf { it.totalChapters },
-                    label = if (min == max) {
-                        min.toString()
-                    } else {
-                        listOf(min.toString(), max?.toString()).joinToString("-")
-                            .replace("-null", "+")
-                    },
+                    label =
+                        if (min == max) {
+                            min.toString()
+                        } else {
+                            listOf(min.toString(), max?.toString())
+                                .joinToString("-")
+                                .replace("-null", "+")
+                        },
                     readDuration = match.getReadDuration(),
                     id = range.last.toLong(),
                 ),
@@ -246,9 +251,11 @@ class StatsDetailsPresenter(
 
     private fun setupTrackers() {
         currentStats = ArrayList()
-        val libraryFormat = mangasDistinct.filterByChip()
-            .map { it to getTracks(it).ifEmpty { listOf(null) } }
-            .flatMap { it.second.map { track -> it.first to track } }
+        val libraryFormat =
+            mangasDistinct
+                .filterByChip()
+                .map { it to getTracks(it).ifEmpty { listOf(null) } }
+                .flatMap { it.second.map { track -> it.first to track } }
         val loggedServices = trackManager.services.filter { it.isLogged }
 
         val serviceWithTrackedManga = libraryFormat.groupBy { it.second?.sync_id }
@@ -324,11 +331,13 @@ class StatsDetailsPresenter(
         currentStats = ArrayList()
         val mangaFiltered = mangasDistinct.filterByChip()
         val tags = mangaFiltered.flatMap { it.getTags() }.distinctBy { it.uppercase() }
-        val libraryFormat = tags.map { tag ->
-            tag to mangaFiltered.filter {
-                it.getTags().any { mangaTag -> mangaTag.equals(tag, true) }
+        val libraryFormat =
+            tags.map { tag ->
+                tag to
+                    mangaFiltered.filter {
+                        it.getTags().any { mangaTag -> mangaTag.equals(tag, true) }
+                    }
             }
-        }
 
         libraryFormat.forEach { (tag, mangaList) ->
             currentStats?.add(
@@ -370,15 +379,19 @@ class StatsDetailsPresenter(
     fun setupReadDuration(day: Calendar? = null) {
         currentStats = ArrayList()
 
-        historyByDayAndManga = history.mapValues { h ->
-            h.value.groupBy { it.manga }.mapValues { m -> m.value.map { it.history } }
-        }
-        val libraryFormat = if (day == null) {
-            historyByDayAndManga.values.flatMap { it.entries }.groupBy { it.key }
-                .mapValues { it.value.flatMap { h -> h.value } }
-        } else {
-            historyByDayAndManga[day]
-        }
+        historyByDayAndManga =
+            history.mapValues { h ->
+                h.value.groupBy { it.manga }.mapValues { m -> m.value.map { it.history } }
+            }
+        val libraryFormat =
+            if (day == null) {
+                historyByDayAndManga.values
+                    .flatMap { it.entries }
+                    .groupBy { it.key }
+                    .mapValues { it.value.flatMap { h -> h.value } }
+            } else {
+                historyByDayAndManga[day]
+            }
 
         libraryFormat?.forEach { (manga, history) ->
             currentStats?.add(
@@ -398,95 +411,96 @@ class StatsDetailsPresenter(
     /**
      * Filter the stat data according to the chips selected
      */
-    private fun List<LibraryManga>.filterByChip(): List<LibraryManga> {
-        return this.filterByCategory(selectedStat == Stats.CATEGORY)
+    private fun List<LibraryManga>.filterByChip(): List<LibraryManga> =
+        this
+            .filterByCategory(selectedStat == Stats.CATEGORY)
             .filterBySeriesType(selectedStat == Stats.SERIES_TYPE)
             .filterByStatus(selectedStat == Stats.STATUS)
             .filterByLanguage(selectedStat == Stats.LANGUAGE || (selectedStat != Stats.SOURCE && selectedSource.isNotEmpty()))
             .filterBySource(selectedStat in listOf(Stats.SOURCE, Stats.LANGUAGE) || selectedLanguage.isNotEmpty())
-    }
 
-    private fun List<LibraryManga>.filterBySeriesType(noFilter: Boolean = false): List<LibraryManga> {
-        return if (noFilter || selectedSeriesType.isEmpty()) {
+    private fun List<LibraryManga>.filterBySeriesType(noFilter: Boolean = false): List<LibraryManga> =
+        if (noFilter || selectedSeriesType.isEmpty()) {
             this
         } else {
             filter { manga ->
                 context.mapSeriesType(manga.seriesType()) in selectedSeriesType
             }
         }
-    }
 
-    private fun List<LibraryManga>.filterByStatus(noFilter: Boolean = false): List<LibraryManga> {
-        return if (noFilter || selectedStatus.isEmpty()) {
+    private fun List<LibraryManga>.filterByStatus(noFilter: Boolean = false): List<LibraryManga> =
+        if (noFilter || selectedStatus.isEmpty()) {
             this
         } else {
             filter { manga ->
                 context.mapStatus(manga.status) in selectedStatus
             }
         }
-    }
 
-    private fun List<LibraryManga>.filterByLanguage(noFilter: Boolean = false): List<LibraryManga> {
-        return if (noFilter || selectedLanguage.isEmpty()) {
+    private fun List<LibraryManga>.filterByLanguage(noFilter: Boolean = false): List<LibraryManga> =
+        if (noFilter || selectedLanguage.isEmpty()) {
             this
         } else {
             filter { manga ->
                 manga.getLanguage() in selectedLanguage
             }
         }
-    }
 
-    private fun List<LibraryManga>.filterBySource(noFilter: Boolean = false): List<LibraryManga> {
-        return if (noFilter || selectedSource.isEmpty()) {
+    private fun List<LibraryManga>.filterBySource(noFilter: Boolean = false): List<LibraryManga> =
+        if (noFilter || selectedSource.isEmpty()) {
             this
         } else {
             filter { manga ->
                 manga.source in selectedSource.map { it.id }
             }
         }
-    }
 
-    private fun List<LibraryManga>.filterByCategory(noFilter: Boolean = false): List<LibraryManga> {
-        return if (noFilter || selectedCategory.isEmpty()) {
+    private fun List<LibraryManga>.filterByCategory(noFilter: Boolean = false): List<LibraryManga> =
+        if (noFilter || selectedCategory.isEmpty()) {
             this
         } else {
-            libraryMangas.filter { manga ->
-                manga.category in selectedCategory.map { it.id }
-            }.distinct()
+            libraryMangas
+                .filter { manga ->
+                    manga.category in selectedCategory.map { it.id }
+                }.distinct()
         }
-    }
 
     fun sortCurrentStats() {
         when (selectedStatsSort) {
-            StatsSort.COUNT_DESC -> currentStats?.sortWith(
-                compareByDescending<StatsData> { it.count }.thenByDescending { it.chaptersRead }
-                    .thenByDescending { it.meanScore },
-            )
-            StatsSort.MEAN_SCORE_DESC -> currentStats?.sortWith(
-                compareByDescending<StatsData> { it.meanScore }.thenByDescending { it.count }
-                    .thenByDescending { it.chaptersRead },
-            )
-            StatsSort.PROGRESS_DESC -> currentStats?.sortWith(
-                compareByDescending<StatsData> { it.chaptersRead }.thenByDescending { it.count }
-                    .thenByDescending { it.meanScore },
-            )
+            StatsSort.COUNT_DESC ->
+                currentStats?.sortWith(
+                    compareByDescending<StatsData> { it.count }
+                        .thenByDescending { it.chaptersRead }
+                        .thenByDescending { it.meanScore },
+                )
+            StatsSort.MEAN_SCORE_DESC ->
+                currentStats?.sortWith(
+                    compareByDescending<StatsData> { it.meanScore }
+                        .thenByDescending { it.count }
+                        .thenByDescending { it.chaptersRead },
+                )
+            StatsSort.PROGRESS_DESC ->
+                currentStats?.sortWith(
+                    compareByDescending<StatsData> { it.chaptersRead }
+                        .thenByDescending { it.count }
+                        .thenByDescending { it.meanScore },
+                )
             else -> {}
         }
     }
 
-    private fun Manga.getTags(): List<String> {
-        return getGenres() ?: emptyList()
-    }
+    private fun Manga.getTags(): List<String> = getGenres() ?: emptyList()
 
     /**
      * Get language name of a manga
      */
     private fun LibraryManga.getLanguage(): String {
-        val code = if (isLocal()) {
-            LocalSource.getMangaLang(this, context)
-        } else {
-            sourceManager.get(source)?.lang
-        } ?: return context.getString(R.string.unknown)
+        val code =
+            if (isLocal()) {
+                LocalSource.getMangaLang(this, context)
+            } else {
+                sourceManager.get(source)?.lang
+            } ?: return context.getString(R.string.unknown)
         return LocaleHelper.getDisplayName(code)
     }
 
@@ -495,8 +509,10 @@ class StatsDetailsPresenter(
      */
     private fun List<LibraryManga>.getMeanScoreRounded(): Double? {
         val mangaTracks = this.map { it to getTracks(it) }
-        val scoresList = mangaTracks.filter { it.second.isNotEmpty() }
-            .mapNotNull { it.second.getMeanScoreByTracker() }
+        val scoresList =
+            mangaTracks
+                .filter { it.second.isNotEmpty() }
+                .mapNotNull { it.second.getMeanScoreByTracker() }
         return if (scoresList.isEmpty()) null else scoresList.average().roundToTwoDecimal()
     }
 
@@ -505,8 +521,10 @@ class StatsDetailsPresenter(
      */
     private fun LibraryManga.getMeanScoreToInt(): Int? {
         val mangaTracks = getTracks(this)
-        val scoresList = mangaTracks.filter { it.score > 0 }
-            .mapNotNull { it.get10PointScore() }
+        val scoresList =
+            mangaTracks
+                .filter { it.score > 0 }
+                .mapNotNull { it.get10PointScore() }
         return if (scoresList.isEmpty()) null else scoresList.average().roundToInt().coerceIn(1..10)
     }
 
@@ -514,8 +532,10 @@ class StatsDetailsPresenter(
      * Get mean score of a tracker
      */
     private fun List<Track?>.getMeanScoreByTracker(): Double? {
-        val scoresList = this.filter { (it?.score ?: 0f) > 0 }
-            .mapNotNull { it?.get10PointScore() }
+        val scoresList =
+            this
+                .filter { (it?.score ?: 0f) > 0 }
+                .mapNotNull { it?.get10PointScore() }
         return if (scoresList.isEmpty()) null else scoresList.average()
     }
 
@@ -537,55 +557,56 @@ class StatsDetailsPresenter(
         return null
     }
 
-    fun getStatsArray(): Array<String> {
-        return Stats.entries.map { context.getString(it.resourceId) }.toTypedArray()
-    }
+    fun getStatsArray(): Array<String> = Stats.entries.map { context.getString(it.resourceId) }.toTypedArray()
 
-    private fun getEnabledSources(): List<Source> {
-        return mangasDistinct.mapNotNull { sourceManager.get(it.source) }
-            .distinct().sortedBy { it.name }
-    }
+    private fun getEnabledSources(): List<Source> =
+        mangasDistinct
+            .mapNotNull { sourceManager.get(it.source) }
+            .distinct()
+            .sortedBy { it.name }
 
-    fun getSortDataArray(): Array<String> {
-        return StatsSort.entries.sorted().map { context.getString(it.resourceId) }.toTypedArray()
-    }
+    fun getSortDataArray(): Array<String> =
+        StatsSort.entries
+            .sorted()
+            .map { context.getString(it.resourceId) }
+            .toTypedArray()
 
-    fun getTracks(manga: Manga): MutableList<Track> {
-        return db.getTracks(manga).executeAsBlocking()
-    }
+    fun getTracks(manga: Manga): MutableList<Track> = db.getTracks(manga).executeAsBlocking()
 
-    fun getLibrary(): MutableList<LibraryManga> {
-        return db.getLibraryMangas().executeAsBlocking()
-    }
+    fun getLibrary(): MutableList<LibraryManga> = db.getLibraryMangas().executeAsBlocking()
 
-    private fun getCategories(): MutableList<Category> {
-        return db.getCategories().executeAsBlocking()
-    }
+    private fun getCategories(): MutableList<Category> = db.getCategories().executeAsBlocking()
 
-    private fun List<LibraryManga>.getReadDuration(): Long {
-        return sumOf { manga -> db.getHistoryByMangaId(manga.id!!).executeAsBlocking().sumOf { it.time_read } }
-    }
+    private fun List<LibraryManga>.getReadDuration(): Long =
+        sumOf { manga ->
+            db.getHistoryByMangaId(manga.id!!).executeAsBlocking().sumOf {
+                it.time_read
+            }
+        }
 
     /**
      * Get the manga and history grouped by day during the selected period
      */
     fun getMangaHistoryGroupedByDay(): Map<Calendar, List<MangaChapterHistory>> {
         val history = db.getHistoryPerPeriod(startDate.timeInMillis, endDate.timeInMillis).executeAsBlocking()
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = startDate.timeInMillis
-        }
+        val calendar =
+            Calendar.getInstance().apply {
+                timeInMillis = startDate.timeInMillis
+            }
 
         return (0 until daysRange).associate { _ ->
-            Calendar.getInstance().apply { timeInMillis = calendar.timeInMillis } to history.filter {
-                val calH = Calendar.getInstance().apply { timeInMillis = it.history.last_read }
-                calH.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR) &&
-                    calH.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)
-            }.also { calendar.add(Calendar.DAY_OF_WEEK, 1) }
+            Calendar.getInstance().apply { timeInMillis = calendar.timeInMillis } to
+                history
+                    .filter {
+                        val calH = Calendar.getInstance().apply { timeInMillis = it.history.last_read }
+                        calH.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR) &&
+                            calH.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)
+                    }.also { calendar.add(Calendar.DAY_OF_WEEK, 1) }
         }
     }
 
-    fun getCalendarShortDay(calendar: Calendar): String {
-        return if (history.size > 14) {
+    fun getCalendarShortDay(calendar: Calendar): String =
+        if (history.size > 14) {
             ""
         } else {
             calendar.getDisplayName(
@@ -594,37 +615,39 @@ class StatsDetailsPresenter(
                 Locale.getDefault(),
             )
         } ?: context.getString(R.string.unknown)
-    }
 
     fun changeReadDurationPeriod(toAdd: Int) {
         startDate.add(Calendar.DAY_OF_YEAR, toAdd * daysRange.toInt())
         endDate.add(Calendar.DAY_OF_YEAR, toAdd * daysRange.toInt())
     }
 
-    private fun getDaysRange(): Long {
-        return TimeUnit.MILLISECONDS.toDays(endDate.timeInMillis - startDate.timeInMillis) + 1
-    }
+    private fun getDaysRange(): Long = TimeUnit.MILLISECONDS.toDays(endDate.timeInMillis - startDate.timeInMillis) + 1
 
     /**
      * Update the start date and end date according to time selected
      */
-    fun updateReadDurationPeriod(startMillis: Long, endMillis: Long) {
-        startDate = Calendar.getInstance().apply {
-            timeInMillis = startMillis
-            set(Calendar.HOUR_OF_DAY, 0)
-            clear(Calendar.MINUTE)
-            clear(Calendar.SECOND)
-            clear(Calendar.MILLISECOND)
-        }
-        endDate = Calendar.getInstance().apply {
-            timeInMillis = endMillis
-            set(Calendar.HOUR_OF_DAY, 0)
-            clear(Calendar.MINUTE)
-            clear(Calendar.SECOND)
-            clear(Calendar.MILLISECOND)
-            add(Calendar.DAY_OF_YEAR, 1)
-            timeInMillis -= 1
-        }
+    fun updateReadDurationPeriod(
+        startMillis: Long,
+        endMillis: Long,
+    ) {
+        startDate =
+            Calendar.getInstance().apply {
+                timeInMillis = startMillis
+                set(Calendar.HOUR_OF_DAY, 0)
+                clear(Calendar.MINUTE)
+                clear(Calendar.SECOND)
+                clear(Calendar.MILLISECOND)
+            }
+        endDate =
+            Calendar.getInstance().apply {
+                timeInMillis = endMillis
+                set(Calendar.HOUR_OF_DAY, 0)
+                clear(Calendar.MINUTE)
+                clear(Calendar.SECOND)
+                clear(Calendar.MILLISECOND)
+                add(Calendar.DAY_OF_YEAR, 1)
+                timeInMillis -= 1
+            }
         daysRange = getDaysRange()
     }
 
@@ -640,7 +663,10 @@ class StatsDetailsPresenter(
         return DateUtils.formatDateTime(context, calendar.timeInMillis, flags)
     }
 
-    fun convertCalendarToString(calendar: Calendar, showYear: Boolean): String {
+    fun convertCalendarToString(
+        calendar: Calendar,
+        showYear: Boolean,
+    ): String {
         val flagYear = if (showYear) DateUtils.FORMAT_ABBREV_MONTH or DateUtils.FORMAT_SHOW_YEAR else 0
         val flags = DateUtils.FORMAT_SHOW_DATE or flagYear
         return DateUtils.formatDateTime(context, calendar.timeInMillis, flags)
@@ -654,7 +680,9 @@ class StatsDetailsPresenter(
         return "$startDateString - $endDateString"
     }
 
-    enum class Stats(val resourceId: Int) {
+    enum class Stats(
+        val resourceId: Int,
+    ) {
         SERIES_TYPE(R.string.series_type),
         STATUS(R.string.status),
         READ_DURATION(R.string.read_duration),
@@ -668,7 +696,9 @@ class StatsDetailsPresenter(
         START_YEAR(R.string.start_year),
     }
 
-    enum class StatsSort(val resourceId: Int) {
+    enum class StatsSort(
+        val resourceId: Int,
+    ) {
         COUNT_DESC(R.string.most_entries),
         PROGRESS_DESC(R.string.chapters_read),
         MEAN_SCORE_DESC(R.string.mean_tracking_score),

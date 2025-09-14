@@ -10,8 +10,9 @@ import eu.kanade.tachiyomi.R
 /**
  * Repo item for a recycler view.
  */
-class RepoItem(val repo: String) : AbstractFlexibleItem<RepoHolder>() {
-
+class RepoItem(
+    val repo: String,
+) : AbstractFlexibleItem<RepoHolder>() {
     /**
      * Whether this item is currently selected.
      */
@@ -20,9 +21,7 @@ class RepoItem(val repo: String) : AbstractFlexibleItem<RepoHolder>() {
     /**
      * Returns the layout resource for this item.
      */
-    override fun getLayoutRes(): Int {
-        return R.layout.categories_item
-    }
+    override fun getLayoutRes(): Int = R.layout.categories_item
 
     /**
      * Returns a new view holder for this item.
@@ -33,9 +32,7 @@ class RepoItem(val repo: String) : AbstractFlexibleItem<RepoHolder>() {
     override fun createViewHolder(
         view: View,
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
-    ): RepoHolder {
-        return RepoHolder(view, adapter as RepoAdapter)
-    }
+    ): RepoHolder = RepoHolder(view, adapter as RepoAdapter)
 
     /**
      * Binds the given view holder with this item.
@@ -60,9 +57,7 @@ class RepoItem(val repo: String) : AbstractFlexibleItem<RepoHolder>() {
      */
     override fun isDraggable(): Boolean = false
 
-    override fun equals(other: Any?): Boolean {
-        return this === other
-    }
+    override fun equals(other: Any?): Boolean = this === other
 
     override fun hashCode(): Int = repo.hashCode()
 }

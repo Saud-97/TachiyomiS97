@@ -21,9 +21,9 @@ import eu.kanade.tachiyomi.util.view.withFadeTransaction
 import eu.kanade.tachiyomi.widget.TriStateCheckBox
 import uy.kohesive.injekt.injectLazy
 
-class ManageCategoryDialog(bundle: Bundle? = null) :
-    DialogController(bundle) {
-
+class ManageCategoryDialog(
+    bundle: Bundle? = null,
+) : DialogController(bundle) {
     constructor(category: Category?, updateLibrary: ((Int?) -> Unit)) : this() {
         this.updateLibrary = updateLibrary
         this.category = category
@@ -49,8 +49,8 @@ class ManageCategoryDialog(bundle: Bundle? = null) :
         return dialog
     }
 
-    fun dialog(activity: Activity): MaterialAlertDialogBuilder {
-        return activity.materialAlertDialog().apply {
+    fun dialog(activity: Activity): MaterialAlertDialogBuilder =
+        activity.materialAlertDialog().apply {
             setTitle(if (category == null) R.string.new_category else R.string.manage_category)
             binding = MangaCategoryDialogBinding.inflate(activity.layoutInflater)
             setView(binding.root)
@@ -61,7 +61,6 @@ class ManageCategoryDialog(bundle: Bundle? = null) :
                 }
             }
         }
-    }
 
     fun show(activity: Activity) {
         val dialog = dialog(activity).create()
@@ -77,7 +76,8 @@ class ManageCategoryDialog(bundle: Bundle? = null) :
         val categoryExists = categoryExists(text)
         val category = this.category ?: Category.create(text)
         if (category.id != 0) {
-            if (text.isNotBlank() && !categoryExists &&
+            if (text.isNotBlank() &&
+                !categoryExists &&
                 !text.equals(this.category?.name ?: "", true)
             ) {
                 category.name = text
@@ -114,10 +114,10 @@ class ManageCategoryDialog(bundle: Bundle? = null) :
         }
         if (preferences.libraryUpdateInterval().get() > 0 &&
             updatePref(
-                    preferences.libraryUpdateCategories(),
-                    preferences.libraryUpdateCategoriesExclude(),
-                    binding.includeGlobal,
-                ) == false
+                preferences.libraryUpdateCategories(),
+                preferences.libraryUpdateCategoriesExclude(),
+                binding.includeGlobal,
+            ) == false
         ) {
             preferences.libraryUpdateInterval().set(0)
             LibraryUpdateJob.setupTask(preferences.context, 0)
@@ -129,11 +129,10 @@ class ManageCategoryDialog(bundle: Bundle? = null) :
     /**
      * Returns true if a category with the given name already exists.
      */
-    private fun categoryExists(name: String): Boolean {
-        return db.getCategories().executeAsBlocking().any {
+    private fun categoryExists(name: String): Boolean =
+        db.getCategories().executeAsBlocking().any {
             it.name.equals(name, true) && category?.id != it.id
         }
-    }
 
     fun onViewCreated() {
         if (category?.id ?: 0 <= 0 && category != null) {
@@ -212,11 +211,12 @@ class ManageCategoryDialog(bundle: Bundle? = null) :
         val excludeUpdateCategories = excludeCategories.get()
         box.isVisible = (updateCategories.isNotEmpty() || excludeUpdateCategories.isNotEmpty()) && shouldShow
         if (shouldShow) {
-            box.state = when {
-                updateCategories.any { category?.id == it.toIntOrNull() } -> TriStateCheckBox.State.CHECKED
-                excludeUpdateCategories.any { category?.id == it.toIntOrNull() } -> TriStateCheckBox.State.IGNORE
-                else -> TriStateCheckBox.State.UNCHECKED
-            }
+            box.state =
+                when {
+                    updateCategories.any { category?.id == it.toIntOrNull() } -> TriStateCheckBox.State.CHECKED
+                    excludeUpdateCategories.any { category?.id == it.toIntOrNull() } -> TriStateCheckBox.State.IGNORE
+                    else -> TriStateCheckBox.State.UNCHECKED
+                }
         }
     }
 }

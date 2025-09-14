@@ -22,17 +22,19 @@ fun UpdatesMangaCover(
     cover: Bitmap?,
 ) {
     Box(
-        modifier = modifier
-            .size(width = CoverWidth, height = CoverHeight)
-            .appWidgetInnerRadius(),
+        modifier =
+            modifier
+                .size(width = CoverWidth, height = CoverHeight)
+                .appWidgetInnerRadius(),
     ) {
         if (cover != null) {
             Image(
                 provider = ImageProvider(cover),
                 contentDescription = null,
-                modifier = GlanceModifier
-                    .fillMaxSize()
-                    .appWidgetInnerRadius(),
+                modifier =
+                    GlanceModifier
+                        .fillMaxSize()
+                        .appWidgetInnerRadius(),
                 contentScale = ContentScale.Crop,
             )
         } else {

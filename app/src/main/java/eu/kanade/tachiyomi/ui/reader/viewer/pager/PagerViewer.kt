@@ -28,8 +28,9 @@ import uy.kohesive.injekt.injectLazy
  * Implementation of a [BaseViewer] to display pages with a [ViewPager].
  */
 @Suppress("LeakingThis")
-abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
-
+abstract class PagerViewer(
+    val activity: ReaderActivity,
+) : BaseViewer {
     val downloadManager: DownloadManager by injectLazy()
 
     val scope = MainScope()
@@ -89,23 +90,24 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
      * */
     var heldForwardZoom: Pair<Int, Boolean>? = null
 
-    private var pagerListener = object : ViewPager.SimpleOnPageChangeListener() {
-        override fun onPageSelected(position: Int) {
-            if (pager.isRestoring) return
-            val page = adapter.joinedItems.getOrNull(position)
-            if (!activity.isScrollingThroughPagesOrChapters && page?.first !is ChapterTransition) {
-                activity.hideMenu()
+    private var pagerListener =
+        object : ViewPager.SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                if (pager.isRestoring) return
+                val page = adapter.joinedItems.getOrNull(position)
+                if (!activity.isScrollingThroughPagesOrChapters && page?.first !is ChapterTransition) {
+                    activity.hideMenu()
+                }
+                onPageChange(position)
             }
-            onPageChange(position)
-        }
 
-        override fun onPageScrollStateChanged(state: Int) {
-            isIdle = state == ViewPager.SCROLL_STATE_IDLE
-            if (!hasMoved) {
-                hasMoved = !isIdle
+            override fun onPageScrollStateChanged(state: Int) {
+                isIdle = state == ViewPager.SCROLL_STATE_IDLE
+                if (!hasMoved) {
+                    hasMoved = !isIdle
+                }
             }
         }
-    }
 
     init {
         pager.isVisible = false // Don't layout the pager yet
@@ -163,9 +165,7 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
     /**
      * Returns the view this viewer uses.
      */
-    override fun getView(): View {
-        return pager
-    }
+    override fun getView(): View = pager
 
     override fun destroy() {
         super.destroy()
@@ -193,12 +193,13 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
                 when {
                     // Use case happens on new chapter load
                     currentPage == pageF -> null
-                    currentPage is ReaderPage && pageF is ReaderPage -> if (pageF.number == (currentPage as ReaderPage).number) {
-                        // the InsertPage is always the second in the reading direction
-                        pageF is InsertPage
-                    } else {
-                        pageF.number > (currentPage as ReaderPage).number
-                    }
+                    currentPage is ReaderPage && pageF is ReaderPage ->
+                        if (pageF.number == (currentPage as ReaderPage).number) {
+                            // the InsertPage is always the second in the reading direction
+                            pageF is InsertPage
+                        } else {
+                            pageF.number > (currentPage as ReaderPage).number
+                        }
                     currentPage is ChapterTransition.Prev && pageF is ReaderPage ->
                         (currentPage as ChapterTransition).from == pageF.chapter
                     currentPage is ChapterTransition.Next && pageF is ReaderPage ->
@@ -238,7 +239,12 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
      * Called when a [ReaderPage] is marked as active. It notifies the
      * activity of the change and requests the preload of the next chapter if this is the last page.
      */
-    private fun onReaderPageSelected(page: ReaderPage, allowPreload: Boolean, hasExtraPage: Boolean, forward: Boolean?) {
+    private fun onReaderPageSelected(
+        page: ReaderPage,
+        allowPreload: Boolean,
+        hasExtraPage: Boolean,
+        forward: Boolean?,
+    ) {
         activity.onPageSelected(page, hasExtraPage)
 
         // Notify holder of page change
@@ -281,14 +287,20 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
         }
     }
 
-    private fun getItem(position: Int, currentChapter: ReaderChapter?): Pair<Any, Any?>? {
+    private fun getItem(
+        position: Int,
+        currentChapter: ReaderChapter?,
+    ): Pair<Any, Any?>? {
         return adapter.joinedItems.firstOrNull {
             val readerPage = it.first as? ReaderPage ?: return@firstOrNull false
             readerPage.index == position && readerPage.chapter.chapter.id == currentChapter?.chapter?.id
         }
     }
 
-    fun hasExtraPage(position: Int, currentChapter: ReaderChapter?): Boolean {
+    fun hasExtraPage(
+        position: Int,
+        currentChapter: ReaderChapter?,
+    ): Boolean {
         val item = getItem(position, currentChapter) ?: return false
         return item.second is ReaderPage
     }
@@ -333,10 +345,13 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
      */
     private fun setChaptersInternal(chapters: ViewerChapters) {
         Timber.d("setChaptersInternal")
-        val forceTransition = config.alwaysShowChapterTransition || adapter.joinedItems.getOrNull(
-            pager
-                .currentItem,
-        )?.first is ChapterTransition
+        val forceTransition =
+            config.alwaysShowChapterTransition ||
+                adapter.joinedItems
+                    .getOrNull(
+                        pager
+                            .currentItem,
+                    )?.first is ChapterTransition
         adapter.setChapters(chapters, forceTransition)
 
         // Layout the pager once a chapter is being set
@@ -352,16 +367,22 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
     /**
      * Tells this viewer to move to the given [page].
      */
-    override fun moveToPage(page: ReaderPage, animated: Boolean) {
+    override fun moveToPage(
+        page: ReaderPage,
+        animated: Boolean,
+    ) {
         Timber.d("moveToPage ${page.number}")
-        val position = adapter.joinedItems.indexOfFirst {
-            it.first == page || it.second == page ||
-                (
-                    config.splitPages && it.first is ReaderPage &&
-                        (it.first as? ReaderPage)?.isFromSamePage(page) == true &&
-                        (it.first as? ReaderPage)?.firstHalf != false
+        val position =
+            adapter.joinedItems.indexOfFirst {
+                it.first == page ||
+                    it.second == page ||
+                    (
+                        config.splitPages &&
+                            it.first is ReaderPage &&
+                            (it.first as? ReaderPage)?.isFromSamePage(page) == true &&
+                            (it.first as? ReaderPage)?.firstHalf != false
                     )
-        }
+            }
         if (position != -1) {
             val currentPosition = pager.currentItem
             pager.setCurrentItem(position, animated)

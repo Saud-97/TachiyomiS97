@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.database.models
 
 class CategoryImpl : Category {
-
     override var id: Int? = null
 
     override lateinit var name: String
@@ -33,7 +32,5 @@ class CategoryImpl : Category {
         return name == category.name
     }
 
-    override fun hashCode(): Int {
-        return name.hashCode()
-    }
+    override fun hashCode(): Int = name.hashCode()
 }

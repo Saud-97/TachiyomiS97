@@ -13,9 +13,7 @@ interface EnhancedTrackService {
     /**
      * This TrackService will only work with the sources that are accepted by this filter function.
      */
-    fun accept(source: Source): Boolean {
-        return source::class.qualifiedName in getAcceptedSources()
-    }
+    fun accept(source: Source): Boolean = source::class.qualifiedName in getAcceptedSources()
 
     /**
      * Fully qualified source classes that this track service is compatible with.
@@ -32,13 +30,20 @@ interface EnhancedTrackService {
     /**
      * Checks whether the provided source/track/manga triplet is from this TrackService
      */
-    fun isTrackFrom(track: Track, manga: Manga, source: Source?): Boolean =
-        track.tracking_url == manga.url && source?.let { accept(it) } == true
+    fun isTrackFrom(
+        track: Track,
+        manga: Manga,
+        source: Source?,
+    ): Boolean = track.tracking_url == manga.url && source?.let { accept(it) } == true
 
     /**
      * Migrates the given track for the manga to the newSource, if possible
      */
-    fun migrateTrack(track: Track, manga: Manga, newSource: Source): Track? =
+    fun migrateTrack(
+        track: Track,
+        manga: Manga,
+        newSource: Source,
+    ): Track? =
         if (accept(newSource)) {
             track.also { track.tracking_url = manga.url }
         } else {

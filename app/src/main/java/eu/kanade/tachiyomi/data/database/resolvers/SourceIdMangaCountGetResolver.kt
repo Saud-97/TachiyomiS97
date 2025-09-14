@@ -7,7 +7,6 @@ import eu.kanade.tachiyomi.data.database.models.SourceIdMangaCount
 import eu.kanade.tachiyomi.data.database.tables.MangaTable
 
 class SourceIdMangaCountGetResolver : DefaultGetResolver<SourceIdMangaCount>() {
-
     companion object {
         val INSTANCE = SourceIdMangaCountGetResolver()
         const val COL_COUNT = "manga_count"

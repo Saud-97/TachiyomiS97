@@ -8,7 +8,8 @@ import eu.kanade.tachiyomi.widget.TriStateCheckBox
 internal class TriStateMultiChoiceViewHolder(
     itemView: View,
     private val adapter: TriStateMultiChoiceDialogAdapter,
-) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+) : RecyclerView.ViewHolder(itemView),
+    View.OnClickListener {
     val controlView: TriStateCheckBox = itemView.findViewById(R.id.md_tri_state_checkbox)
 
     init {

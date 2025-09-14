@@ -33,49 +33,57 @@ import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_VIEWER
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.TABLE
 import eu.kanade.tachiyomi.data.database.updateStrategyAdapter
 
-class MangaTypeMapping : SQLiteTypeMapping<Manga>(
-    MangaPutResolver(),
-    MangaGetResolver(),
-    MangaDeleteResolver(),
-)
+class MangaTypeMapping :
+    SQLiteTypeMapping<Manga>(
+        MangaPutResolver(),
+        MangaGetResolver(),
+        MangaDeleteResolver(),
+    )
 
 class MangaPutResolver : DefaultPutResolver<Manga>() {
+    override fun mapToInsertQuery(obj: Manga) =
+        InsertQuery
+            .builder()
+            .table(TABLE)
+            .build()
 
-    override fun mapToInsertQuery(obj: Manga) = InsertQuery.builder()
-        .table(TABLE)
-        .build()
+    override fun mapToUpdateQuery(obj: Manga) =
+        UpdateQuery
+            .builder()
+            .table(TABLE)
+            .where("$COL_ID = ?")
+            .whereArgs(obj.id)
+            .build()
 
-    override fun mapToUpdateQuery(obj: Manga) = UpdateQuery.builder()
-        .table(TABLE)
-        .where("$COL_ID = ?")
-        .whereArgs(obj.id)
-        .build()
-
-    override fun mapToContentValues(obj: Manga) = ContentValues(15).apply {
-        put(COL_ID, obj.id)
-        put(COL_SOURCE, obj.source)
-        put(COL_URL, obj.url)
-        put(COL_ARTIST, obj.originalArtist)
-        put(COL_AUTHOR, obj.originalAuthor)
-        put(COL_DESCRIPTION, obj.originalDescription)
-        put(COL_GENRE, obj.originalGenre)
-        put(COL_TITLE, obj.originalTitle)
-        put(COL_STATUS, obj.originalStatus)
-        put(COL_THUMBNAIL_URL, obj.thumbnail_url)
-        put(COL_FAVORITE, obj.favorite)
-        put(COL_LAST_UPDATE, obj.last_update)
-        put(COL_INITIALIZED, obj.initialized)
-        put(COL_VIEWER, obj.viewer_flags)
-        put(COL_HIDE_TITLE, obj.hide_title)
-        put(COL_CHAPTER_FLAGS, obj.chapter_flags)
-        put(COL_DATE_ADDED, obj.date_added)
-        put(COL_FILTERED_SCANLATORS, obj.filtered_scanlators)
-        put(COL_UPDATE_STRATEGY, obj.update_strategy.let(updateStrategyAdapter::encode))
-    }
+    override fun mapToContentValues(obj: Manga) =
+        ContentValues(15).apply {
+            put(COL_ID, obj.id)
+            put(COL_SOURCE, obj.source)
+            put(COL_URL, obj.url)
+            put(COL_ARTIST, obj.originalArtist)
+            put(COL_AUTHOR, obj.originalAuthor)
+            put(COL_DESCRIPTION, obj.originalDescription)
+            put(COL_GENRE, obj.originalGenre)
+            put(COL_TITLE, obj.originalTitle)
+            put(COL_STATUS, obj.originalStatus)
+            put(COL_THUMBNAIL_URL, obj.thumbnail_url)
+            put(COL_FAVORITE, obj.favorite)
+            put(COL_LAST_UPDATE, obj.last_update)
+            put(COL_INITIALIZED, obj.initialized)
+            put(COL_VIEWER, obj.viewer_flags)
+            put(COL_HIDE_TITLE, obj.hide_title)
+            put(COL_CHAPTER_FLAGS, obj.chapter_flags)
+            put(COL_DATE_ADDED, obj.date_added)
+            put(COL_FILTERED_SCANLATORS, obj.filtered_scanlators)
+            put(COL_UPDATE_STRATEGY, obj.update_strategy.let(updateStrategyAdapter::encode))
+        }
 }
 
 interface BaseMangaGetResolver {
-    fun mapBaseFromCursor(manga: Manga, cursor: Cursor) = manga.apply {
+    fun mapBaseFromCursor(
+        manga: Manga,
+        cursor: Cursor,
+    ) = manga.apply {
         id = cursor.getLong(cursor.getColumnIndex(COL_ID))
         source = cursor.getLong(cursor.getColumnIndex(COL_SOURCE))
         url = cursor.getString(cursor.getColumnIndex(COL_URL))
@@ -94,24 +102,25 @@ interface BaseMangaGetResolver {
         hide_title = cursor.getInt(cursor.getColumnIndex(COL_HIDE_TITLE)) == 1
         date_added = cursor.getLong(cursor.getColumnIndex(COL_DATE_ADDED))
         filtered_scanlators = cursor.getString(cursor.getColumnIndex(COL_FILTERED_SCANLATORS))
-        update_strategy = cursor.getInt(cursor.getColumnIndex(COL_UPDATE_STRATEGY)).let(
-            updateStrategyAdapter::decode,
-        )
+        update_strategy =
+            cursor.getInt(cursor.getColumnIndex(COL_UPDATE_STRATEGY)).let(
+                updateStrategyAdapter::decode,
+            )
     }
 }
 
-open class MangaGetResolver : DefaultGetResolver<Manga>(), BaseMangaGetResolver {
-
-    override fun mapFromCursor(cursor: Cursor): Manga {
-        return mapBaseFromCursor(MangaImpl(), cursor)
-    }
+open class MangaGetResolver :
+    DefaultGetResolver<Manga>(),
+    BaseMangaGetResolver {
+    override fun mapFromCursor(cursor: Cursor): Manga = mapBaseFromCursor(MangaImpl(), cursor)
 }
 
 class MangaDeleteResolver : DefaultDeleteResolver<Manga>() {
-
-    override fun mapToDeleteQuery(obj: Manga) = DeleteQuery.builder()
-        .table(TABLE)
-        .where("$COL_ID = ?")
-        .whereArgs(obj.id)
-        .build()
+    override fun mapToDeleteQuery(obj: Manga) =
+        DeleteQuery
+            .builder()
+            .table(TABLE)
+            .where("$COL_ID = ?")
+            .whereArgs(obj.id)
+            .build()
 }

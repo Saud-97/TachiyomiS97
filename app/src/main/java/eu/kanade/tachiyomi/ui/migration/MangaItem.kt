@@ -8,15 +8,15 @@ import eu.davidea.flexibleadapter.items.IFlexible
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Manga
 
-class MangaItem(val manga: Manga) : AbstractFlexibleItem<MangaHolder>() {
+class MangaItem(
+    val manga: Manga,
+) : AbstractFlexibleItem<MangaHolder>() {
+    override fun getLayoutRes(): Int = R.layout.manga_list_item
 
-    override fun getLayoutRes(): Int {
-        return R.layout.manga_list_item
-    }
-
-    override fun createViewHolder(view: View, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>): MangaHolder {
-        return MangaHolder(view, adapter, (adapter as? MangaAdapter)?.showOutline ?: true)
-    }
+    override fun createViewHolder(
+        view: View,
+        adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
+    ): MangaHolder = MangaHolder(view, adapter, (adapter as? MangaAdapter)?.showOutline ?: true)
 
     override fun bindViewHolder(
         adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>,
@@ -34,7 +34,5 @@ class MangaItem(val manga: Manga) : AbstractFlexibleItem<MangaHolder>() {
         return false
     }
 
-    override fun hashCode(): Int {
-        return manga.id!!.hashCode()
-    }
+    override fun hashCode(): Int = manga.id!!.hashCode()
 }

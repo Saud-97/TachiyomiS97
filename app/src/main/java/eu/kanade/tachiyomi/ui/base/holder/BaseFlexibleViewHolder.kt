@@ -9,21 +9,12 @@ abstract class BaseFlexibleViewHolder(
     view: View,
     adapter: FlexibleAdapter<*>,
     stickyHeader: Boolean = false,
-) :
-    FlexibleViewHolder(view, adapter, stickyHeader) {
-    override fun getRearRightView(): View? {
-        return if (contentView.resources.isLTR) getRearEndView() else getRearStartView()
-    }
+) : FlexibleViewHolder(view, adapter, stickyHeader) {
+    override fun getRearRightView(): View? = if (contentView.resources.isLTR) getRearEndView() else getRearStartView()
 
-    override fun getRearLeftView(): View? {
-        return if (contentView.resources.isLTR) getRearStartView() else getRearEndView()
-    }
+    override fun getRearLeftView(): View? = if (contentView.resources.isLTR) getRearStartView() else getRearEndView()
 
-    open fun getRearStartView(): View? {
-        return null
-    }
+    open fun getRearStartView(): View? = null
 
-    open fun getRearEndView(): View? {
-        return null
-    }
+    open fun getRearEndView(): View? = null
 }

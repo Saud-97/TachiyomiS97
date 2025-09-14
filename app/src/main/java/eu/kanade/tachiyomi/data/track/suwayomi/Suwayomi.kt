@@ -11,7 +11,11 @@ import eu.kanade.tachiyomi.data.track.TrackService
 import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.data.track.updateNewTrackInfo
 
-class Suwayomi(private val context: Context, id: Int) : TrackService(id), EnhancedTrackService {
+class Suwayomi(
+    private val context: Context,
+    id: Int,
+) : TrackService(id),
+    EnhancedTrackService {
     val api by lazy { TachideskApi() }
 
     @StringRes
@@ -33,26 +37,30 @@ class Suwayomi(private val context: Context, id: Int) : TrackService(id), Enhanc
 
     override fun isCompletedStatus(index: Int): Boolean = getStatusList()[index] == COMPLETED
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            UNREAD -> getString(R.string.unread)
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                UNREAD -> getString(R.string.unread)
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            UNREAD -> getString(R.string.plan_to_read)
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                UNREAD -> getString(R.string.plan_to_read)
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                else -> ""
+            }
         }
-    }
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = UNREAD
 
     override fun getScoreList(): List<String> = emptyList()
@@ -65,14 +73,15 @@ class Suwayomi(private val context: Context, id: Int) : TrackService(id), Enhanc
         return api.updateProgress(track)
     }
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead)
         return api.updateProgress(track)
     }
 
-    override suspend fun bind(track: Track): Track {
-        return track
-    }
+    override suspend fun bind(track: Track): Track = track
 
     override suspend fun search(query: String): List<TrackSearch> {
         TODO("Not yet implemented")
@@ -85,7 +94,10 @@ class Suwayomi(private val context: Context, id: Int) : TrackService(id), Enhanc
         return track
     }
 
-    override suspend fun login(username: String, password: String): Boolean {
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): Boolean {
         saveCredentials("user", "pass")
         return true
     }

@@ -17,8 +17,11 @@ import eu.kanade.tachiyomi.source.sourcePreferences
 import uy.kohesive.injekt.injectLazy
 import java.security.MessageDigest
 
-class Kavita(private val context: Context, id: Int) : TrackService(id), EnhancedTrackService {
-
+class Kavita(
+    private val context: Context,
+    id: Int,
+) : TrackService(id),
+    EnhancedTrackService {
     companion object {
         const val UNREAD = 1
         const val READING = 2
@@ -45,26 +48,30 @@ class Kavita(private val context: Context, id: Int) : TrackService(id), Enhanced
 
     override fun isCompletedStatus(index: Int): Boolean = getStatusList()[index] == COMPLETED
 
-    override fun getStatus(status: Int): String = with(context) {
-        when (status) {
-            UNREAD -> getString(R.string.unread)
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            else -> ""
+    override fun getStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                UNREAD -> getString(R.string.unread)
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                else -> ""
+            }
         }
-    }
 
-    override fun getGlobalStatus(status: Int): String = with(context) {
-        when (status) {
-            UNREAD -> getString(R.string.plan_to_read)
-            READING -> getString(R.string.reading)
-            COMPLETED -> getString(R.string.completed)
-            else -> ""
+    override fun getGlobalStatus(status: Int): String =
+        with(context) {
+            when (status) {
+                UNREAD -> getString(R.string.plan_to_read)
+                READING -> getString(R.string.reading)
+                COMPLETED -> getString(R.string.completed)
+                else -> ""
+            }
         }
-    }
 
     override fun completedStatus(): Int = COMPLETED
+
     override fun readingStatus() = READING
+
     override fun planningStatus() = UNREAD
 
     override fun getScoreList(): List<String> = emptyList()
@@ -77,14 +84,15 @@ class Kavita(private val context: Context, id: Int) : TrackService(id), Enhanced
         return api.updateProgress(track)
     }
 
-    override suspend fun update(track: Track, setToRead: Boolean): Track {
+    override suspend fun update(
+        track: Track,
+        setToRead: Boolean,
+    ): Track {
         updateTrackStatus(track, setToRead)
         return api.updateProgress(track)
     }
 
-    override suspend fun bind(track: Track): Track {
-        return track
-    }
+    override suspend fun bind(track: Track): Track = track
 
     override suspend fun search(query: String): List<TrackSearch> {
         TODO("Not yet implemented: search")
@@ -97,7 +105,10 @@ class Kavita(private val context: Context, id: Int) : TrackService(id), Enhanced
         return track
     }
 
-    override suspend fun login(username: String, password: String): Boolean {
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): Boolean {
         saveCredentials("user", "pass")
         return true
     }
@@ -117,8 +128,11 @@ class Kavita(private val context: Context, id: Int) : TrackService(id), Enhanced
             null
         }
 
-    override fun isTrackFrom(track: Track, manga: Manga, source: Source?): Boolean =
-        track.tracking_url == manga.url && source?.let { accept(it) } == true
+    override fun isTrackFrom(
+        track: Track,
+        manga: Manga,
+        source: Source?,
+    ): Boolean = track.tracking_url == manga.url && source?.let { accept(it) } == true
 
     fun loadOAuth() {
         val oauth = OAuth()
@@ -127,7 +141,8 @@ class Kavita(private val context: Context, id: Int) : TrackService(id), Enhanced
             val sourceId by lazy {
                 val key = "kavita_$id/all/1" // Hardcoded versionID to 1
                 val bytes = MessageDigest.getInstance("MD5").digest(key.toByteArray())
-                (0..7).map { bytes[it].toLong() and 0xff shl 8 * (7 - it) }
+                (0..7)
+                    .map { bytes[it].toLong() and 0xff shl 8 * (7 - it) }
                     .reduce(Long::or) and Long.MAX_VALUE
             }
             val preferences = (sourceManager.get(sourceId) as ConfigurableSource).sourcePreferences()

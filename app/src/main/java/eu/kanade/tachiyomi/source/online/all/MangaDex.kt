@@ -23,23 +23,18 @@ import uy.kohesive.injekt.injectLazy
 import java.util.Locale
 
 class MangaDex : DelegatedHttpSource() {
-
     override val domainName: String = "mangadex"
 
     val sourceManager: SourceManager by injectLazy()
 
-    override fun canOpenUrl(uri: Uri): Boolean {
-        return uri.pathSegments?.lastOrNull() != "comments"
-    }
+    override fun canOpenUrl(uri: Uri): Boolean = uri.pathSegments?.lastOrNull() != "comments"
 
     override fun chapterUrl(uri: Uri): String? {
         val chapterNumber = uri.pathSegments.getOrNull(1) ?: return null
         return "/chapter/$chapterNumber"
     }
 
-    override fun pageNumber(uri: Uri): Int? {
-        return uri.pathSegments.getOrNull(2)?.toIntOrNull()
-    }
+    override fun pageNumber(uri: Uri): Int? = uri.pathSegments.getOrNull(2)?.toIntOrNull()
 
     override suspend fun fetchMangaFromChapterUrl(uri: Uri): Triple<Chapter, Manga, List<SChapter>>? {
         val url = chapterUrl(uri) ?: return null
@@ -62,16 +57,18 @@ class MangaDex : DelegatedHttpSource() {
             ?: error("Source not found")
         val mangaUrl = "/manga/$mangaId/"
         return withContext(Dispatchers.IO) {
-            val deferredManga = async {
-                db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking() ?: getMangaInfo(mangaUrl)
-            }
+            val deferredManga =
+                async {
+                    db.getManga(mangaUrl, delegate?.id!!).executeAsBlocking() ?: getMangaInfo(mangaUrl)
+                }
             val deferredChapters = async { getChapters(mangaUrl) }
             val manga = deferredManga.await()
             val chapters = deferredChapters.await()
             val context = Injekt.get<PreferencesHelper>().context
-            val trueChapter = chapters?.find { it.url == "/api$url" }?.toChapter() ?: error(
-                context.getString(R.string.chapter_not_found),
-            )
+            val trueChapter =
+                chapters?.find { it.url == "/api$url" }?.toChapter() ?: error(
+                    context.getString(R.string.chapter_not_found),
+                )
             if (manga != null) {
                 Triple(trueChapter, manga, chapters.orEmpty())
             } else {
@@ -91,8 +88,8 @@ class MangaDex : DelegatedHttpSource() {
         val language: String? = null,
     )
 
-    private fun getRealLangCode(langCode: String): String {
-        return when (langCode.lowercase(Locale.getDefault())) {
+    private fun getRealLangCode(langCode: String): String =
+        when (langCode.lowercase(Locale.getDefault())) {
             "gb" -> "en"
             "vn" -> "vi"
             "mx" -> "es-419"
@@ -114,5 +111,4 @@ class MangaDex : DelegatedHttpSource() {
             "hk" -> "zh-Hant"
             else -> langCode
         }
-    }
 }

@@ -34,7 +34,6 @@ class MangaShortcutManager(
     val coverCache: CoverCache = Injekt.get(),
     val sourceManager: SourceManager = Injekt.get(),
 ) {
-
     fun updateShortcuts(context: Context) {
         launchIO {
             with(TachiyomiWidgetManager()) { context.init() }
@@ -46,98 +45,102 @@ class MangaShortcutManager(
                 }
                 val shortcutManager = context.getSystemService(ShortcutManager::class.java)
 
-                val recentManga = if (preferences.showSeriesInShortcuts()) {
-                    RecentsPresenter.getRecentManga()
-                } else {
-                    emptyList()
-                }
-                val recentSources = if (preferences.showSourcesInShortcuts()) {
-                    preferences.lastUsedSources().get().mapNotNull {
-                        val splitS = it.split(":")
-                        splitS.first().toLongOrNull()?.let { id ->
-                            sourceManager.getOrStub(id) to splitS[1].toLong()
-                        }
+                val recentManga =
+                    if (preferences.showSeriesInShortcuts()) {
+                        RecentsPresenter.getRecentManga()
+                    } else {
+                        emptyList()
                     }
-                } else {
-                    emptyList()
-                }
+                val recentSources =
+                    if (preferences.showSourcesInShortcuts()) {
+                        preferences.lastUsedSources().get().mapNotNull {
+                            val splitS = it.split(":")
+                            splitS.first().toLongOrNull()?.let { id ->
+                                sourceManager.getOrStub(id) to splitS[1].toLong()
+                            }
+                        }
+                    } else {
+                        emptyList()
+                    }
                 val recents =
                     (recentManga.take(shortcutManager.maxShortcutCountPerActivity) + recentSources)
                         .sortedByDescending { it.second }
                         .map { it.first }
                         .take(shortcutManager.maxShortcutCountPerActivity)
 
-                val shortcuts = recents.mapNotNull { item ->
-                    when (item) {
-                        is Manga -> {
-                            val request = ImageRequest.Builder(context).data(item).build()
-                            val bitmap = (
-                                Coil.imageLoader(context)
-                                    .execute(request).drawable as? BitmapDrawable
-                                )?.bitmap
+                val shortcuts =
+                    recents.mapNotNull { item ->
+                        when (item) {
+                            is Manga -> {
+                                val request = ImageRequest.Builder(context).data(item).build()
+                                val bitmap =
+                                    (
+                                        Coil
+                                            .imageLoader(context)
+                                            .execute(request)
+                                            .drawable as? BitmapDrawable
+                                    )?.bitmap
 
-                            ShortcutInfo.Builder(
-                                context,
-                                "Manga-${item.id?.toString() ?: item.title}",
-                            )
-                                .setShortLabel(
-                                    item.title.takeUnless { it.isBlank() }
-                                        ?: context.getString(R.string.manga),
-                                )
-                                .setLongLabel(
-                                    item.title.takeUnless { it.isBlank() }
-                                        ?: context.getString(R.string.manga),
-                                )
-                                .setIcon(
-                                    if (bitmap != null) if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                        Icon.createWithAdaptiveBitmap(bitmap.toSquare())
-                                    } else {
-                                        Icon.createWithBitmap(bitmap)
-                                    }
-                                    else {
-                                        Icon.createWithResource(context, R.drawable.ic_book_24dp)
-                                    },
-                                )
-                                .setIntent(
-                                    SearchActivity.openMangaIntent(context, item.id, true)
-                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                                )
-                                .build()
-                        }
-                        is Source -> {
-                            val bitmap = (item.icon() as? BitmapDrawable)?.bitmap
-
-                            ShortcutInfo.Builder(context, "Source-${item.id}")
-                                .setShortLabel(item.name)
-                                .setLongLabel(item.name)
-                                .setIcon(
-                                    if (bitmap != null) if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                        Icon.createWithAdaptiveBitmap(bitmap.toSquare())
-                                    } else {
-                                        Icon.createWithBitmap(bitmap)
-                                    }
-                                    else {
-                                        Icon.createWithResource(
-                                            context,
-                                            R.drawable.sc_extensions_48dp,
-                                        )
-                                    },
-                                )
-                                .setIntent(
-                                    Intent(
+                                ShortcutInfo
+                                    .Builder(
                                         context,
-                                        SearchActivity::class.java,
-                                    ).setAction(MainActivity.SHORTCUT_SOURCE)
-                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                        .putExtra(BrowseSourceController.SOURCE_ID_KEY, item.id),
-                                )
-                                .build()
-                        }
-                        else -> {
-                            null
+                                        "Manga-${item.id?.toString() ?: item.title}",
+                                    ).setShortLabel(
+                                        item.title.takeUnless { it.isBlank() }
+                                            ?: context.getString(R.string.manga),
+                                    ).setLongLabel(
+                                        item.title.takeUnless { it.isBlank() }
+                                            ?: context.getString(R.string.manga),
+                                    ).setIcon(
+                                        if (bitmap != null) {
+                                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                                Icon.createWithAdaptiveBitmap(bitmap.toSquare())
+                                            } else {
+                                                Icon.createWithBitmap(bitmap)
+                                            }
+                                        } else {
+                                            Icon.createWithResource(context, R.drawable.ic_book_24dp)
+                                        },
+                                    ).setIntent(
+                                        SearchActivity
+                                            .openMangaIntent(context, item.id, true)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                                    ).build()
+                            }
+                            is Source -> {
+                                val bitmap = (item.icon() as? BitmapDrawable)?.bitmap
+
+                                ShortcutInfo
+                                    .Builder(context, "Source-${item.id}")
+                                    .setShortLabel(item.name)
+                                    .setLongLabel(item.name)
+                                    .setIcon(
+                                        if (bitmap != null) {
+                                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                                Icon.createWithAdaptiveBitmap(bitmap.toSquare())
+                                            } else {
+                                                Icon.createWithBitmap(bitmap)
+                                            }
+                                        } else {
+                                            Icon.createWithResource(
+                                                context,
+                                                R.drawable.sc_extensions_48dp,
+                                            )
+                                        },
+                                    ).setIntent(
+                                        Intent(
+                                            context,
+                                            SearchActivity::class.java,
+                                        ).setAction(MainActivity.SHORTCUT_SOURCE)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                            .putExtra(BrowseSourceController.SOURCE_ID_KEY, item.id),
+                                    ).build()
+                            }
+                            else -> {
+                                null
+                            }
                         }
                     }
-                }
                 Timber.d("Shortcuts: ${shortcuts.joinToString(", ") { it.longLabel ?: "n/a" }}")
                 shortcutManager.dynamicShortcuts = shortcuts
             }
