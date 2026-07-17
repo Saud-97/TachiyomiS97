@@ -12,55 +12,87 @@
     android:foreground="?attr/selectableItemBackground"
     android:background="@drawable/library_grid_selector">
 
-            <ImageView
-                android:id="@+id/itemImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/title"
-                android:scaleType="centerCrop"
-                tools:ignore="ContentDescription"
-                tools:src="@mipmap/ic_launcher" />
-
-            <include
-                layout="@layout/unread_download_badge"
-                android:id="@+id/unread_download_badge"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-        <ProgressBar
-                android:id="@+id/progress"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/itemImage"
-                app:layout_constraintEnd_toEndOf="@id/itemImage"
-                app:layout_constraintStart_toStartOf="@id/itemImage"
-                app:layout_constraintTop_toTopOf="@id/itemImage" />
-            <View
-                android:layout_marginBottom="-10dp"
-                android:id="@+id/gradient"
-                android:layout_width="match_parent"
-                android:layout_height="150sp"
-                app:layout_constraintStart_toStartOf="@id/itemImage"
-                app:layout_constraintEnd_toEndOf="@id/itemImage"
-                android:alpha="0.75"
-                android:layout_gravity="bottom|center"
-                app:layout_constraintBottom_toBottomOf="@id/itemImage"
-                android:background="@drawable/gradient_shape" />
+    <!-- Inner ConstraintLayout so constraint attributes work correctly -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/inner_constraint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--I changed the layout_height to match_parent -->
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card"
+            android:layout_width="match_parent"
+            android:layout_height="150sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/text_layout"
+            app:strokeColor="@color/library_stroke_selector"
+            app:strokeWidth="0dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginTop="6dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cover_constraint"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/itemImage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:scaleType="centerCrop"
+                    tools:ignore="ContentDescription"
+                    tools:src="@mipmap/ic_launcher"
+                    android:adjustViewBounds="true" />
+
+                <View
+                    android:id="@+id/gradient"
+                    android:layout_width="0dp"
+                    android:layout_height="125sp"
+                    android:alpha="0.75"
+                    android:background="@drawable/gradient_shape"
+                    app:layout_constraintStart_toStartOf="@id/itemImage"
+                    app:layout_constraintEnd_toEndOf="@id/itemImage"
+                    app:layout_constraintBottom_toBottomOf="@id/itemImage" />
+
+                <!-- Progress overlay used by CoverViewTarget -->
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/itemImage"
+                    app:layout_constraintBottom_toBottomOf="@id/itemImage"
+                    app:layout_constraintStart_toStartOf="@id/itemImage"
+                    app:layout_constraintEnd_toEndOf="@id/itemImage" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <include
+            layout="@layout/unread_download_badge"
+            android:id="@+id/unread_download_badge"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="3dp"
+            android:layout_marginStart="3dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Favorite button (kept for compatibility with holder logic) -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/favorite_button"
-            android:layout_marginStart="-1dp"
-            android:layout_marginTop="-1dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="-1dp"
+            android:layout_marginTop="-1dp"
             app:cardCornerRadius="10dp"
             app:cardBackgroundColor="?attr/colorSecondary"
             app:layout_constraintTop_toTopOf="parent"
@@ -68,58 +100,53 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:gravity="center"
-                android:maxLines="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:textSize="13sp"
                 android:textColor="?attr/colorOnSecondary"
                 style="?textAppearanceCaption"
-                android:layout_height="wrap_content"
-                android:tint="@color/md_white_1000"
-                android:text="@string/in_library"/>
+                android:text="@string/in_library" />
 
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/title"
-            style="?textAppearanceBodyMedium"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            app:layout_constrainedHeight="true"
-            android:paddingStart="4dp"
-            android:paddingBottom="4dp"
-            android:paddingEnd="0dp"
-            android:layout_gravity="bottom|start"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/itemImage"
-            tools:text="Sample name" />
-
-    <LinearLayout
+        <!-- Dedicated vertical container below the cover -->
+        <LinearLayout
             android:id="@+id/text_layout"
-            android:layout_width="110dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_height="wrap_content">
-        <com.google.android.material.textview.MaterialTextView
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/title"
+                style="?textAppearanceBodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/library_comfortable_title_selector"
+                tools:text="Sample name" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/subtitle"
                 style="?textAppearanceBodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/library_comfortable_subtitle_selector"
-                android:layout_marginTop="-1dp"
                 android:ellipsize="end"
                 android:singleLine="true"
+                android:textColor="@color/library_comfortable_subtitle_selector"
+                android:layout_marginTop="-1dp"
                 tools:text="Sample artist" />
-    </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.carousel.MaskableFrameLayout>

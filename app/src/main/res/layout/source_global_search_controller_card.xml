@@ -107,6 +107,17 @@
             android:paddingEnd="7dp"
             tools:listitem="@layout/source_global_search_controller_card_item" />
 
+        <TextView
+            android:id="@+id/chapters_count"
+            style="?textAppearanceBodySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:maxLines="1"
+            android:visibility="gone"
+            android:layout_gravity="bottom"
+            tools:text="English"
+            tools:visibility="visible" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

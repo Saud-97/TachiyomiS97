@@ -1,8 +1,12 @@
 package eu.kanade.tachiyomi.ui.source.globalsearch
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import coil.Coil
 import coil.dispose
 import coil.request.CachePolicy
@@ -21,6 +25,7 @@ import eu.kanade.tachiyomi.util.system.isLTR
 import uy.kohesive.injekt.injectLazy
 import java.text.DecimalFormat
 
+@SuppressLint("RestrictedApi")
 class GlobalSearchMangaHolder(
     view: View,
     adapter: GlobalSearchCardAdapter,
@@ -66,9 +71,32 @@ class GlobalSearchMangaHolder(
     fun bind(manga: Manga) {
         binding.title.text = manga.title
         binding.favoriteButton.isVisible = manga.favorite
+        applyUniformGridIfNeeded()
         setImage(manga)
         setChaptersCount(manga)
         binding.itemImage.alpha = if (manga.favorite) 0.34f else 1.0f
+    }
+
+    private fun applyUniformGridIfNeeded() {
+        val isUniform = preferences.uniformGrid().get()
+        if (isUniform) {
+            // Match library uniform size behavior
+            binding.itemImage.adjustViewBounds = false
+            binding.itemImage.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.itemImage.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                height = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                dimensionRatio = "15:22"
+            }
+        } else {
+            // Revert to freeform behavior
+            binding.itemImage.adjustViewBounds = true
+            binding.itemImage.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.itemImage.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                height = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                // clear ratio
+                dimensionRatio = ""
+            }
+        }
     }
 
     var drawable: Drawable? = null
