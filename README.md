@@ -1,15 +1,17 @@
-| Download | Contribute                                                                                                                                                |          ⭐                       |
-|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
-| [![release](https://img.shields.io/github/v/release/saud-97/tachiyomis97.svg?maxAge=3600&label=download)](https://github.com/saud-97/TachiyomiS97/releases) | [![Translation status](https://hosted.weblate.org/widgets/tachiyomi/-/tachiyomi-j2k/svg-badge.svg)](https://hosted.weblate.org/engage/tachiyomi/?utm_source=widget) | Give the project a star if you liked it 
+>[!WARNING]
+Development of TachiyomiS97 will be significantly reduced going forward due to the slower pace of development of TachiyomiJ2K, which this project is based on. I am now focusing development on a new Mihon-based fork called Mihon+.
 
-| Support For J2K features                                                                                                                               | Contact Me                                                                                                                                                       
-|--------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Discord](https://img.shields.io/discord/1195734228319617024.svg?label=discord&labelColor=7289da&color=2c2f33&style=flat)](https://discord.gg/mihon) | [![Discord](https://img.shields.io/discord/1176845724688855180.svg?label=discord&labelColor=7289da&color=2c2f33&style=flat)](https://discord.gg/yChKQXKBVs) |
+>[!TIP]
+If you begin encountering issues or missing features in TachiyomiS97, I recommend migrating to Mihon+.
+https://github.com/Saud-97/mihon-plus
 
 # ![app icon](./.github/readme-images/app-icon.png) TachiyomiS97
 TachiyomiS97 is a modified version of [TachiyomiJ2K](https://github.com/jays2kings/tachiyomiJ2K) purely made  to increase speed and enhance user experience. Based on the original [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi).
 
 ![screenshots of app](./.github/readme-images/screens.gif)
+| Download                                                                                                                                                 |          ⭐                       |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
+| [![release](https://img.shields.io/github/v/release/saud-97/tachiyomis97.svg?maxAge=3600&label=download)](https://github.com/saud-97/TachiyomiS97/releases)  | Give the project a star if you liked it 
 
 ## Unique Features
 
