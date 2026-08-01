@@ -1,9 +1,9 @@
 >[!WARNING]
-Development of TachiyomiS97 will be significantly reduced going forward due to the slower pace of development of TachiyomiJ2K, which this project is based on. I am now focusing development on a new Mihon-based fork called Mihon+.
+Development of TachiyomiS97 will be significantly reduced going forward due to the slower pace of development of TachiyomiJ2K, which this project is based on. I am now focusing development on a new Mihon-based fork called Taihon.
 
->[!TIP]
-If you begin encountering issues or missing features in TachiyomiS97, I recommend migrating to Mihon+.
-https://github.com/Saud-97/mihon-plus
+>[!IMPORTANT]
+I recommend migrating to Taihon, as it is already faster than TachiyomiS97.
+https://github.com/Saud-97/taihon
 
 # ![app icon](./.github/readme-images/app-icon.png) TachiyomiS97
 TachiyomiS97 is a modified version of [TachiyomiJ2K](https://github.com/jays2kings/tachiyomiJ2K) purely made  to increase speed and enhance user experience. Based on the original [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi).
